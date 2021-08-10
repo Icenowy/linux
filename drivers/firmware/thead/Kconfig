@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: GPL-2.0-only
+config TH1520_AON
+	bool "Thead TH1520 Aon Protocol driver"
+	depends on TH1520_MBOX
+	default y
+	help
+	  Thead light Aon is a low-level system function which runs a dedicated
+	  thead riscv E902 core to provide power, clock and resource management.
+
+	  This driver manages the IPC interface between host cpu liks thead
+	  and the Aon firmware running on thead riscv E902 core.
+

@@ -260,6 +260,13 @@
 		snps,blen = <0 0 64 32 0 0 0>;
 	};
 
+	aon {
+		compatible = "thead,th1520-aon";
+		mbox-names = "aon";
+		mboxes = <&mbox_910t 1 0>;
+		status = "okay";
+	};
+
 	soc {
 		compatible = "simple-bus";
 		interrupt-parent = <&plic>;
