@@ -10,6 +10,17 @@
 / {
 	model = "StarFive VisionFive V2";
 	compatible = "starfive,visionfive-v2", "starfive,jh7110";
+
+	reserved-memory {
+		#address-cells = <0x02>;
+		#size-cells = <0x02>;
+		ranges;
+
+		opensbi_resv0@40000000 {
+			reg = <0x00 0x40000000 0x00 0x200000>;
+			no-map;
+		};
+	};
 };
 
 &gpio {
