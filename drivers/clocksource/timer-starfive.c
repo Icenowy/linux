@@ -258,8 +258,10 @@ static int starfive_clocksource_init(struct starfive_clkevt *clkevt,
 	clkevt->cs.read = starfive_clocksource_mmio_readl_down;
 	clkevt->cs.mask = CLOCKSOURCE_MASK(VALID_BITS);
 	clkevt->cs.flags = CLOCK_SOURCE_IS_CONTINUOUS;
+#ifdef CONFIG_PM_SLEEP
 	clkevt->cs.suspend = starfive_timer_suspend;
 	clkevt->cs.resume = starfive_timer_resume;
+#endif
 
 	timer_set_mod(clkevt, MOD_CONTIN);
 	timer_set_val(clkevt, MAX_TICKS);  /* val = rate --> 1s */
