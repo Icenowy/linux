@@ -762,6 +762,11 @@ static int cdns_dsi_mode2cfg(struct cdns_dsi *dsi,
 		dsi_cfg->hfp = 396-DSI_HFP_FRAME_OVERHEAD;
 
 	}
+	else if (output->dev->channel == 3){//pinetab
+		dsi_cfg->hsa = 66 - DSI_HSA_FRAME_OVERHEAD;
+		dsi_cfg->hbp = 64 - DSI_HBP_FRAME_OVERHEAD;
+		dsi_cfg->hfp = 57 - DSI_HFP_FRAME_OVERHEAD;
+	}
 
 	return 0;
 }
@@ -847,6 +852,8 @@ static int cdns_dsi_check_conf(struct cdns_dsi *dsi,
 		phy_cfg->hs_clk_rate = 490000000;//8 inch
 	} else if (mode->vdisplay == 1920) {
 		phy_cfg->hs_clk_rate = 980000000;//10 inch
+	} else if (output->dev->channel == 3){
+		phy_cfg->hs_clk_rate = 400000000;//pinetab
 	}
 
 	dsi_cfg->htotal = dsi_cfg->hsa + DSI_HSA_FRAME_OVERHEAD +
@@ -1225,6 +1232,8 @@ static int cdns_dsi_attach(struct mipi_dsi_host *host,
 	struct device_node *np;
 	int ret;
 
+	dev_info(&dev->dev, "dsi controller attach\n");
+
 	/*
 	 * We currently do not support connecting several DSI devices to the
 	 * same host. In order to support that we'd need the DRM bridge
@@ -1535,6 +1544,8 @@ static int cdns_dsi_drm_probe(struct platform_device *pdev)
 	struct resource *res;
 	int ret;
 	u32 val;
+
+	dev_info(&pdev->dev, "dsi controller probe\n");
 
 	dsi = devm_kzalloc(&pdev->dev, sizeof(*dsi), GFP_KERNEL);
 	if (!dsi)
