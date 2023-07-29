@@ -918,4 +918,9 @@ config BATTERY_UG3105
 	  device is off or suspended, the functionality of this driver is
 	  limited to reporting capacity only.
 
+config CHARGER_SC89890H
+	bool "CHARGER_SC89890H"
+	help
+	  Say Yes to enable sc89890h Charger IC
+
 endif # POWER_SUPPLY
