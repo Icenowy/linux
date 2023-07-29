@@ -156,6 +156,19 @@
 		voltage-max-design-microvolt = <4350000>;
 		voltage-min-design-microvolt = <3000000>;
 	};
+
+	es8316_mclk: es8316_mclk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <12288000>;
+	};
+
+	sound_pinetab: sound-card {
+		compatible = "simple-audio-card";
+		simple-audio-card,name = "PineTab-V-Sound-Card";
+		#address-cells = <1>;
+		#size-cells = <0>;
+	};
 };
 
 &gpio {
@@ -400,6 +413,53 @@
 
 &sec_dma {
 	status = "okay";
+};
+
+/* i2s + es8316 */
+&sound_pinetab {
+	/* i2s + es8316 */
+	simple-audio-card,dai-link@0 {
+		reg = <0>;
+		format = "i2s";
+		bitclock-master = <&sndes8316>;
+		frame-master = <&sndes8316>;
+		mclk-fs = <256>;
+		status = "okay";
+
+		sndi2srx1: cpu0 {
+			sound-dai = <&i2srx_3ch>;
+		};
+
+		sndi2stx1: cpu1 {
+			sound-dai = <&i2stx_4ch1>;
+		};
+
+		sndes8316: codec {
+			sound-dai = <&es8316>;
+		};
+	};
+};
+
+&i2c0 {
+	clock-frequency = <100000>;
+	i2c-sda-hold-time-ns = <300>;
+	i2c-sda-falling-time-ns = <510>;
+	i2c-scl-falling-time-ns = <510>;
+	auto_calc_scl_lhcnt;
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c0_pins>;
+	status = "okay";
+
+	es8316: codec@11 {
+		compatible = "everest,es8316";
+		reg = <0x11>;
+		clocks = <&es8316_mclk>;
+		clock-names = "mclk";
+		#sound-dai-cells = <0>;
+
+		papower-gpio = <&gpio 50 0>;
+		hp-det-gpio = <&gpio 36 0>;
+	};
 };
 
 &i2c2 {
