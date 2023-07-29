@@ -235,6 +235,7 @@ struct ov5640_dev {
 	struct regulator_bulk_data supplies[OV5640_NUM_SUPPLIES];
 	struct gpio_desc *reset_gpio;
 	struct gpio_desc *pwdn_gpio;
+	struct gpio_desc *sw_gpio;
 	bool   upside_down;
 
 	/* lock to protect all members below */
@@ -1909,6 +1910,9 @@ static int ov5640_set_power_on(struct ov5640_dev *sensor)
 	struct i2c_client *client = sensor->i2c_client;
 	int ret;
 
+	gpiod_set_value_cansleep(sensor->sw_gpio, 1);
+	// printk("ov5640_set_power_on sw = %d \n", gpiod_get_value(sensor->sw_gpio));
+
 	ret = clk_prepare_enable(sensor->xclk);
 	if (ret) {
 		dev_err(&client->dev, "%s: failed to enable clock\n",
@@ -1943,6 +1947,9 @@ xclk_off:
 
 static void ov5640_set_power_off(struct ov5640_dev *sensor)
 {
+	gpiod_set_value_cansleep(sensor->sw_gpio, 0);
+	// printk("ov5640_set_power_off sw = %d \n", gpiod_get_value(sensor->sw_gpio));
+
 	ov5640_power(sensor, false);
 	regulator_bulk_disable(OV5640_NUM_SUPPLIES, sensor->supplies);
 	clk_disable_unprepare(sensor->xclk);
@@ -3050,6 +3057,8 @@ static int ov5640_probe(struct i2c_client *client)
 	u32 rotation;
 	int ret;
 
+	printk("ov5640_probe in linux/drivers/media/i2c/ov5640.c \n");
+
 	sensor = devm_kzalloc(dev, sizeof(*sensor), GFP_KERNEL);
 	if (!sensor)
 		return -ENOMEM;
@@ -3141,6 +3150,11 @@ static int ov5640_probe(struct i2c_client *client)
 						     GPIOD_OUT_HIGH);
 	if (IS_ERR(sensor->reset_gpio))
 		return PTR_ERR(sensor->reset_gpio);
+
+	sensor->sw_gpio = devm_gpiod_get_optional(dev, "sw",
+						     GPIOD_OUT_HIGH);
+	if (IS_ERR(sensor->sw_gpio))
+		return PTR_ERR(sensor->sw_gpio);
 
 	v4l2_i2c_subdev_init(&sensor->sd, client, &ov5640_subdev_ops);
 
