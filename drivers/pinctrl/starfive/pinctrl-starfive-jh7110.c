@@ -1741,12 +1741,31 @@ static const struct of_device_id starfive_jh7110_pinctrl_of_match[] = {
 static int starfive_jh7110_pinctrl_probe(struct platform_device *pdev)
 {
 	const struct starfive_pinctrl_soc_info *pinctrl_info;
+	int ret;
 
 	pinctrl_info = of_device_get_match_data(&pdev->dev);
 	if (!pinctrl_info)
 		return -ENODEV;
 
-	return starfive_pinctrl_probe(pdev, pinctrl_info);
+	ret = starfive_pinctrl_probe(pdev, pinctrl_info);
+	if (ret)
+		return ret;
+
+	if (pinctrl_info == &starfive_jh7110_sys_pinctrl_info) {
+		struct device_node *root;
+
+		root = of_find_node_by_path("/");
+		if (!root)
+			return 0;
+
+		if (of_device_is_compatible(root, "pine64,star64")) {
+			/* Star64 hack: force 1 on USB overcurrent */
+			struct starfive_pinctrl *pctl = platform_get_drvdata(pdev);
+			pinctrl_set_reg(pctl->padctl_base + 0x80, 1, 16, GENMASK(22,16));
+		}
+	}
+
+	return 0;
 }
 
 static int __maybe_unused starfive_pinctrl_suspend(struct device *dev)
