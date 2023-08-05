@@ -340,10 +340,14 @@ static int vs_gem_mmap_obj(struct drm_gem_object *obj,
 	vma->vm_pgoff = 0;
 
 	if (!vs_obj->get_pages) {
+		dma_addr_t dma_addr;
 		vma->vm_flags &= ~VM_PFNMAP;
+		dma_addr = vs_obj->dma_addr;
+		if ((dma_addr >= 0x40000000UL) && (dma_addr < 0x440000000UL))
+			dma_addr += 0x400000000UL;
 
 		ret = dma_mmap_attrs(to_dma_dev(drm_dev), vma, vs_obj->cookie,
-					vs_obj->dma_addr, vs_obj->size,
+					dma_addr, vs_obj->size,
 					 vs_obj->dma_attrs);
 	} else {
 		u32 i, nr_pages, pfn = 0U;
