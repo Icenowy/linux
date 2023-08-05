@@ -121,6 +121,11 @@ static int vs_gem_alloc_buf(struct vs_gem_object *vs_obj)
 						&vs_obj->dma_addr, GFP_KERNEL,
 						vs_obj->dma_attrs);
 
+	if (vs_obj->cookie) {
+		if ((vs_obj->dma_addr >= 0x40000000UL) && (vs_obj->dma_addr < 0x440000000UL))
+			vs_obj->dma_addr += 0x400000000UL;
+	}
+
 	DRM_DEV_DEBUG(dev->dev,"Allocated coherent memory, vaddr: 0x%0llX, paddr: 0x%0llX, size: %lu\n",
 		(u64)vs_obj->cookie,vs_obj->dma_addr,vs_obj->size);
 	if (!vs_obj->cookie) {
