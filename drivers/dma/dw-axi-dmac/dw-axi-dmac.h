@@ -52,6 +52,15 @@ struct axi_dma_chan {
 	bool				cyclic;
 	/* these other elements are all protected by vc.lock */
 	bool				is_paused;
+	u32		ch_sar;
+	u32		ch_dar;
+	u32		ch_dar_h;
+	u32		ch_block_ts;
+	u32		ch_ctl_l;
+	u32		ch_ctl_h;
+	u32		ch_cfg_l;
+	u32		ch_cfg_h;
+	u32		ch_llp;
 };
 
 struct dw_axi_dma {
@@ -166,6 +175,7 @@ static inline struct axi_dma_chan *dchan_to_axi_dma_chan(struct dma_chan *dchan)
 /* DMA channel registers offset */
 #define CH_SAR			0x000 /* R/W Chan Source Address */
 #define CH_DAR			0x008 /* R/W Chan Destination Address */
+#define CH_DAR_H		0x00C
 #define CH_BLOCK_TS		0x010 /* R/W Chan Block Transfer Size */
 #define CH_CTL			0x018 /* R/W Chan Control */
 #define CH_CTL_L		0x018 /* R/W Chan Control 00-31 */
