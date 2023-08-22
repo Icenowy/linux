@@ -1323,12 +1323,20 @@ static const struct of_device_id pca953x_dt_ids[] = {
 
 MODULE_DEVICE_TABLE(of, pca953x_dt_ids);
 
-static SIMPLE_DEV_PM_OPS(pca953x_pm_ops, pca953x_suspend, pca953x_resume);
+#ifdef CONFIG_PM_SLEEP
+static const struct dev_pm_ops pca953x_pm_ops = {
+    SET_LATE_SYSTEM_SLEEP_PM_OPS(pca953x_suspend,
+				 pca953x_resume)
+};
 
+#define PCA593X_PM_OPS &pca953x_pm_ops
+#else
+#define PCA593X_PM_OPS NULL
+#endif
 static struct i2c_driver pca953x_driver = {
 	.driver = {
 		.name	= "pca953x",
-		.pm	= &pca953x_pm_ops,
+		.pm	= PCA593X_PM_OPS,
 		.of_match_table = pca953x_dt_ids,
 		.acpi_match_table = pca953x_acpi_ids,
 	},
