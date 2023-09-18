@@ -12,6 +12,7 @@
 #include <dt-bindings/clock/th1520-dspsys.h>
 #include <dt-bindings/clock/th1520-audiosys.h>
 #include <dt-bindings/clock/th1520-miscsys.h>
+#include <dt-bindings/reset/thead,th1520-reset.h>
 
 / {
 	compatible = "thead,th1520";
@@ -869,6 +870,12 @@
 			tee-miscsys-regmap = <&tee_miscsys_reg>;
 			#clock-cells = <1>;
 			status = "okay";
+		};
+
+		rst: reset-controller@ffef014000 {
+			compatible = "thead,th1520-reset", "syscon";
+			reg = <0xff 0xef014000 0x0 0x1000>;
+			#reset-cells = <1>;
 		};
 	};
 };
