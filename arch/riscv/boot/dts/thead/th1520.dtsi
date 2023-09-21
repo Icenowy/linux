@@ -535,6 +535,29 @@
 			clocks = <&osc>;
 		};
 
+		misc_sysreg: misc_sysreg@ffec02c000 {
+			compatible = "thead,th1520-misc-sysreg", "syscon";
+			reg = <0xff 0xec02c000 0x0 0x1000>;
+		};
+
+		usb: usb@ffec03f000 {
+			compatible = "thead,th1520-usb";
+			reg = <0xff 0xec03f000 0x0 0x1000>;
+			thead,misc-sysreg = <&misc_sysreg>;
+			#address-cells = <2>;
+			#size-cells = <2>;
+			ranges;
+
+			usb_dwc3: usb@ffe7040000 {
+				compatible = "snps,dwc3";
+				reg = <0xff 0xe7040000 0x0 0x10000>;
+				interrupts = <68 IRQ_TYPE_LEVEL_HIGH>;
+				dr_mode = "host";
+				snps,usb3_lpm_capable;
+				status = "disabled";
+			};
+		};
+
 		dmac0: dma-controller@ffefc00000 {
 			compatible = "snps,axi-dma-1.01a";
 			reg = <0xff 0xefc00000 0x0 0x1000>;
