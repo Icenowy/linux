@@ -85,7 +85,7 @@ install_linux_image () {
 	case "${SRCARCH}" in
 	um)
 		installed_image_path="usr/bin/linux-${KERNELRELEASE}";;
-	parisc|mips|powerpc)
+	parisc|mips|powerpc|riscv*)
 		installed_image_path="boot/vmlinux-${KERNELRELEASE}";;
 	*)
 		installed_image_path="boot/vmlinuz-${KERNELRELEASE}";;
