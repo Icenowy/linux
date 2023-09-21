@@ -254,6 +254,26 @@
 		dma-noncoherent;
 		ranges;
 
+		audio_i2c0: i2c@ffcb01a000 {
+			compatible = "snps,designware-i2c";
+			reg = <0xff 0xcb01a000 0x0 0x1000>;
+			clocks = <&apb_clk>;
+			interrupts = <182 IRQ_TYPE_LEVEL_HIGH>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		audio_i2c1: i2c@ffcb01b000 {
+			compatible = "snps,designware-i2c";
+			reg = <0xff 0xcb01b000 0x0 0x1000>;
+			clocks = <&apb_clk>;
+			interrupts = <183 IRQ_TYPE_LEVEL_HIGH>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
 		plic: interrupt-controller@ffd8000000 {
 			compatible = "thead,th1520-plic", "thead,c900-plic";
 			reg = <0xff 0xd8000000 0x0 0x01000000>;
@@ -347,6 +367,36 @@
 			clocks = <&uart_sclk>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
+			status = "disabled";
+		};
+
+		i2c0: i2c@ffe7f20000 {
+			compatible = "snps,designware-i2c";
+			reg = <0xff 0xe7f20000 0x0 0x1000>;
+			clocks = <&apb_clk>;
+			interrupts = <44 IRQ_TYPE_LEVEL_HIGH>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		i2c1: i2c@ffe7f24000 {
+			compatible = "snps,designware-i2c";
+			reg = <0xff 0xe7f24000 0x0 0x1000>;
+			clocks = <&apb_clk>;
+			interrupts = <45 IRQ_TYPE_LEVEL_HIGH>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		i2c4: i2c@ffe7f28000 {
+			compatible = "snps,designware-i2c";
+			reg = <0xff 0xe7f28000 0x0 0x1000>;
+			clocks = <&apb_clk>;
+			interrupts = <48 IRQ_TYPE_LEVEL_HIGH>;
+			#address-cells = <1>;
+			#size-cells = <0>;
 			status = "disabled";
 		};
 
@@ -448,6 +498,16 @@
 			clocks = <&apb_clk>;
 		};
 
+		i2c2: i2c@ffec00c000 {
+			compatible = "snps,designware-i2c";
+			reg = <0xff 0xec00c000 0x0 0x1000>;
+			clocks = <&apb_clk>;
+			interrupts = <46 IRQ_TYPE_LEVEL_HIGH>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
 		uart2: serial@ffec010000 {
 			compatible = "snps,dw-apb-uart";
 			reg = <0xff 0xec010000 0x0 0x4000>;
@@ -455,6 +515,16 @@
 			clocks = <&uart_sclk>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
+			status = "disabled";
+		};
+
+		i2c3: i2c@ffec014000 {
+			compatible = "snps,designware-i2c";
+			reg = <0xff 0xec014000 0x0 0x1000>;
+			clocks = <&apb_clk>;
+			interrupts = <47 IRQ_TYPE_LEVEL_HIGH>;
+			#address-cells = <1>;
+			#size-cells = <0>;
 			status = "disabled";
 		};
 
