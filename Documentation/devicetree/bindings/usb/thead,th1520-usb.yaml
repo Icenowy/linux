@@ -1,0 +1,73 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/usb/thead,th1520-usb.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: T-HEAD TH1520 DWC3 USB Controller Glue
+
+maintainers:
+  - Jisheng Zhang <jszhang@kernel.org>
+
+properties:
+  compatible:
+    const: thead,th1520-usb
+
+  reg:
+    maxItems: 1
+
+  clocks:
+    maxItems: 4
+
+  clock-names:
+    items:
+      - const: ref
+      - const: bus_early
+      - const: phy
+      - const: suspend
+
+  ranges: true
+
+  '#address-cells':
+    enum: [ 1, 2 ]
+
+  '#size-cells':
+    enum: [ 1, 2 ]
+
+# Required child node:
+
+patternProperties:
+  "^usb@[0-9a-f]+$":
+    $ref: snps,dwc3.yaml#
+
+required:
+  - compatible
+  - reg
+  - clocks
+  - clock-names
+  - ranges
+
+additionalProperties: false
+
+examples:
+  - |
+
+    usb {
+          compatible = "thead,th1520-usb";
+          reg = <0xec03f000 0x1000>;
+          clocks = <&clk 1>,
+                   <&clk 2>,
+                   <&clk 3>,
+                   <&clk 4>;
+          clock-names = "ref", "bus_early", "phy", "suspend";
+          ranges;
+          #address-cells = <1>;
+          #size-cells = <1>;
+
+          usb@e7040000 {
+                compatible = "snps,dwc3";
+                reg = <0xe7040000 0x10000>;
+                interrupts = <68>;
+                dr_mode = "host";
+          };
+    };
