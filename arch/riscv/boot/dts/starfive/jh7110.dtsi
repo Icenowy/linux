@@ -202,6 +202,7 @@
 			opp-hz = /bits/ 64 <1500000000>;
 			opp-microvolt = <1040000>;
 		};
+#if 0
 		/* CPU opp table for 1.25GHz */
 		opp-312500000 {
 			opp-hz = /bits/ 64 <312500000>;
@@ -220,6 +221,7 @@
 			opp-hz = /bits/ 64 <1250000000>;
 			opp-microvolt = <1000000>;
 		};
+#endif
 	};
 
 	display: display-subsystem {
