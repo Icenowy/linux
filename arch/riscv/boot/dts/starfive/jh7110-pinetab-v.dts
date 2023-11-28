@@ -10,6 +10,7 @@
 #include <dt-bindings/pinctrl/starfive,jh7110-pinfunc.h>
 #include <dt-bindings/input/linux-event-codes.h>
 #include "jh7110.dtsi"
+#include "codecs/sf_pwmdac.dtsi"
 
 / {
 	model = "Pine64 PineTab-V";
@@ -20,8 +21,8 @@
 		gpio0 = &gpio;
 		ethernet0 = &gmac0;
 		ethernet1 = &gmac1;
-		mmc0 = &sdio0;
-		mmc1 = &sdio1;
+		mmc0 = &mmc0;
+		mmc1 = &mmc1;
 		serial0 = &uart0;
 		serial3 = &uart3;
 		i2c0 = &i2c0;
@@ -558,7 +559,7 @@
     };  
 };
 
-&sdio0 {
+&mmc0 {
 	max-frequency = <100000000>;
 	card-detect-delay = <300>;
 	bus-width = <8>;
@@ -571,7 +572,7 @@
 	status = "okay";
 };
 
-&sdio1 {
+&mmc1 {
 	max-frequency = <100000000>;
 	card-detect-delay = <300>;
 	bus-width = <4>;
@@ -960,13 +961,13 @@
 	status = "okay";
 };
 
-&sdio0 {
+&mmc0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc0_pins>;
 	status = "okay";
 };
 
-&sdio1 {
+&mmc1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&sdcard1_pins>;
 	//cd-gpios = <&gpio 41 0>;

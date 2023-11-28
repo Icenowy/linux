@@ -16,8 +16,8 @@
 		gpio0 = &gpio;
 		ethernet0 = &gmac0;
 		ethernet1 = &gmac1;
-		mmc0 = &sdio0;
-		mmc1 = &sdio1;
+		mmc0 = &mmc0;
+		mmc1 = &mmc1;
 		serial0 = &uart0;
 		serial3 = &uart3;
 		i2c0 = &i2c0;
@@ -447,7 +447,7 @@
 	};
 };
 
-&sdio0 {
+&mmc0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc0_pins>;
 	max-frequency = <100000000>;
@@ -462,7 +462,7 @@
 	status = "okay";
 };
 
-&sdio1 {
+&mmc1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&sdcard1_pins>;
 	//cd-gpios = <&gpio 41 0>;

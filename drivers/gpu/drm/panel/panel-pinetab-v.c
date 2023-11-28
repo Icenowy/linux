@@ -440,14 +440,13 @@ no_panel:
 
 }
 
-static int panel_remove(struct i2c_client *client)
+static void panel_remove(struct i2c_client *client)
 {
 	struct jadard *jd_panel = i2c_get_clientdata(client);
 
 	mipi_dsi_detach(jd_panel->dsi);
 	drm_panel_remove(&jd_panel->panel);
 	mipi_dsi_device_unregister(jd_panel->dsi);
-	return 0;
 }
 
 static const struct i2c_device_id panel_id[] = {
@@ -492,13 +491,11 @@ static int jadard_dsi_probe(struct mipi_dsi_device *dsi)
 	return 0;
 }
 
-static int jadard_dsi_remove(struct mipi_dsi_device *dsi)
+static void jadard_dsi_remove(struct mipi_dsi_device *dsi)
 {
 	struct jadard *jadard = mipi_dsi_get_drvdata(dsi);
 
 	mipi_dsi_detach(dsi);
-
-	return 0;
 }
 
 static const struct of_device_id jadard_of_match[] = {

@@ -291,7 +291,7 @@ int rtw_ndev_init(struct net_device *dev)
 	rtw_adapter_proc_init(dev);
 
 #ifdef CONFIG_RTW_NAPI
-	netif_napi_add(dev, &adapter->napi, rtw_recv_napi_poll, RTL_NAPI_WEIGHT);
+	netif_napi_add_weight(dev, &adapter->napi, rtw_recv_napi_poll, RTL_NAPI_WEIGHT);
 #endif /* CONFIG_RTW_NAPI */
 
 	return 0;

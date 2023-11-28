@@ -474,53 +474,21 @@ u8 rtw_cfg80211_ch_switch_notify(_adapter *adapter, u8 ch, u8 bw, u8 offset,
 	struct wiphy *wiphy = adapter_to_wiphy(adapter);
 	u8 ret = _SUCCESS;
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0))
 	struct cfg80211_chan_def chdef;
 
 	ret = rtw_chbw_to_cfg80211_chan_def(wiphy, &chdef, ch, bw, offset, ht);
 	if (ret != _SUCCESS)
 		goto exit;
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 19, 0))
 	if (started) {
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 11, 0))
-
-		/* --- cfg80211_ch_switch_started_notfiy() ---
-		 *  A new parameter, bool quiet, is added from Linux kernel v5.11,
-		 *  to see if block-tx was requested by the AP. since currently,
-		 *  the API is used for station before connected in rtw_chk_start_clnt_join()
-		 *  the quiet is set to false here first. May need to refine it if
-		 *  called by others with block-tx.
-		 */
-
-		cfg80211_ch_switch_started_notify(adapter->pnetdev, &chdef, 0, false);
-#else
-		cfg80211_ch_switch_started_notify(adapter->pnetdev, &chdef, 0);
-#endif
+		cfg80211_ch_switch_started_notify(adapter->pnetdev, &chdef, 0, 0, false);
 		goto exit;
 	}
-#endif
 
 	if (!rtw_cfg80211_allow_ch_switch_notify(adapter))
 		goto exit;
 
-	cfg80211_ch_switch_notify(adapter->pnetdev, &chdef);
-
-#else
-	int freq = rtw_ch2freq(ch);
-	enum nl80211_channel_type ctype;
-
-	if (!rtw_cfg80211_allow_ch_switch_notify(adapter))
-		goto exit;
-
-	if (!freq) {
-		ret = _FAIL;
-		goto exit;
-	}
-
-	ctype = rtw_chbw_to_nl80211_channel_type(ch, bw, offset, ht);
-	cfg80211_ch_switch_notify(adapter->pnetdev, freq, ctype);
-#endif
+	cfg80211_ch_switch_notify(adapter->pnetdev, &chdef, 0);
 
 exit:
 	return ret;
@@ -1177,7 +1145,6 @@ check_bss:
 	_rtw_spinlock_bh(&pwdev_priv->connect_req_lock);
 
 	if (rtw_to_roam(padapter) > 0) {
-		#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 39) || defined(COMPAT_KERNEL_RELEASE)
 		struct wiphy *wiphy = pwdev->wiphy;
 		struct ieee80211_channel *notify_channel;
 		u32 freq;
@@ -1185,28 +1152,14 @@ check_bss:
 
 		freq = rtw_ch2freq(channel);
 		notify_channel = ieee80211_get_channel(wiphy, freq);
-		#endif
 
-		#if defined(CPTCFG_VERSION) || LINUX_VERSION_CODE >= KERNEL_VERSION(4, 12, 0)
-		roam_info.bssid = cur_network->network.MacAddress;
+		roam_info.links[0].bssid = cur_network->network.MacAddress;
 		roam_info.req_ie = pmlmepriv->assoc_req + sizeof(struct rtw_ieee80211_hdr_3addr) + 2;
 		roam_info.req_ie_len = pmlmepriv->assoc_req_len - sizeof(struct rtw_ieee80211_hdr_3addr) - 2;
 		roam_info.resp_ie = pmlmepriv->assoc_rsp + sizeof(struct rtw_ieee80211_hdr_3addr) + 6;
 		roam_info.resp_ie_len = pmlmepriv->assoc_rsp_len - sizeof(struct rtw_ieee80211_hdr_3addr) - 6;
 
 		cfg80211_roamed(padapter->pnetdev, &roam_info, GFP_ATOMIC);
-		#else
-		cfg80211_roamed(padapter->pnetdev
-			#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 39) || defined(COMPAT_KERNEL_RELEASE)
-			, notify_channel
-			#endif
-			, cur_network->network.MacAddress
-			, pmlmepriv->assoc_req + sizeof(struct rtw_ieee80211_hdr_3addr) + 2
-			, pmlmepriv->assoc_req_len - sizeof(struct rtw_ieee80211_hdr_3addr) - 2
-			, pmlmepriv->assoc_rsp + sizeof(struct rtw_ieee80211_hdr_3addr) + 6
-			, pmlmepriv->assoc_rsp_len - sizeof(struct rtw_ieee80211_hdr_3addr) - 6
-			, GFP_ATOMIC);
-		#endif /*LINUX_VERSION_CODE >= KERNEL_VERSION(4, 12, 0)*/
 
 		RTW_INFO(FUNC_ADPT_FMT" call cfg80211_roamed\n", FUNC_ADPT_ARG(padapter));
 
@@ -1935,10 +1888,9 @@ exit:
 }
 
 static int cfg80211_rtw_add_key(struct wiphy *wiphy, struct net_device *ndev
+	, int link_id
 	, u8 key_index
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 37)) || defined(COMPAT_KERNEL_RELEASE)
 	, bool pairwise
-#endif
 	, const u8 *mac_addr, struct key_params *params)
 {
 	char *alg_name;
@@ -2097,10 +2049,9 @@ addkey_end:
 }
 
 static int cfg80211_rtw_get_key(struct wiphy *wiphy, struct net_device *ndev
+	, int link_id
 	, u8 keyid
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 37)) || defined(COMPAT_KERNEL_RELEASE)
 	, bool pairwise
-#endif
 	, const u8 *mac_addr, void *cookie
 	, void (*callback)(void *cookie, struct key_params *))
 {
@@ -2284,12 +2235,8 @@ exit:
 	return ret;
 }
 
-static int cfg80211_rtw_del_key(struct wiphy *wiphy, struct net_device *ndev,
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 37)) || defined(COMPAT_KERNEL_RELEASE)
+static int cfg80211_rtw_del_key(struct wiphy *wiphy, struct net_device *ndev, int link_id,
 				u8 key_index, bool pairwise, const u8 *mac_addr)
-#else	/* (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 37)) */
-				u8 key_index, const u8 *mac_addr)
-#endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 37)) */
 {
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(ndev);
 	struct security_priv *psecuritypriv = &padapter->securitypriv;
@@ -2305,11 +2252,7 @@ static int cfg80211_rtw_del_key(struct wiphy *wiphy, struct net_device *ndev,
 }
 
 static int cfg80211_rtw_set_default_key(struct wiphy *wiphy,
-	struct net_device *ndev, u8 key_index
-	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 38)) || defined(COMPAT_KERNEL_RELEASE)
-	, bool unicast, bool multicast
-	#endif
-)
+	struct net_device *ndev, int link_id, u8 key_index , bool unicast, bool multicast)
 {
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(ndev);
 	struct security_priv *psecuritypriv = &padapter->securitypriv;
@@ -2353,7 +2296,7 @@ static int cfg80211_rtw_set_default_key(struct wiphy *wiphy,
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 30))
 int cfg80211_rtw_set_default_mgmt_key(struct wiphy *wiphy,
-	struct net_device *ndev, u8 key_index)
+	struct net_device *ndev, int link_id, u8 key_index)
 {
 #define SET_DEF_KEY_PARAM_FMT " key_index=%d"
 #define SET_DEF_KEY_PARAM_ARG , key_index
@@ -5417,7 +5360,7 @@ static int cfg80211_rtw_change_beacon(struct wiphy *wiphy, struct net_device *nd
 	return ret;
 }
 
-static int cfg80211_rtw_stop_ap(struct wiphy *wiphy, struct net_device *ndev)
+static int cfg80211_rtw_stop_ap(struct wiphy *wiphy, struct net_device *ndev, unsigned int link_id)
 {
 	_adapter *adapter = (_adapter *)rtw_netdev_priv(ndev);
 
@@ -6365,7 +6308,7 @@ static int cfg80211_rtw_set_monitor_channel(struct wiphy *wiphy
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0))
 static int cfg80211_rtw_get_channel(struct wiphy *wiphy,
-	struct wireless_dev *wdev,
+	struct wireless_dev *wdev, unsigned int link_id,
 	struct cfg80211_chan_def *chandef)
 {
 	_adapter *padapter = wiphy_to_adapter(wiphy);
@@ -10784,12 +10727,10 @@ void rtw_wdev_unregister(struct wireless_dev *wdev)
 
 	rtw_cfg80211_indicate_scan_done(adapter, _TRUE);
 
-	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 11, 0)) || defined(COMPAT_KERNEL_RELEASE)
-	if (wdev->current_bss) {
+	if (wdev->links[0].client.current_bss) {
 		RTW_INFO(FUNC_ADPT_FMT" clear current_bss by cfg80211_disconnected\n", FUNC_ADPT_ARG(adapter));
 		rtw_cfg80211_indicate_disconnect(adapter, 0, 1);
 	}
-	#endif
 
 	if (pwdev_priv->pmon_ndev) {
 		RTW_INFO("%s, unregister monitor interface\n", __func__);
