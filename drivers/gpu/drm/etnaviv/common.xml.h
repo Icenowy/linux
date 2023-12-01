@@ -65,6 +65,7 @@ DEALINGS IN THE SOFTWARE.
 #define chipModel_GC520						0x00000520
 #define chipModel_GC530						0x00000530
 #define chipModel_GC600						0x00000600
+#define chipModel_GC620						0x00000620
 #define chipModel_GC700						0x00000700
 #define chipModel_GC800						0x00000800
 #define chipModel_GC860						0x00000860
