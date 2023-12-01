@@ -559,6 +559,10 @@ static int etnaviv_hw_reset(struct etnaviv_gpu *gpu)
 		control |= VIVS_HI_CLOCK_CONTROL_ISOLATE_GPU;
 		gpu_write(gpu, VIVS_HI_CLOCK_CONTROL, control);
 
+		if (etnaviv_is_model_rev(gpu, 0x620, 0x5552)) {
+			gpu_write(gpu, VIVS_DEC400EX_UNK00800, 0x10);
+		}
+
 		if (gpu->identity.minor_features7 & chipMinorFeatures7_BIT_SECURITY) {
 			gpu_write(gpu, VIVS_MMUv2_AHB_CONTROL,
 			          VIVS_MMUv2_AHB_CONTROL_RESET);
@@ -795,6 +799,15 @@ static void etnaviv_gpu_hw_init(struct etnaviv_gpu *gpu)
 		bus_config |= VIVS_MC_BUS_CONFIG_FE_BUS_CONFIG(1) |
 			      VIVS_MC_BUS_CONFIG_TX_BUS_CONFIG(0);
 		gpu_write(gpu, VIVS_MC_BUS_CONFIG, bus_config);
+	}
+
+	/*
+	 * FIXME: Required by GC620 r5552 as a bug workaround, but might be
+	 * useful on other GPUs with G2D_DEC400EX feature too.
+	 */
+	if (etnaviv_is_model_rev(gpu, 0x620, 0x5552)) {
+		gpu_write(gpu, VIVS_DEC400EX_UNK00800, 0x2010188);
+		gpu_write(gpu, VIVS_DEC400EX_UNK00808, 0x3fc104);
 	}
 
 	if (gpu->identity.minor_features7 & chipMinorFeatures7_BIT_SECURITY) {
