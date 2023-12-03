@@ -186,6 +186,14 @@ static void etnaviv_iommuv2_restore_nonsec(struct etnaviv_gpu *gpu,
 	gpu_write(gpu, VIVS_MMUv2_CONTROL, VIVS_MMUv2_CONTROL_ENABLE);
 }
 
+void etnaviv_iommuv2_update_pta_entry(struct etnaviv_iommu_context *context)
+{
+	struct etnaviv_iommuv2_context *v2_context = to_v2_context(context);
+
+	context->global->v2.pta_cpu[v2_context->id] = v2_context->mtlb_dma |
+					VIVS_MMUv2_CONFIGURATION_MODE_MODE4_K;
+}
+
 static void etnaviv_iommuv2_restore_sec(struct etnaviv_gpu *gpu,
 	struct etnaviv_iommu_context *context)
 {
@@ -216,8 +224,7 @@ static void etnaviv_iommuv2_restore_sec(struct etnaviv_gpu *gpu,
 		  VIVS_MMUv2_SAFE_ADDRESS_CONFIG_SEC_SAFE_ADDR_HIGH(
 		  upper_32_bits(context->global->bad_page_dma)));
 
-	context->global->v2.pta_cpu[v2_context->id] = v2_context->mtlb_dma |
-				 	 VIVS_MMUv2_CONFIGURATION_MODE_MODE4_K;
+	etnaviv_iommuv2_update_pta_entry(context);
 
 	/* trigger a PTA load through the FE */
 	prefetch = etnaviv_buffer_config_pta(gpu, v2_context->id);
@@ -241,6 +248,7 @@ unsigned short etnaviv_iommuv2_get_pta_id(struct etnaviv_iommu_context *context)
 
 	return v2_context->id;
 }
+
 static void etnaviv_iommuv2_restore(struct etnaviv_gpu *gpu,
 				    struct etnaviv_iommu_context *context)
 {
@@ -276,6 +284,8 @@ etnaviv_iommuv2_context_alloc(struct etnaviv_iommu_global *global)
 	if (!v2_context)
 		return NULL;
 
+	v2_context->id = 0;
+#if 0
 	mutex_lock(&global->lock);
 	v2_context->id = find_first_zero_bit(global->v2.pta_alloc,
 					     ETNAVIV_PTA_ENTRIES);
@@ -286,6 +296,7 @@ etnaviv_iommuv2_context_alloc(struct etnaviv_iommu_global *global)
 		goto out_free;
 	}
 	mutex_unlock(&global->lock);
+#endif
 
 	v2_context->mtlb_cpu = dma_alloc_wc(global->dev, SZ_4K,
 					    &v2_context->mtlb_dma, GFP_KERNEL);

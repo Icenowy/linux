@@ -417,8 +417,11 @@ void etnaviv_buffer_queue(struct etnaviv_gpu *gpu, u32 exec_state,
 
 				if (switch_mmu_context &&
 				    gpu->sec_mode == ETNA_SEC_KERNEL) {
-					unsigned short id =
-						etnaviv_iommuv2_get_pta_id(gpu->mmu_context);
+					unsigned short id;
+
+					etnaviv_iommuv2_update_pta_entry(gpu->mmu_context);
+
+					id = etnaviv_iommuv2_get_pta_id(gpu->mmu_context);
 					CMD_LOAD_STATE(buffer,
 						VIVS_MMUv2_PTA_CONFIG,
 						VIVS_MMUv2_PTA_CONFIG_INDEX(id));

@@ -124,4 +124,6 @@ etnaviv_iommuv2_context_alloc(struct etnaviv_iommu_global *global);
 u32 etnaviv_iommuv2_get_mtlb_addr(struct etnaviv_iommu_context *context);
 unsigned short etnaviv_iommuv2_get_pta_id(struct etnaviv_iommu_context *context);
 
+void etnaviv_iommuv2_update_pta_entry(struct etnaviv_iommu_context *context);
+
 #endif /* __ETNAVIV_MMU_H__ */
