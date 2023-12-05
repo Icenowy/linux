@@ -750,8 +750,8 @@ static void update_cursor_plane(struct vs_dc *dc, struct vs_plane *plane)
 	struct dc_hw_cursor cursor;
 
 	cursor.address = plane->dma_addr[0];
-	cursor.x = state->crtc_x;
-	cursor.y = state->crtc_y;
+	cursor.x = state->crtc_x + drm_fb->hot_x;
+	cursor.y = state->crtc_y + drm_fb->hot_y;
 	cursor.hot_x = drm_fb->hot_x;
 	cursor.hot_y = drm_fb->hot_y;
 	cursor.display_id = to_vs_display_id(dc, state->crtc);
