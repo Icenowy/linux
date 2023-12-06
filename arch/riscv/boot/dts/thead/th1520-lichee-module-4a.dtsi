@@ -47,6 +47,14 @@
 			  "GPIO04";
 };
 
+&gmac_clk {
+	clock-frequency = <500000000>;
+};
+
+&gmac_axi_clk {
+	clock-frequency = <100000000>;
+};
+
 &dmac0 {
 	status = "okay";
 };

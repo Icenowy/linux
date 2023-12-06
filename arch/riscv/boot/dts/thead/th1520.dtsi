@@ -228,6 +228,24 @@
 		#clock-cells = <0>;
 	};
 
+	gmac_axi_clk: gmac-axi-clock {
+		compatible = "fixed-clock";
+		clock-output-names = "gmac_axi_clk";
+		#clock-cells = <0>;
+	};
+
+	gmac_clk: gmac-clock {
+		compatible = "fixed-clock";
+		clock-output-names = "gmac_clk";
+		#clock-cells = <0>;
+	};
+
+	stmmac_axi_config: stmmac-axi-config {
+		snps,wr_osr_lmt = <15>;
+		snps,rd_osr_lmt = <15>;
+		snps,blen = <0 0 64 32 0 0 0>;
+	};
+
 	soc {
 		compatible = "simple-bus";
 		interrupt-parent = <&plic>;
@@ -256,6 +274,50 @@
 					      <&cpu1_intc 3>, <&cpu1_intc 7>,
 					      <&cpu2_intc 3>, <&cpu2_intc 7>,
 					      <&cpu3_intc 3>, <&cpu3_intc 7>;
+		};
+
+		gmac0: ethernet@ffe7070000 {
+			compatible = "thead,th1520-dwmac", "snps,dwmac-3.70a";
+			reg = <0xff 0xe7070000 0x0 0x2000>;
+			interrupts = <66 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "macirq";
+			clocks = <&gmac_clk>, <&gmac_axi_clk>;
+			clock-names = "stmmaceth", "pclk";
+			snps,pbl = <32>;
+			snps,fixed-burst;
+			snps,multicast-filter-bins = <64>;
+			snps,perfect-filter-entries = <32>;
+			snps,axi-config = <&stmmac_axi_config>;
+			thead,gmacapb = <&gmac0_apb>;
+			status = "disabled";
+
+			mdio0: mdio {
+				compatible = "snps,dwmac-mdio";
+				#address-cells = <1>;
+				#size-cells = <0>;
+			};
+		};
+
+		gmac1: ethernet@ffe7060000 {
+			compatible = "thead,th1520-dwmac", "snps,dwmac-3.70a";
+			reg = <0xff 0xe7060000 0x0 0x2000>;
+			interrupts = <67 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "macirq";
+			clocks = <&gmac_clk>, <&gmac_axi_clk>;
+			clock-names = "stmmaceth", "pclk";
+			snps,pbl = <32>;
+			snps,fixed-burst;
+			snps,multicast-filter-bins = <64>;
+			snps,perfect-filter-entries = <32>;
+			snps,axi-config = <&stmmac_axi_config>;
+			thead,gmacapb = <&gmac1_apb>;
+			status = "disabled";
+
+			mdio1: mdio {
+				compatible = "snps,dwmac-mdio";
+				#address-cells = <1>;
+				#size-cells = <0>;
+			};
 		};
 
 		uart0: serial@ffe7014000 {
@@ -330,6 +392,16 @@
 			compatible = "thead,th1520-group2-pinctrl";
 			reg = <0xff 0xe7f3c000 0x0 0x1000>;
 			clocks = <&apb_clk>;
+		};
+
+		gmac0_apb: syscon@ffec003000 {
+			compatible = "thead,th1520-gmac-apb", "syscon";
+			reg = <0xff 0xec003000 0x0 0x1000>;
+		};
+
+		gmac1_apb: syscon@ffec004000 {
+			compatible = "thead,th1520-gmac-apb", "syscon";
+			reg = <0xff 0xec004000 0x0 0x1000>;
 		};
 
 		gpio@ffec005000 {
