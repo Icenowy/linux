@@ -206,6 +206,18 @@
 		};
 	};
 
+	sdio0_pins: sdio0-0 {
+		detn-pins {
+			pins = "SDIO0_DETN";
+			function = "sdio";
+			bias-disable; /* external pull-up */
+			drive-strength = <1>;
+			input-enable;
+			input-schmitt-enable;
+			slew-rate = <0>;
+		};
+	};
+
 	uart0_pins: uart0-0 {
 		tx-pins {
 			pins = "UART0_TXD";
@@ -240,9 +252,11 @@
 };
 
 &sdio0 {
-       bus-width = <4>;
-       max-frequency = <198000000>;
-       status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdio0_pins>;
+	bus-width = <4>;
+	max-frequency = <198000000>;
+	status = "okay";
 };
 
 &uart0 {
