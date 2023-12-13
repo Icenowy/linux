@@ -69,7 +69,23 @@
        status = "okay";
 };
 
+&padctrl0_apsys {
+	sdio0_pins: sdio0-0 {
+		detn-pins {
+			pins = "SDIO0_DETN";
+			function = "sdio";
+			bias-disable; /* external pull-up */
+			drive-strength = <1>;
+			input-enable;
+			input-schmitt-enable;
+			slew-rate = <0>;
+		};
+	};
+};
+
 &sdio0 {
+       pinctrl-names = "default";
+       pinctrl-0 = <&sdio0_pins>;
        bus-width = <4>;
        max-frequency = <198000000>;
        status = "okay";
