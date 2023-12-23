@@ -415,13 +415,12 @@ static int dwapb_gpio_set_debounce(struct gpio_chip *gc,
 static int dwapb_gpio_set_config(struct gpio_chip *gc, unsigned offset,
 				 unsigned long config)
 {
-	u32 debounce;
+	if (pinconf_to_config_param(config) == PIN_CONFIG_INPUT_DEBOUNCE) {
+		u32 debounce = pinconf_to_config_argument(config);
+		return dwapb_gpio_set_debounce(gc, offset, debounce);
+	}
 
-	if (pinconf_to_config_param(config) != PIN_CONFIG_INPUT_DEBOUNCE)
-		return -ENOTSUPP;
-
-	debounce = pinconf_to_config_argument(config);
-	return dwapb_gpio_set_debounce(gc, offset, debounce);
+	return gpiochip_generic_config(gc, offset, config);
 }
 
 static int dwapb_convert_irqs(struct dwapb_gpio_port_irqchip *pirq,
@@ -531,10 +530,14 @@ static int dwapb_gpio_add_port(struct dwapb_gpio *gpio,
 	port->gc.fwnode = pp->fwnode;
 	port->gc.ngpio = pp->ngpio;
 	port->gc.base = pp->gpio_base;
+	port->gc.request = gpiochip_generic_request;
+	port->gc.free = gpiochip_generic_free;
 
 	/* Only port A support debounce */
 	if (pp->idx == 0)
 		port->gc.set_config = dwapb_gpio_set_config;
+	else
+		port->gc.set_config = gpiochip_generic_config;
 
 	/* Only port A can provide interrupts in all configurations of the IP */
 	if (pp->idx == 0)
