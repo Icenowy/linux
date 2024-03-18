@@ -99,4 +99,17 @@ config ERRATA_THEAD_PMU
 
 	  If you don't know what to do here, say "Y".
 
+config ERRATA_THEAD_VECTOR
+	bool "Apply T-Head Vector errata"
+	depends on ERRATA_THEAD && RISCV_ISA_V && !ARCH_RV32I
+	default y
+	help
+	  The T-Head C9xx cores implement an earlier version 0.7.1
+	  of the vector extensions.
+
+	  This will apply the necessary errata to handle the non-standard
+	  behaviour via when switch to and from vector mode for processes.
+
+	  If you don't know what to do here, say "Y".
+
 endmenu # "CPU errata selection"

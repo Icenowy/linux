@@ -18,6 +18,7 @@
 #include <asm/csr.h>
 #include <asm/elf.h>
 #include <asm/ptrace.h>
+#include <asm/sbi.h>
 #include <asm/bug.h>
 
 static bool riscv_v_implicit_uacc = IS_ENABLED(CONFIG_RISCV_ISA_V_DEFAULT_ENABLE);
@@ -28,6 +29,13 @@ EXPORT_SYMBOL_GPL(riscv_v_vsize);
 int riscv_v_setup_vsize(void)
 {
 	unsigned long this_vsize;
+
+	if (riscv_cached_mvendorid(0) == THEAD_VENDOR_ID &&
+	    riscv_cached_marchid(0) == 0 &&
+	    riscv_cached_mimpid(0) == 0) {
+		riscv_v_vsize = 128 / 8 * 32;
+		return 0;
+	}
 
 	/* There are 32 vector registers with vlenb length. */
 	riscv_v_enable();

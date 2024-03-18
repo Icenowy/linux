@@ -26,7 +26,8 @@
 #define	ERRATA_THEAD_PBMT 0
 #define	ERRATA_THEAD_CMO 1
 #define	ERRATA_THEAD_PMU 2
-#define	ERRATA_THEAD_NUMBER 3
+#define ERRATA_THEAD_VECTOR 3
+#define	ERRATA_THEAD_NUMBER 4
 #endif
 
 #ifdef __ASSEMBLY__
@@ -168,6 +169,49 @@ asm volatile(ALTERNATIVE(						\
 		CONFIG_ERRATA_THEAD_PMU)				\
 	: "=r" (__ovl) :						\
 	: "memory")
+
+#define THEAD_C9XX_CSR_VXSAT			0x9
+#define THEAD_C9XX_CSR_VXRM			0xa
+
+	/*
+	 * Vector 0.7.1 as used for example on T-Head Xuantie cores, uses an older
+	 * encoding for vsetvli (ta, ma vs. d1), so provide an instruction for
+	 * vsetvli	t4, x0, e8, m8, d1
+	 */
+#define THEAD_VSETVLI_T4X0E8M8D1	".long	0x00307ed7\n\t"
+
+	/*
+	 * While in theory, the vector-0.7.1 vsb.v and vlb.v result in the same
+	 * encoding as the standard vse8.v and vle8.v, compilers seem to optimize
+	 * the call resulting in a different encoding and then using a value for
+	 * the "mop" field that is not part of vector-0.7.1
+	 * So encode specific variants for vstate_save and _restore.
+	 */
+#define THEAD_VSB_V_V0T0		".long	0x02028027\n\t"
+#define THEAD_VSB_V_V8T0		".long	0x02028427\n\t"
+#define THEAD_VSB_V_V16T0		".long	0x02028827\n\t"
+#define THEAD_VSB_V_V24T0		".long	0x02028c27\n\t"
+#define THEAD_VLB_V_V0T0		".long	0x012028007\n\t"
+#define THEAD_VLB_V_V8T0		".long	0x012028407\n\t"
+#define THEAD_VLB_V_V16T0		".long	0x012028807\n\t"
+#define THEAD_VLB_V_V24T0		".long	0x012028c07\n\t"
+
+#define ALT_SR_VS_VECTOR_1_0_SHIFT	9
+#define ALT_SR_VS_THEAD_SHIFT		23
+
+#ifdef CONFIG_ERRATA_THEAD_VECTOR
+#define ALT_SR_VS(_val, prot)							\
+	asm(ALTERNATIVE("li %0, %1\t\nslli %0,%0,%3",				\
+			"li %0, %2\t\nslli %0,%0,%4", THEAD_VENDOR_ID,		\
+			ERRATA_THEAD_VECTOR, CONFIG_ERRATA_THEAD_VECTOR)	\
+			: "=r"(_val)						\
+			: "I"(prot >> ALT_SR_VS_VECTOR_1_0_SHIFT),		\
+			  "I"(prot##_THEAD >> ALT_SR_VS_THEAD_SHIFT),		\
+			  "I"(ALT_SR_VS_VECTOR_1_0_SHIFT),			\
+			  "I"(ALT_SR_VS_THEAD_SHIFT))
+#else
+#define ALT_SR_VS(_val, prot) _val = prot;
+#endif /* CONFIG_ERRATA_THEAD_VECTOR */
 
 #endif /* __ASSEMBLY__ */
 

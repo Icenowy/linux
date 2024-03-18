@@ -15,6 +15,7 @@
 #include <asm/errata_list.h>
 #include <asm/hwprobe.h>
 #include <asm/patch.h>
+#include <asm/vector.h>
 #include <asm/vendorid_list.h>
 
 static bool errata_probe_pbmt(unsigned int stage,
@@ -31,6 +32,22 @@ static bool errata_probe_pbmt(unsigned int stage,
 		return true;
 
 	return false;
+}
+
+static bool errata_probe_vector(unsigned int stage,
+		unsigned long arch_id, unsigned long impid)
+{
+	if (!IS_ENABLED(CONFIG_ERRATA_THEAD_VECTOR))
+		return false;
+
+	/* target-c9xx cores report arch_id and impid as 0 */
+	if (arch_id != 0 || impid != 0)
+		return false;
+
+	if (stage == RISCV_ALTERNATIVES_EARLY_BOOT)
+		return false;
+
+	return true;
 }
 
 static bool errata_probe_cmo(unsigned int stage,
@@ -82,6 +99,9 @@ static u32 thead_errata_probe(unsigned int stage,
 
 	if (errata_probe_pmu(stage, archid, impid))
 		cpu_req_errata |= BIT(ERRATA_THEAD_PMU);
+
+	if (errata_probe_vector(stage, archid, impid))
+		cpu_req_errata |= BIT(ERRATA_THEAD_VECTOR);
 
 	return cpu_req_errata;
 }
