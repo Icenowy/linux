@@ -146,7 +146,7 @@ bool riscv_v_first_use_handler(struct pt_regs *regs)
 	u32 insn = (u32)regs->badaddr;
 
 	/* Do not handle if V is not supported, or disabled */
-	if (!(ELF_HWCAP & COMPAT_HWCAP_ISA_V))
+	if (!has_vector())
 		return false;
 
 	/* If V has been enabled then it is not the first-use trap */
