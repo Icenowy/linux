@@ -26,11 +26,13 @@
 #define  RTC_CCR_MASK		BIT(1)
 #define  RTC_CCR_EN		BIT(2)
 #define  RTC_CCR_WEN		BIT(3)
+#define  RTC_CCR_PSCLR_EN	BIT(4)
 #define RTC_STAT		0x10
 #define  RTC_STAT_BIT		BIT(0)
 #define RTC_RSTAT		0x14
 #define RTC_EOI			0x18
 #define RTC_VER			0x1C
+#define RTC_CPSR		0x20
 
 struct xgene_rtc_dev {
 	struct rtc_device *rtc;
@@ -39,6 +41,33 @@ struct xgene_rtc_dev {
 	unsigned int irq_wake;
 	unsigned int irq_enabled;
 };
+
+static void xgene_rtc_set_prescaler(struct device *dev)
+{
+#ifdef CONFIG_RTC_DRV_XGENE_PRESCALER
+	u32 ccr;
+	u32 prescaler;
+	struct xgene_rtc_dev *pdata = dev_get_drvdata(dev);
+
+	if (device_property_read_u32(dev, "prescaler", &prescaler)) {
+		dev_warn(dev, "Missing the pre-scaler config for RTC.\n");
+		dev_warn(dev, "The current pre-scaler config is 0x%x.\n",
+			 readl(pdata->csr_base + RTC_CPSR));
+		return;
+	}
+
+	/* The clock source on some platform to RTC is NOT 1HZ,
+	 * so we need to prescale the clock to make the input clock become 1HZ,
+	 * like (clock_source/prescaler) = 1HZ
+	 */
+	writel(prescaler, pdata->csr_base + RTC_CPSR);
+
+	/* enable RTC Prescaler feature in CCR register */
+	ccr = readl(pdata->csr_base + RTC_CCR);
+	ccr |= RTC_CCR_PSCLR_EN;
+	writel(ccr, pdata->csr_base + RTC_CCR);
+#endif /* CONFIG_RTC_DRV_XGENE_PRESCALER */
+}
 
 static int xgene_rtc_read_time(struct device *dev, struct rtc_time *tm)
 {
@@ -173,6 +202,8 @@ static int xgene_rtc_probe(struct platform_device *pdev)
 
 	/* Turn on the clock and the crystal */
 	writel(RTC_CCR_EN, pdata->csr_base + RTC_CCR);
+
+	xgene_rtc_set_prescaler(&pdev->dev);
 
 	ret = device_init_wakeup(&pdev->dev, 1);
 	if (ret) {
