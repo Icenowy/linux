@@ -755,6 +755,17 @@
 			status = "disabled";
 		};
 
+		rtc: rtc@fffff40000 {
+			compatible = "snps,dw-apb-rtc";
+			reg = <0xff 0xfff40000 0x0 0x1000>;
+			interrupts = <74 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&osc_32k>;
+			clock-names = "osc_32k";
+			wakeup-source;
+			prescaler = <0x8000>;
+			status = "okay";
+		};
+
 		gpio@fffff41000 {
 			compatible = "snps,dw-apb-gpio";
 			reg = <0xff 0xfff41000 0x0 0x1000>;
