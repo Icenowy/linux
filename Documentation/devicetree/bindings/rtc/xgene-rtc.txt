@@ -10,6 +10,9 @@ Required properties:
 - #clock-cells: Should be 1.
 - clocks: Reference to the clock entry.
 
+Optional properties:
+- prescaler: Reference to the Value of Counter Prescaler.
+
 Example:
 
 rtcclk: rtcclk {
@@ -25,4 +28,17 @@ rtc: rtc@10510000 {
 	interrupts = <0x0 0x46 0x4>;
 	#clock-cells = <1>;
 	clocks = <&rtcclk 0>;
+};
+
+Example XuanTie TH1520 RTC node with Counter Prescaler(prescaler):
+
+rtc: rtc@fffff40000 {
+	compatible = "snps,dw-apb-rtc";
+	reg = <0xff 0xfff40000 0x0 0x1000>;
+	interrupts = <74 IRQ_TYPE_LEVEL_HIGH>;
+	clocks = <&osc_32k>;
+	clock-names = "osc_32k";
+	wakeup-source;
+	prescaler = <0x8000>;
+	status = "okay";
 };
