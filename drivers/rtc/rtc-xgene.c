@@ -287,6 +287,7 @@ static SIMPLE_DEV_PM_OPS(xgene_rtc_pm_ops, xgene_rtc_suspend, xgene_rtc_resume);
 #ifdef CONFIG_OF
 static const struct of_device_id xgene_rtc_of_match[] = {
 	{.compatible = "apm,xgene-rtc" },
+	{.compatible = "snps,dw-apb-rtc" },
 	{ }
 };
 MODULE_DEVICE_TABLE(of, xgene_rtc_of_match);
