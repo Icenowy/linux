@@ -5,7 +5,6 @@
  * Copyright (C) 2023 Emil Renner Berthing <emil.renner.berthing@canonical.com>
  */
 
-#include <linux/array_size.h>
 #include <linux/bits.h>
 #include <linux/cleanup.h>
 #include <linux/clk.h>
