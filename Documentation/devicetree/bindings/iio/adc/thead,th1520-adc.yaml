@@ -1,0 +1,52 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/iio/adc/thead,th1520-adc.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: THEAD TH1520 Analog to Digital Converter (ADC)
+
+maintainers:
+  - Fugang Duan <duanfugang.dfg@linux.alibaba.com>
+  - Xiangyi Zeng <xiangyi.zeng@linux.alibaba.com>
+  - Wei Fu <wefu@redhat.com>
+
+description: |
+  12-Bit Analog to Digital Converter (ADC) on XuanTie TH1520
+properties:
+  compatible:
+    const: thead,th1520
+
+  reg:
+    maxItems: 1
+
+  interrupts:
+    maxItems: 1
+
+  clocks:
+    maxItems: 1
+
+  clock-names:
+    const: adc
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - clocks
+  - clock-names
+  - status
+
+additionalProperties: false
+
+examples:
+  - |
+    adc: adc@0xfffff51000 {
+        compatible = "thead,th1520-adc";
+        reg = <0xff 0xfff51000 0x0 0x1000>;
+        interrupts = <61 IRQ_TYPE_LEVEL_HIGH>;
+        clocks = <&aonsys_clk>;
+        clock-names = "adc";
+        /* ADC pin is proprietary,no need to config pinctrl */
+        status = "disabled";
+    };
