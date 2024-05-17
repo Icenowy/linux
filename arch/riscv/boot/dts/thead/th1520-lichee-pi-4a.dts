@@ -410,3 +410,7 @@
 		vbus-supply = <&vcc5v_usb>;
 	};
 };
+
+&adc {
+	status = "okay";
+};
