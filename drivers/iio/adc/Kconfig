@@ -1448,4 +1448,17 @@ config XILINX_AMS
 	  The driver can also be built as a module. If so, the module will be called
 	  xilinx-ams.
 
+config THEAD_TH1520_ADC
+	tristate "THEAD TH1520 ADC driver"
+	depends on OF
+	depends on HAS_IOMEM
+	depends on ARCH_THEAD
+	default y
+	help
+	  Say yes here to support for THEAD TH1520 MPW analog-to-digital
+	  converter.
+
+	  This driver can also be built as a module. If so, the module will be
+	  called thead-th1520-adc.
+
 endmenu
