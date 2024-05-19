@@ -761,6 +761,24 @@
 			};
 		};
 
+		mbox_910t: mbox@ffffc38000 {
+			compatible = "xuantie,th1520-mbox";
+			reg = <0xff 0xffc38000 0x0 0x4000>,
+			      <0xff 0xffc44000 0x0 0x1000>,
+			      <0xff 0xffc4c000 0x0 0x1000>,
+			      <0xff 0xffc54000 0x0 0x1000>;
+			reg-names = "local_base",
+				    "remote_icu0",
+				    "remote_icu1",
+				    "remote_icu2";
+			interrupt-controller;
+			interrupts = <28 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&apb_clk>;
+			clock-names = "ipg";
+			icu_cpu_id = <0>;
+			#mbox-cells = <2>;
+		};
+
 		adc: adc@0xfffff51000 {
 			compatible = "thead,th1520-adc";
 			reg = <0xff 0xfff51000 0x0 0x1000>;
