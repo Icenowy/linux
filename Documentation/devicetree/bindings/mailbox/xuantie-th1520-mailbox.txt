@@ -1,0 +1,57 @@
+XuanTie TH1520 mailbox controller
+--------------------------------------------------------------------
+
+The XuanTie TH1520 mailbox controller enables two cores within the SoC to
+communicate and coordinate by passing messages (e.g. data, status
+and control) through the mailbox chan. It also provides the ability
+for one core to signal the other processor using interrupts.
+
+TH1520 mailbox Device Node:
+=============================
+
+Required properties:
+-------------------
+- compatible :	Should be "xuantie,th1520-mbox".
+- reg :		Should contain the registers location and length
+- interrupts :	Interrupt number. The interrupt specifier format depends
+		on the interrupt controller parent.
+- icu_cpu_id :  Should be the ICU CPU ID defined in SOC.
+- #mbox-cells:  Must be 2.
+			  <&phandle type channel>
+			    phandle	: Label name of controller
+			    channel	: Channel number
+			    type	: Channel type
+
+		This TH1520 mailbox support 4 channels and 2 types.
+		channel supported:
+			support 4 channels: 0,1,2,3
+
+		types supported:
+			0 - TX & RX channel share the same channel with 7 info registers to
+			    share data, and with IRQ support.
+			1 - TX & RX doorbell channel. Without own info registers and no ACK support.
+
+Optional properties:
+-------------------
+- clocks :	phandle to the input clock.
+
+Examples:
+--------
+mbox_910t: mbox@ffffc38000 {
+  compatible = "xuantie,th1520-mbox";
+  reg = <0xff 0xffc38000 0x0 0x4000>,
+        <0xff 0xffc44000 0x0 0x1000>,
+        <0xff 0xffc4c000 0x0 0x1000>,
+        <0xff 0xffc54000 0x0 0x1000>;
+  reg-names = "local_base",
+        "remote_icu0",
+        "remote_icu1",
+        "remote_icu2";
+  interrupt-parent = <&intc>;
+  interrupts = <28>;
+  clocks = <&dummy_clock_apb>;
+  clock-names = "ipg";
+  icu_cpu_id = <0>;
+  #mbox-cells = <2>;
+};
+
