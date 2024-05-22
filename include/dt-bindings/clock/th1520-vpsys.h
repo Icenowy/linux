@@ -1,0 +1,26 @@
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (C) 2022 Alibaba Group Holding Limited.
+ */
+
+#ifndef _TH1520_VPSYS_H
+#define _TH1520_VPSYS_H
+
+#define TH1520_VPSYS_G2D_PCLK		0
+#define TH1520_VPSYS_G2D_ACLK		1
+#define TH1520_VPSYS_G2D_CCLK		2
+#define TH1520_VPSYS_FCE_PCLK		3
+#define TH1520_VPSYS_FCE_ACLK		4
+#define TH1520_VPSYS_VDEC_PCLK		5
+#define TH1520_VPSYS_VDEC_ACLK		6
+#define TH1520_VPSYS_VDEC_CCLK		7
+#define TH1520_VPSYS_AXI_ACLK		8
+#define TH1520_VPSYS_VENC_CCLK		9
+#define TH1520_VPSYS_VENC_PCLK		10
+#define TH1520_VPSYS_VENC_ACLK		11
+#define TH1520_VPSYS_G2D_CCLK_DIV    12
+#define TH1520_VPSYS_DEC_CCLK_DIV    13
+#define TH1520_VPSYS_CLK_END		14
+
+#endif
+
