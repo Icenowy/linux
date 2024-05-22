@@ -5,6 +5,13 @@
  */
 
 #include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/clock/th1520-fm-ap-clock.h>
+#include <dt-bindings/clock/th1520-vpsys.h>
+#include <dt-bindings/clock/th1520-vosys.h>
+#include <dt-bindings/clock/th1520-visys.h>
+#include <dt-bindings/clock/th1520-dspsys.h>
+#include <dt-bindings/clock/th1520-audiosys.h>
+#include <dt-bindings/clock/th1520-miscsys.h>
 
 / {
 	compatible = "thead,th1520";
@@ -200,6 +207,12 @@
 	osc_32k: 32k-oscillator {
 		compatible = "fixed-clock";
 		clock-output-names = "osc_32k";
+		#clock-cells = <0>;
+	};
+
+	rc_24m: clock-rc-24m {
+		compatible = "fixed-clock";
+		clock-output-names = "rc_24m";
 		#clock-cells = <0>;
 	};
 
@@ -756,6 +769,88 @@
 			clock-names = "adc";
 			/* ADC pin is proprietary,no need to config pinctrl */
 			status = "disabled";
+		};
+
+		visys_reg: visys-reg@ffe4040000 {
+			compatible = "thead,th1520-visys-reg", "syscon";
+			reg = <0xff 0xe4040000 0x0 0x1000>;
+			status = "disabled";
+		};
+
+		dspsys_reg: dspsys-reg@ffef040000 {
+			compatible = "thead,th1520-dspsys-reg", "syscon";
+			reg = <0xff 0xef040000 0x0 0x1000>;
+			status = "okay";
+		};
+
+		miscsys_reg: miscsys-reg@ffec02c000 {
+			compatible = "thead,th1520-miscsys-reg", "syscon";
+			reg = <0xff 0xec02c000 0x0 0x1000>;
+			status = "okay";
+		};
+ 
+		tee_miscsys_reg: tee_miscsys-reg@fffc02d000 {
+			compatible = "thead,th1520-miscsys-reg", "syscon";
+			reg = <0xff 0xfc02d000 0x0 0x1000>;
+			status = "okay";
+		};
+
+		audio_cpr: audio_cpr@ffcb000000 {
+			compatible = "thead,th1520-audio-cpr-reg", "syscon";
+			reg = <0xff 0xcb000000 0x0 0x1000>;
+			status = "okay";
+		};
+
+		clk: clock-controller@ffef010000 {
+			compatible = "thead,th1520-fm-ree-clk";
+			reg = <0xff 0xef010000 0x0 0x1000>;
+			#clock-cells = <1>;
+			clocks = <&osc_32k>, <&osc>, <&rc_24m>;
+			clock-names = "osc_32k", "osc_24m", "rc_24m";
+			status = "okay";
+		};
+
+		visys_clk_gate: visys-clk-gate { /* VI_SYSREG_R */
+			compatible = "thead,visys-gate-controller";
+			visys-regmap = <&visys_reg>;
+			#clock-cells = <1>;
+			status = "okay";
+		};
+
+		vpsys_clk_gate: vpsys-clk-gate@ffecc30000 { /* VP_SYSREG_R */
+			compatible = "thead,vpsys-gate-controller";
+			reg = <0xff 0xecc30000 0x0 0x1000>;
+			#clock-cells = <1>;
+			status = "okay";
+		};
+
+		vosys_clk_gate: vosys-clk-gate@ffef528000 { /* VO_SYSREG_R */
+			compatible = "thead,vosys-gate-controller";
+			reg = <0xff 0xef528000 0x0 0x1000>;
+			#clock-cells = <1>;
+			status = "okay";
+		};
+
+		dspsys_clk_gate: dspsys-clk-gate {
+			compatible = "thead,dspsys-gate-controller";
+			dspsys-regmap = <&dspsys_reg>;
+			#clock-cells = <1>;
+			status = "okay";
+		};
+
+		audiosys_clk_gate: audiosys-clk-gate {
+			compatible = "thead,audiosys-gate-controller";
+			audiosys-regmap = <&audio_cpr>;
+			#clock-cells = <1>;
+			status = "okay";
+		};
+
+		miscsys_clk_gate: miscsys-clk-gate {
+			compatible = "thead,miscsys-gate-controller";
+			miscsys-regmap = <&miscsys_reg>;
+			tee-miscsys-regmap = <&tee_miscsys_reg>;
+			#clock-cells = <1>;
+			status = "okay";
 		};
 	};
 };
