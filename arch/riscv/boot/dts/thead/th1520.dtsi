@@ -885,5 +885,41 @@
 			#reset-cells = <1>;
 			status = "okay";
 		};
+
+		spi: spi@ffe700c000 {
+			compatible = "snps,dw-apb-ssi";
+			reg = <0xff 0xe700c000 0x0 0x1000>;
+			interrupts = <54 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk CLKGEN_SPI_SSI_CLK>,
+									<&clk CLKGEN_SPI_PCLK>;
+			clock-names = "sclk", "pclk";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		qspi0: qspi@ffea000000 {
+			compatible = "snps,dw-apb-ssi-quad";
+			reg = <0xff 0xea000000 0x0 0x1000>;
+			interrupts = <52 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk CLKGEN_QSPI0_SSI_CLK>,
+									<&clk CLKGEN_QSPI0_PCLK>;
+			clock-names = "sclk", "pclk";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		qspi1: qspi@fff8000000 {
+			compatible = "snps,dw-apb-ssi-quad";
+			reg = <0xff 0xf8000000 0x0 0x1000>;
+			interrupts = <53 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk CLKGEN_QSPI1_SSI_CLK>,
+									<&clk CLKGEN_QSPI1_PCLK>;
+			clock-names = "sclk", "pclk";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
 	};
 };

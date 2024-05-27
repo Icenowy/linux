@@ -352,6 +352,18 @@
 			slew-rate = <0>;
 		};
 	};
+
+	spi_pins: spi-0 {
+		spi-pins {
+			pins = "SPI_SCLK", "SPI_CSN", "SPI_MOSI", "SPI_MISO";
+			function = "spi";
+			bias-disable;
+			drive-strength = <7>;
+			input-enable;
+			input-schmitt-enable;
+			slew-rate = <0>;
+		};
+	};
 };
 
 &padctrl1_apsys {
@@ -371,6 +383,18 @@
 		i2c-pins {
 			pins = "I2C1_SCL", "I2C1_SDA";
 			function = "i2c";
+			bias-disable;
+			drive-strength = <7>;
+			input-enable;
+			input-schmitt-enable;
+			slew-rate = <0>;
+		};
+	};
+
+	qspi1_pins: qspi1-0 {
+		qspi-pins {
+			pins = "QSPI1_SCLK", "QSPI1_CSN0", "QSPI1_D0_MOSI", "QSPI1_D1_MISO";
+			function = "qspi";
 			bias-disable;
 			drive-strength = <7>;
 			input-enable;
@@ -413,4 +437,41 @@
 
 &adc {
 	status = "okay";
+};
+
+&spi {
+	num-cs = <1>;
+	cs-gpios = <&gpio2 15 0>;
+	rx-sample-delay-ns = <10>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&spi_pins>;
+	status = "okay";
+
+	spi_norflash@0 {
+		status = "okay";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "winbond,w25q64jwm", "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <50000000>;
+		w25q,fast-read;
+	};
+};
+
+&qspi1 {
+	// use one-line mode
+	compatible = "snps,dw-apb-ssi";
+	num-cs = <1>;
+	cs-gpios = <&gpio0 1 0>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&qspi1_pins>;
+	status = "okay";
+
+	spidev@0 {
+		compatible = "spidev";
+		#address-cells = <0x1>;
+		#size-cells = <0x1>;
+		reg = <0x0>;
+		spi-max-frequency = <50000000>;
+	};
 };
