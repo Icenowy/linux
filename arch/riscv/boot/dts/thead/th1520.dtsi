@@ -741,6 +741,10 @@
 			reg-names = "common", "ts", "pd", "vm";
 			clocks = <&aonsys_clk>;
 			#thermal-sensor-cells = <1>;
+			moortec,ts-coeff-h = <220000>;
+			moortec,ts-coeff-g = <42740>;
+			moortec,ts-coeff-j = <0xFFFFFF60>;		// -160
+			moortec,ts-coeff-cal5 = <4094>;
 		};
 
 		gpio@fffff52000 {

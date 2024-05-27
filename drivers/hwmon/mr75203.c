@@ -910,6 +910,33 @@ static int mr75203_probe(struct platform_device *pdev)
 	return PTR_ERR_OR_ZERO(hwmon_dev);
 }
 
+#ifdef CONFIG_PM
+static int mr75203_suspend(struct device *dev)
+{
+	/* nothing to do */
+	return 0;
+}
+
+static int mr75203_resume(struct device *dev)
+{
+	struct platform_device *pdev = to_platform_device(dev);
+	struct pvt_device *pvt = platform_get_drvdata(pdev);
+	pvt_init(pvt);
+	return 0;
+}
+
+static const struct dev_pm_ops mr75203_dev_pm_ops = {
+	.suspend = mr75203_suspend,
+	.resume = mr75203_resume,
+};
+#define MR75203_DEV_PM_OPS (&mr75203_dev_pm_ops)
+
+#else
+
+#define MR75203_DEV_PM_OPS NULL
+
+#endif /* CONFIG_PM */
+
 static const struct of_device_id moortec_pvt_of_match[] = {
 	{ .compatible = "moortec,mr75203" },
 	{ }
@@ -919,6 +946,7 @@ MODULE_DEVICE_TABLE(of, moortec_pvt_of_match);
 static struct platform_driver moortec_pvt_driver = {
 	.driver = {
 		.name = "moortec-pvt",
+		.pm = MR75203_DEV_PM_OPS,
 		.of_match_table = moortec_pvt_of_match,
 	},
 	.probe = mr75203_probe,
