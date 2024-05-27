@@ -11,6 +11,11 @@ struct th1520_rst_signal {
 	unsigned int offset, bit;
 };
 
+struct th1520_rst_variant {
+	const struct th1520_rst_signal *signals;
+	unsigned int signals_num;
+};
+
 struct th1520_rst {
 	struct reset_controller_dev rcdev;
 	struct regmap *regmap;
@@ -20,6 +25,11 @@ struct th1520_rst {
 enum th1520_rst_registers {
 	RST_WDT0 = 0x0034,
 	RST_WDT1 = 0x0038,
+	RST_NPU = 0x01b0,
+};
+
+enum th1520_vpsys_rst_registers {
+	RST_FCE = 0x0004,
 };
 
 static int th1520_reset_update(struct th1520_rst *rst, unsigned long id,
@@ -34,6 +44,11 @@ static int th1520_reset_update(struct th1520_rst *rst, unsigned long id,
 static const struct th1520_rst_signal th1520_rst_signals[] = {
 	[TH1520_RESET_WDT0] = { RST_WDT0, BIT(0) },
 	[TH1520_RESET_WDT1] = { RST_WDT1, BIT(0) },
+	[TH1520_RESET_NPU] = { RST_NPU, BIT(0) },
+};
+
+static const struct th1520_rst_signal th1520_vpsys_rst_signals[] = {
+	[TH1520_RESET_FCE] = { RST_FCE, BIT(0)|BIT(1)|BIT(4)|BIT(5) },
 };
 
 static struct th1520_rst *to_th1520_rst(struct reset_controller_dev *rcdev)
@@ -68,17 +83,28 @@ static const struct reset_control_ops th1520_rst_ops = {
 	.deassert = th1520_reset_deassert,
 };
 
+static const struct th1520_rst_variant variant_th1520 = {
+	.signals = th1520_rst_signals,
+	.signals_num = ARRAY_SIZE(th1520_rst_signals),
+};
+
+static const struct th1520_rst_variant variant_th1520_vpsys = {
+	.signals = th1520_vpsys_rst_signals,
+	.signals_num = ARRAY_SIZE(th1520_vpsys_rst_signals),
+};
+
 static int th1520_reset_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct th1520_rst *rst;
 	struct regmap_config config = { .name = "rst" };
+	const struct th1520_rst_variant *variant = of_device_get_match_data(dev);
 
 	rst = devm_kzalloc(dev, sizeof(*rst), GFP_KERNEL);
 	if (!rst)
 		return -ENOMEM;
 
-	rst->signals = th1520_rst_signals;
+	rst->signals = variant->signals;
 	rst->regmap = syscon_node_to_regmap(dev->of_node);
 	if (IS_ERR(rst->regmap))
 		return PTR_ERR(rst->regmap);
@@ -89,13 +115,14 @@ static int th1520_reset_probe(struct platform_device *pdev)
 	rst->rcdev.dev = dev;
 	rst->rcdev.of_node = dev->of_node;
 	rst->rcdev.ops = &th1520_rst_ops;
-	rst->rcdev.nr_resets = ARRAY_SIZE(th1520_rst_signals);
+	rst->rcdev.nr_resets = variant->signals_num;
 
 	return devm_reset_controller_register(dev, &rst->rcdev);
 }
 
 static const struct of_device_id th1520_reset_dt_ids[] = {
-	{ .compatible = "thead,th1520-reset" },
+	{ .compatible = "thead,th1520-reset", .data = &variant_th1520 },
+	{ .compatible = "thead,th1520-vpsys-reset", .data = &variant_th1520_vpsys },
 	{ /* sentinel */ },
 };
 
@@ -107,3 +134,7 @@ static struct platform_driver th1520_reset_driver = {
 	},
 };
 builtin_platform_driver(th1520_reset_driver);
+
+MODULE_AUTHOR("zenglinghui.zlh <zenglinghui.zlh@linux.alibaba.com>");
+MODULE_DESCRIPTION("Thead th1520 reset driver");
+MODULE_LICENSE("GPL v2");

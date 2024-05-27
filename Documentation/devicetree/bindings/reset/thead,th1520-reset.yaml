@@ -8,6 +8,7 @@ title: T-HEAD th1520 SoC Reset Controller
 
 maintainers:
   - Kwanghoon Son <k.son@samsung.com>
+  - Hengqiang Ming <minghq@linux.alibaba.com>
 
 properties:
   compatible:

@@ -876,6 +876,14 @@
 			compatible = "thead,th1520-reset", "syscon";
 			reg = <0xff 0xef014000 0x0 0x1000>;
 			#reset-cells = <1>;
+			status = "okay";
+		};
+
+		vpsys_rst: vpsys-reset-controller@ffecc30000 {
+			compatible = "thead,th1520-vpsys-reset","syscon";
+			reg = <0xff 0xecc30000 0x0 0x1000>;
+			#reset-cells = <1>;
+			status = "okay";
 		};
 	};
 };
