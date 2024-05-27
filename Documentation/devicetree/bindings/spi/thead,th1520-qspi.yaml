@@ -1,0 +1,52 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/spi/thead,th1520-spi.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: THEAD TH1520 Quad Serial Peripheral Interface (QSPI)
+
+maintainers:
+  - linghui zeng<linghui.zlh@linux.alibaba.com>
+  - Xiangyi Zeng <xiangyi.zeng@linux.alibaba.com>
+properties:
+  compatible:
+    const: thead,th1520
+
+  reg:
+    maxItems: 1
+
+  clocks:
+    maxItems: 1
+
+  clock-names:
+    items:
+      - const: sclk
+      - const: pclk
+
+  interrupts:
+    maxItems: 1
+
+required:
+  - compatible
+  - reg
+  - clocks
+  - clock-names
+  - interrupts
+  - status
+
+unevaluatedProperties: false
+
+examples:
+  - |
+    qspi0: qspi@ffea000000 {
+        compatible = "snps,dw-apb-ssi-quad";
+        reg = <0xff 0xea000000 0x0 0x1000>;
+        interrupts = <52 IRQ_TYPE_LEVEL_HIGH>;
+        clocks = <&clk CLKGEN_QSPI0_SSI_CLK>,
+            <&clk CLKGEN_QSPI0_PCLK>;
+        clock-names = "sclk", "pclk";
+        #address-cells = <1>;
+        #size-cells = <0>;
+        status = "disabled";
+    };
