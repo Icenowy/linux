@@ -505,6 +505,7 @@ static int th1520_adc_remove(struct platform_device *pdev)
 	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
 	struct th1520_adc *info = iio_priv(indio_dev);
 
+	sysfs_remove_file(&pdev->dev.kobj, &dev_attr_th1520_adc_res.attr);
 	iio_device_unregister(indio_dev);
 	regulator_disable(info->vref);
 	clk_disable_unprepare(info->clk);
