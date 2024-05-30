@@ -63,6 +63,10 @@
 	status = "okay";
 };
 
+&dmac2 {
+	status = "okay";
+};
+
 &emmc {
        bus-width = <8>;
        max-frequency = <198000000>;
