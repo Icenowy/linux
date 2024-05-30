@@ -17,6 +17,7 @@ properties:
           - enum:
               - renesas,r8a7796-gpu
               - renesas,r8a77961-gpu
+              - mediatek,mt8173-gpu
           - const: img,img-gx6250
           - const: img,img-rogue
       - items:
