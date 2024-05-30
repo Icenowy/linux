@@ -642,6 +642,29 @@ static void th1520_sdhci_reset(struct sdhci_host *host, u8 mask)
 	}
 }
 
+/* Complete selection of HS400 ,software reset DAT & cmd line
+* resolve for first time data access  error(time out) when
+* first swith to hs400 mode.
+*
+* Some (ENE) controllers go apeshit on some ios operation,
+* signalling timeout and CRC errors even on CMD0. Resetting
+* it on each ios seems to solve the problem.
+*
+*/
+static void  th1520_sdhci_hs400_complete(struct mmc_host *mmc)
+{
+	struct sdhci_host *host = mmc_priv(mmc);
+	u8 mask = SDHCI_RESET_CMD | SDHCI_RESET_DATA;
+
+	if (host->quirks & SDHCI_QUIRK_NO_CARD_NO_RESET) {
+
+		if (!mmc->ops->get_cd(mmc))
+			return;
+	}
+	th1520_sdhci_reset(host,mask);
+
+}
+
 static const struct sdhci_ops sdhci_dwcmshc_ops = {
 	.set_clock		= sdhci_set_clock,
 	.set_bus_width		= sdhci_set_bus_width,
@@ -889,6 +912,8 @@ static int dwcmshc_probe(struct platform_device *pdev)
 		}
 
 		sdhci_enable_v4_mode(host);
+
+		host->mmc_host_ops.hs400_complete = th1520_sdhci_hs400_complete;
 	}
 
 #ifdef CONFIG_ACPI
