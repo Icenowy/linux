@@ -719,7 +719,8 @@ static const struct sdhci_pltfm_data sdhci_dwcmshc_rk35xx_pdata = {
 
 static const struct sdhci_pltfm_data sdhci_dwcmshc_th1520_pdata = {
 	.ops = &sdhci_dwcmshc_th1520_ops,
-	.quirks = SDHCI_QUIRK_CAP_CLOCK_BASE_BROKEN,
+	.quirks = SDHCI_QUIRK_CAP_CLOCK_BASE_BROKEN |
+			SDHCI_QUIRK_SINGLE_POWER_WRITE,
 	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
 };
 
@@ -895,7 +896,8 @@ static int dwcmshc_probe(struct platform_device *pdev)
 
 		if ((device_property_read_bool(dev, "mmc-ddr-1_8v")) |
 		    (device_property_read_bool(dev, "mmc-hs200-1_8v")) |
-		    (device_property_read_bool(dev, "mmc-hs400-1_8v")))
+		    (device_property_read_bool(dev, "mmc-hs400-1_8v")) |
+			(device_property_read_bool(dev, "io_fixed_1v8")))
 			priv->flags |= FLAG_IO_FIXED_1V8;
 		else
 			priv->flags &= ~FLAG_IO_FIXED_1V8;
