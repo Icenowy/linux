@@ -475,3 +475,17 @@
 		spi-max-frequency = <50000000>;
 	};
 };
+
+&sdio1 {
+		max-frequency = <100000000>;
+		bus-width = <4>;
+		no-sd;
+		no-mmc;
+		non-removable;
+		io_fixed_1v8;
+		post-power-on-delay-ms = <50>;
+		wprtn_ignore;
+		cap-sd-highspeed;
+		wakeup-source;
+		status = "okay";
+};
