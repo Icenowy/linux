@@ -610,6 +610,8 @@ static int th1520_execute_tuning(struct sdhci_host *host, u32 opcode)
 	sdhci_writel(host, val, priv->vendor_specific_area1 + DWCMSHC_EMMC_ATCTRL);
 	val = sdhci_readl(host, priv->vendor_specific_area1 + DWCMSHC_EMMC_ATCTRL);
 
+	host->tuning_loop_count = 128; /*max loop count allow to 128*/
+
 	/* perform tuning */
 	sdhci_start_tuning(host);
 	host->tuning_err = __sdhci_execute_tuning(host, opcode);
