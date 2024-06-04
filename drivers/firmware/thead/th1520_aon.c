@@ -12,7 +12,10 @@
 #include <linux/module.h>
 #include <linux/mutex.h>
 #include <linux/of_platform.h>
+#include <linux/of_address.h>
+#include <linux/of_device.h>
 #include <linux/platform_device.h>
+#include <linux/proc_fs.h>
 
 /* wait for response for 3000ms instead of 300ms (fix me pls)*/
 #define MAX_RX_TIMEOUT		(msecs_to_jiffies(3000))
@@ -92,18 +95,24 @@ EXPORT_SYMBOL(th1520_aon_get_handle);
 
 static void th1520_aon_tx_done(struct mbox_client *cl, void *mssg, int r)
 {
-	struct th1520_aon_chan *aon_chan = container_of(cl, struct th1520_aon_chan, cl);
+	struct th1520_aon_chan *aon_chan =
+		container_of(cl, struct th1520_aon_chan, cl);
 
 	complete(&aon_chan->tx_done);
 }
 
 static void th1520_aon_rx_callback(struct mbox_client *c, void *msg)
 {
-	struct th1520_aon_chan *aon_chan = container_of(c, struct th1520_aon_chan, cl);
+	struct th1520_aon_chan *aon_chan =
+		container_of(c, struct th1520_aon_chan, cl);
 	struct th1520_aon_ipc *aon_ipc = aon_chan->aon_ipc;
+	struct th1520_aon_rpc_msg_hdr* hdr =
+		(struct th1520_aon_rpc_msg_hdr*)msg;
+	uint8_t recv_size  = sizeof(struct th1520_aon_rpc_msg_hdr) + hdr->size;
 
-	memcpy(aon_ipc->msg, msg, TH1520_AON_RPC_MSG_NUM * sizeof(u32));
-	dev_dbg(aon_ipc->dev, "msg head: 0x%x\n", *((u32 *)msg));
+	memcpy(aon_ipc->msg, msg, recv_size);
+	dev_dbg(aon_ipc->dev, "msg head: 0x%x, size:%d\n",
+		       	*((u32 *)msg), recv_size);
 	complete(&aon_ipc->done);
 }
 
@@ -140,19 +149,31 @@ static int th1520_aon_ipc_write(struct th1520_aon_ipc *aon_ipc, void *msg)
 /*
  * RPC command/response
  */
-int th1520_aon_call_rpc(struct th1520_aon_ipc *aon_ipc, void *msg, bool have_resp)
+int th1520_aon_call_rpc(struct th1520_aon_ipc *aon_ipc,
+			void *msg, void *ack_msg, bool have_resp)
 {
 	struct th1520_aon_rpc_msg_hdr *hdr = msg;
-	int ret;
+	int ret = 0;
 
 	if (WARN_ON(!aon_ipc || !msg))
 		return -EINVAL;
 
+	if(have_resp && WARN_ON(!ack_msg))
+	    return -EINVAL;
 	mutex_lock(&aon_ipc->lock);
 	reinit_completion(&aon_ipc->done);
 
-	if (have_resp)
-		aon_ipc->msg = msg;
+	RPC_SET_VER(hdr, TH1520_AON_RPC_VERSION);
+	/*svc id use 6bit for version 2*/
+	RPC_SET_SVC_ID(hdr, hdr->svc);
+	RPC_SET_SVC_FLAG_MSG_TYPE(hdr, RPC_SVC_MSG_TYPE_DATA);
+
+	if (have_resp){
+        aon_ipc->msg = ack_msg;
+		RPC_SET_SVC_FLAG_ACK_TYPE(hdr, RPC_SVC_MSG_NEED_ACK);
+	} else {
+		RPC_SET_SVC_FLAG_ACK_TYPE(hdr, RPC_SVC_MSG_NO_NEED_ACK);
+	}
 
 	ret = th1520_aon_ipc_write(aon_ipc, msg);
 	if (ret < 0) {
@@ -168,9 +189,9 @@ int th1520_aon_call_rpc(struct th1520_aon_ipc *aon_ipc, void *msg, bool have_res
 			return -ETIMEDOUT;
 		}
 
-		/* response status is stored in hdr->func field */
-		hdr = msg;
-		ret = hdr->func;
+		/* response status is stored in msg data[0] field */
+		struct th1520_aon_rpc_ack_common* ack = ack_msg;
+		ret = ack->err_code;
 	}
 
 out:
@@ -211,7 +232,8 @@ static int th1520_aon_probe(struct platform_device *pdev)
 	if (IS_ERR(aon_chan->ch)) {
 		ret = PTR_ERR(aon_chan->ch);
 		if (ret != -EPROBE_DEFER)
-			dev_err(dev, "Failed to request aon mbox chan ret %d\n", ret);
+			dev_err(dev,
+			    "Failed to request aon mbox chan ret %d\n", ret);
 		return ret;
 	}
 
