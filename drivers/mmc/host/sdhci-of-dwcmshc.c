@@ -52,6 +52,10 @@
 #define AT_CTRL_SWIN_TH_VAL_MASK	GENMASK(31, 24) /* bits [31:24] */
 #define AT_CTRL_SWIN_TH_VAL		0x9  /* sampling window threshold */
 
+#define DWCMSHC_EMMC_AT_STAT_R   0x44
+#define AT_STAT_CENTER_PH_CODE_MASK GENMASK(7, 0) /* bits [7:0] */
+#define AT_STAT_CENTER_PH_CODE	 0xff /* Centered Phase code */
+
 /* Rockchip specific Registers */
 #define DWCMSHC_EMMC_DLL_CTRL		0x800
 #define DWCMSHC_EMMC_DLL_RXCLK		0x804
@@ -134,8 +138,13 @@
 /* PHY CLK delay line delay code */
 #define PHY_SDCLKDL_DC_R		(DWC_MSHC_PTR_PHY_R + 0x1e)
 #define PHY_SDCLKDL_DC_INITIAL		0x40 /* initial delay code */
-#define PHY_SDCLKDL_DC_DEFAULT		0x32 /* default delay code */
+#define PHY_SDCLKDL_DC_DEFAULT		0x32 /* default delay code for mmc*/
 #define PHY_SDCLKDL_DC_HS400		0x18 /* delay code for HS400 mode */
+#define PHY_SDCLKDL_DC_SDIO_DEF		0x7d /* default delay code for sdio*/
+
+/* PHY cclk_rx delay line configuration setting */
+#define PHY_SMPLDL_CNFG_R			(DWC_MSHC_PTR_PHY_R + 0x20)
+#define PHY_SMPLDL_CNFG_EXTDLY_EN	BIT(0)
 
 /* PHY drift_cclk_rx delay line configuration setting */
 #define PHY_ATDL_CNFG_R			(DWC_MSHC_PTR_PHY_R + 0x21)
@@ -180,12 +189,19 @@ struct rk35xx_priv {
 	u8 txclk_tapnum;
 };
 
+struct th1520_priv {
+	u16 delay_line[MMC_TIMING_MMC_HS400+1];
+	bool rxclk_sw_tune_en;
+	u16 rxclk_delay_set;
+};
+
 struct dwcmshc_priv {
 	struct clk	*bus_clk;
 	int vendor_specific_area1; /* P_VENDOR_SPECIFIC_AREA reg */
 	void *priv; /* pointer to SoC private stuff */
 	u16 delay_line;
 	u16 flags;
+	struct th1520_priv *th_priv; /* For th1520 only, private data*/
 };
 
 /*
@@ -372,6 +388,64 @@ static void th1520_sdhci_set_phy(struct sdhci_host *host)
 		     PHY_DLL_CNFG1_WAITCYCLE, PHY_DLL_CNFG1_R);
 }
 
+static int th1520_sdhci_set_rxclk_sample_delay(struct sdhci_host *host,
+			u32 sample_delay, u32 timeout)
+{
+	struct sdhci_pltfm_host *pltfm_host;
+	struct dwcmshc_priv *priv;
+	u32 reg_val;
+	u32 tune_clk_set;
+	u16 ctrl_2;
+	u32 i = 0;
+	pltfm_host = sdhci_priv(host);
+	priv = sdhci_pltfm_priv(pltfm_host);
+
+	reg_val = sdhci_readb(host, PHY_SMPLDL_CNFG_R);
+	/*If larger than 128,DelayLine works with extended delay range setting*/
+	if(sample_delay >= 0x80) {
+		reg_val |=  PHY_SMPLDL_CNFG_EXTDLY_EN;
+	}else {
+		reg_val &= ~(PHY_SMPLDL_CNFG_EXTDLY_EN);
+	}
+	sdhci_writeb(host, reg_val, PHY_SMPLDL_CNFG_R);
+
+	reg_val = sdhci_readl(host, priv->vendor_specific_area1 + DWCMSHC_EMMC_ATCTRL);
+	reg_val |= AT_CTRL_TUNE_CLK_STOP_EN;
+	reg_val |= AT_CTRL_SW_TUNE_EN;
+	sdhci_writel(host, reg_val, priv->vendor_specific_area1 + DWCMSHC_EMMC_ATCTRL);
+
+	if(sample_delay >= 0x80) {
+		tune_clk_set = (sample_delay - 0x80) & 0xff;
+	}
+	else {
+		tune_clk_set = sample_delay ;
+	}
+	reg_val = sdhci_readl(host, priv->vendor_specific_area1 + DWCMSHC_EMMC_AT_STAT_R);
+	reg_val &= ~AT_STAT_CENTER_PH_CODE;
+	reg_val |= tune_clk_set;
+	sdhci_writel(host,reg_val, priv->vendor_specific_area1 + DWCMSHC_EMMC_AT_STAT_R);
+
+	for(i = 0; i < timeout; i += 10){
+		ctrl_2 = sdhci_readw(host, SDHCI_HOST_CONTROL2);
+		if(ctrl_2 & SDHCI_CTRL_TUNED_CLK)
+			return 0;
+		udelay(10);
+	}
+	pr_warn("%s: rxclk sample_delay set timeout %d\n",host->hw_name,timeout);
+	return -ETIMEDOUT;
+}
+
+void th1520_rxclk_sample_delay_dump(struct sdhci_host *host)
+{
+	struct dwcmshc_priv *priv;
+	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
+	priv = sdhci_pltfm_priv(pltfm_host);
+	pr_info("PHY_SMPLDL_CNFG_R = %x\n",sdhci_readb(host, PHY_SMPLDL_CNFG_R));
+	pr_info("AT_CTRL_R = %x\n", sdhci_readl(host, priv->vendor_specific_area1 + DWCMSHC_EMMC_ATCTRL));
+	pr_info("AT_STAT_R = %x\n", sdhci_readl(host, priv->vendor_specific_area1 + DWCMSHC_EMMC_AT_STAT_R));
+	pr_info("SDHCI_HOST_CONTROL2 = %x\n",sdhci_readw(host, SDHCI_HOST_CONTROL2));
+}
+
 static void dwcmshc_set_uhs_signaling(struct sdhci_host *host,
 				      unsigned int timing)
 {
@@ -414,12 +488,22 @@ static void th1520_set_uhs_signaling(struct sdhci_host *host,
 {
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 	struct dwcmshc_priv *priv = sdhci_pltfm_priv(pltfm_host);
+	struct th1520_priv *th_priv = priv->th_priv;
 
 	dwcmshc_set_uhs_signaling(host, timing);
 	if (timing == MMC_TIMING_MMC_HS400)
-		priv->delay_line = PHY_SDCLKDL_DC_HS400;
+		priv->delay_line = th_priv->delay_line[MMC_TIMING_MMC_HS400];
+	else if(timing == MMC_TIMING_UHS_SDR104)
+		priv->delay_line = th_priv->delay_line[MMC_TIMING_UHS_SDR104];
 	else
+		priv->delay_line = th_priv->delay_line[0];
+
+	if (timing != MMC_TIMING_MMC_HS400) {
 		sdhci_writeb(host, 0, PHY_DLLDL_CNFG_R);
+		if(th_priv->rxclk_sw_tune_en && (timing == MMC_TIMING_SD_HS)) {
+			(void)th1520_sdhci_set_rxclk_sample_delay(host, th_priv->rxclk_delay_set, 10000);
+		}
+	}
 	th1520_sdhci_set_phy(host);
 }
 
@@ -813,6 +897,55 @@ static const struct acpi_device_id sdhci_dwcmshc_acpi_ids[] = {
 MODULE_DEVICE_TABLE(acpi, sdhci_dwcmshc_acpi_ids);
 #endif
 
+static int device_property_get_clk_delay(struct device *dev,
+					   const char *propname, u16 *v)
+{
+	u32 val = 0;
+	int ret = device_property_read_u32(dev, propname, &val);
+	if(ret < 0) {
+		return ret;
+	}
+	*v = val;
+	if(val > 0xff) {
+		pr_info("Note: invalid  clk delay  property :%s, val: %u\n",propname,val);
+		return -1;
+	}
+	return ret;
+}
+
+static int th1520_sdhci_get_priv_props(struct device *dev, bool is_emmc,
+				struct th1520_priv *th_priv)
+{
+	if(is_emmc)
+	{
+		if(device_property_get_clk_delay(dev, "clk-delay-default",
+			&(th_priv->delay_line[0]) ) < 0 )
+			th_priv->delay_line[0] = PHY_SDCLKDL_DC_DEFAULT;
+		if(device_property_get_clk_delay(dev, "clk-delay-mmc-hs400",
+			&(th_priv->delay_line[MMC_TIMING_MMC_HS400]) ) < 0 )
+			th_priv->delay_line[MMC_TIMING_MMC_HS400] = PHY_SDCLKDL_DC_HS400;
+	}
+	else
+	{
+		if(device_property_get_clk_delay(dev, "clk-delay-default",
+			&(th_priv->delay_line[0]) ) < 0 )
+			th_priv->delay_line[0] = PHY_SDCLKDL_DC_SDIO_DEF;
+		if(device_property_get_clk_delay(dev, "clk-delay-uhs-sdr104",
+			&(th_priv->delay_line[MMC_TIMING_UHS_SDR104]) ) < 0 )
+			th_priv->delay_line[MMC_TIMING_UHS_SDR104] = PHY_SDCLKDL_DC_DEFAULT;
+
+		if(device_property_get_clk_delay(dev, "rxclk-sample-delay",
+			&(th_priv->rxclk_delay_set) ) == 0 ) {
+			th_priv->rxclk_sw_tune_en = 1;
+		}
+		else {
+			th_priv->rxclk_sw_tune_en = 0;
+			th_priv->rxclk_delay_set = 0;
+		}
+	}
+	return 0;
+}
+
 static int dwcmshc_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
@@ -904,6 +1037,17 @@ static int dwcmshc_probe(struct platform_device *pdev)
 		else
 			priv->flags &= ~FLAG_IO_FIXED_1V8;
 
+		u32 emmc_caps = MMC_CAP2_NO_SD | MMC_CAP2_NO_SDIO;
+		struct th1520_priv *th_priv;
+		th_priv = devm_kzalloc(&pdev->dev, sizeof(struct th1520_priv), GFP_KERNEL);
+		if (!th_priv) {
+			err = -ENOMEM;
+			goto err_clk;
+		}
+
+		th1520_sdhci_get_priv_props(&pdev->dev,
+					(host->mmc->caps2 & emmc_caps) == emmc_caps,th_priv);
+		priv->th_priv = th_priv;
 		/*
 		 * start_signal_voltage_switch() will try 3.3V first
 		 * then 1.8V. Use SDHCI_SIGNALING_180 rather than
