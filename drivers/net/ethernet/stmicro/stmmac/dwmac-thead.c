@@ -39,6 +39,10 @@
 #define  GMAC_PLLCLK_DIV_EN		BIT(31)
 #define  GMAC_PLLCLK_DIV_MASK		GENMASK(7, 0)
 #define  GMAC_PLLCLK_DIV_NUM(x)		FIELD_PREP(GMAC_PLLCLK_DIV_MASK, (x))
+#define GMAC_CLK_PTP			0x14
+#define  GMAC_CLK_PTP_DIV_EN		BIT(31)
+#define  GMAC_CLK_PTP_DIV_MASK		GENMASK(7, 0)
+#define  GMAC_CLK_PTP_DIV_NUM(x)	FIELD_PREP(GMAC_CLK_PTP_DIV_MASK, (x))
 #define GMAC_GTXCLK_SEL			0x18
 #define  GMAC_GTXCLK_SEL_PLL		BIT(0)
 #define GMAC_INTF_CTRL			0x1c
@@ -52,6 +56,7 @@
 
 #define GMAC_GMII_RGMII_RATE	125000000
 #define GMAC_MII_RATE		25000000
+#define GMAC_PTP_CLK_RATE	50000000 //50MHz
 
 struct thead_dwmac {
 	struct plat_stmmacenet_data *plat;
@@ -196,6 +201,30 @@ static int thead_dwmac_enable_clk(struct plat_stmmacenet_data *plat)
 
 	return 0;
 }
+static void thead_dwmac_set_ptp_clk(struct plat_stmmacenet_data *plat_dat,unsigned int ptp_clk_rate)
+{
+	unsigned int div;
+	struct thead_dwmac *dwmac = plat_dat->bsp_priv;
+
+	unsigned long src_freq = clk_get_rate(plat_dat->stmmac_clk);
+
+	if(!ptp_clk_rate || !src_freq)
+	{
+		pr_warn("invalid gmac pll freq %lu or ptp_clk_rate %d\n", src_freq,ptp_clk_rate);
+		return;
+	}
+	/* disable clk_div */
+	regmap_update_bits(dwmac->apb_regmap, GMAC_CLK_PTP, GMAC_CLK_PTP_DIV_EN, 0);
+
+	div = src_freq / ptp_clk_rate;
+	regmap_update_bits(dwmac->apb_regmap, GMAC_CLK_PTP,
+			GMAC_CLK_PTP_DIV_MASK, GMAC_CLK_PTP_DIV_NUM(div));
+
+	/* enable clk_div */
+	regmap_update_bits(dwmac->apb_regmap, GMAC_CLK_PTP,
+			GMAC_CLK_PTP_DIV_EN, GMAC_CLK_PTP_DIV_EN);
+	return ;
+}
 
 static int thead_dwmac_init(struct platform_device *pdev,
 			    struct plat_stmmacenet_data *plat)
@@ -217,6 +246,8 @@ static int thead_dwmac_init(struct platform_device *pdev,
 		     GMAC_TXCLK_DELAY_VAL(dwmac->tx_delay));
 
 	thead_dwmac_fix_speed(dwmac, SPEED_1000, 0);
+
+	thead_dwmac_set_ptp_clk(plat,GMAC_PTP_CLK_RATE);
 
 	return thead_dwmac_enable_clk(plat);
 }
