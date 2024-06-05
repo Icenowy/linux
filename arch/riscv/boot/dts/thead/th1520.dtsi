@@ -586,8 +586,14 @@
 
 		usb: usb@ffec03f000 {
 			compatible = "thead,th1520-usb";
+			usb3-misc-regmap = <&misc_sysreg>;
 			reg = <0xff 0xec03f000 0x0 0x1000>;
 			thead,misc-sysreg = <&misc_sysreg>;
+			clocks = <&miscsys_clk_gate CLKGEN_MISCSYS_USB3_DRD_CLK>,
+					<&miscsys_clk_gate CLKGEN_MISCSYS_USB3_DRD_CTRL_REF_CLK>,
+					<&miscsys_clk_gate CLKGEN_MISCSYS_USB3_DRD_PHY_REF_CLK>,
+					<&miscsys_clk_gate CLKGEN_MISCSYS_USB3_DRD_SUSPEND_CLK>;
+			clock-names = "drd", "ctrl", "phy", "suspend";
 			#address-cells = <2>;
 			#size-cells = <2>;
 			ranges;
