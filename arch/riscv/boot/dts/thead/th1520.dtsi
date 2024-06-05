@@ -318,12 +318,15 @@
 		};
 
 		gmac0: ethernet@ffe7070000 {
-			compatible = "thead,th1520-dwmac", "snps,dwmac-3.70a";
+			compatible = "thead,th1520-dwmac";
 			reg = <0xff 0xe7070000 0x0 0x2000>;
 			interrupts = <66 IRQ_TYPE_LEVEL_HIGH>;
 			interrupt-names = "macirq";
-			clocks = <&gmac_clk>, <&gmac_axi_clk>;
-			clock-names = "stmmaceth", "pclk";
+			clocks = <&clk CLKGEN_GMAC0_CCLK>,
+					 <&clk CLKGEN_GMAC0_PCLK>,
+					 <&clk CLKGEN_GMAC_AXI_ACLK>,
+					 <&clk CLKGEN_GMAC_AXI_PCLK>;
+			clock-names = "stmmaceth", "pclk", "axi_aclk","axi_pclk";
 			snps,pbl = <32>;
 			snps,fixed-burst;
 			snps,multicast-filter-bins = <64>;
@@ -340,12 +343,15 @@
 		};
 
 		gmac1: ethernet@ffe7060000 {
-			compatible = "thead,th1520-dwmac", "snps,dwmac-3.70a";
+			compatible = "thead,th1520-dwmac";
 			reg = <0xff 0xe7060000 0x0 0x2000>;
 			interrupts = <67 IRQ_TYPE_LEVEL_HIGH>;
 			interrupt-names = "macirq";
-			clocks = <&gmac_clk>, <&gmac_axi_clk>;
-			clock-names = "stmmaceth", "pclk";
+			clocks = <&clk CLKGEN_GMAC1_CCLK>,
+					 <&clk CLKGEN_GMAC1_PCLK>,
+					 <&clk CLKGEN_GMAC_AXI_ACLK>,
+					 <&clk CLKGEN_GMAC_AXI_PCLK>;
+			clock-names = "stmmaceth", "pclk","axi_aclk","axi_pclk";
 			snps,pbl = <32>;
 			snps,fixed-burst;
 			snps,multicast-filter-bins = <64>;
