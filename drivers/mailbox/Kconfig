@@ -295,7 +295,7 @@ config QCOM_IPCC
 	  acts as an interrupt controller for receiving interrupts from clients.
 	  Say Y here if you want to build this driver.
 
-config XUANTIE_TH1520_MBOX
+config TH1520_MBOX
 	tristate "XuanTie TH1520 Mailbox driver"
 	depends on ARCH_THEAD || COMPILE_TEST
 	default y
