@@ -42,6 +42,14 @@
 
 #define DWC3_DEFAULT_AUTOSUSPEND_DELAY	5000 /* ms */
 
+static int usb_mode = USB_DR_MODE_UNKNOWN;
+module_param(usb_mode, int, S_IRUGO | S_IWUSR);
+MODULE_PARM_DESC(usb_mode, "USB mode");
+
+static int usb_speed = USB_SPEED_UNKNOWN;
+module_param(usb_speed, int, S_IRUGO | S_IWUSR);
+MODULE_PARM_DESC(usb_speed, "USB speed");
+
 /**
  * dwc3_get_dr_mode - Validates and sets dr_mode
  * @dwc: pointer to our context structure
@@ -1533,6 +1541,9 @@ static void dwc3_get_properties(struct dwc3 *dwc)
 	 */
 	hird_threshold = 12;
 
+	dwc->maximum_speed = usb_speed;
+	dwc->dr_mode = usb_mode;
+
 	/*
 	 * default to a TXFIFO size large enough to fit 6 max packets.  This
 	 * allows for systems with larger bus latencies to have some headroom
@@ -1540,11 +1551,16 @@ static void dwc3_get_properties(struct dwc3 *dwc)
 	 */
 	tx_fifo_resize_max_num = 6;
 
-	dwc->maximum_speed = usb_get_maximum_speed(dev);
-	dwc->max_ssp_rate = usb_get_maximum_ssp_rate(dev);
-	dwc->dr_mode = usb_get_dr_mode(dev);
-	dwc->hsphy_mode = of_usb_get_phy_mode(dev->of_node);
+	if (usb_speed == USB_SPEED_UNKNOWN) {
+		dwc->maximum_speed = usb_get_maximum_speed(dev);
+	}
 
+	if (usb_mode == USB_DR_MODE_UNKNOWN) {
+		dwc->dr_mode = usb_get_dr_mode(dev);
+	}
+
+	dwc->max_ssp_rate = usb_get_maximum_ssp_rate(dev);
+	dwc->hsphy_mode = of_usb_get_phy_mode(dev->of_node);
 	dwc->sysdev_is_parent = device_property_read_bool(dev,
 				"linux,sysdev_is_parent");
 	if (dwc->sysdev_is_parent)
