@@ -51,23 +51,26 @@ additionalProperties: false
 
 examples:
   - |
+		usb: usb@ffec03f000 {
+			compatible = "thead,th1520-usb";
+			usb3-misc-regmap = <&misc_sysreg>;
+			reg = <0xff 0xec03f000 0x0 0x1000>;
+			thead,misc-sysreg = <&misc_sysreg>;
+			clocks = <&miscsys_clk_gate CLKGEN_MISCSYS_USB3_DRD_CLK>,
+					<&miscsys_clk_gate CLKGEN_MISCSYS_USB3_DRD_CTRL_REF_CLK>,
+					<&miscsys_clk_gate CLKGEN_MISCSYS_USB3_DRD_PHY_REF_CLK>,
+					<&miscsys_clk_gate CLKGEN_MISCSYS_USB3_DRD_SUSPEND_CLK>;
+			clock-names = "drd", "ctrl", "phy", "suspend";
+			#address-cells = <2>;
+			#size-cells = <2>;
+			ranges;
 
-    usb {
-          compatible = "thead,th1520-usb";
-          reg = <0xec03f000 0x1000>;
-          clocks = <&clk 1>,
-                   <&clk 2>,
-                   <&clk 3>,
-                   <&clk 4>;
-          clock-names = "ref", "bus_early", "phy", "suspend";
-          ranges;
-          #address-cells = <1>;
-          #size-cells = <1>;
-
-          usb@e7040000 {
-                compatible = "snps,dwc3";
-                reg = <0xe7040000 0x10000>;
-                interrupts = <68>;
-                dr_mode = "host";
-          };
-    };
+			usb_dwc3: usb@ffe7040000 {
+				compatible = "snps,dwc3";
+				reg = <0xff 0xe7040000 0x0 0x10000>;
+				interrupts = <68 IRQ_TYPE_LEVEL_HIGH>;
+				dr_mode = "host";
+				snps,usb3_lpm_capable;
+				status = "disabled";
+			};
+		};
