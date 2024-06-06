@@ -67,6 +67,29 @@
 		regulator-always-on;
 	};
 
+	mbox_910t_client2: mbox_910t_client2 {
+		compatible = "thead,th1520-mbox-client";
+		mbox-names = "906";
+		mboxes = <&mbox_910t 2 0>;
+		audio-mbox-regmap = <&audio_mbox>;
+		status = "okay";
+	};
+
+	th1520_rpmsg: th1520_rpmsg {
+		compatible = "th1520,rpmsg-bus", "simple-bus";
+		memory-region = <&rpmsgmem>;
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+		rpmsg: rpmsg{
+			vdev-nums = <1>;
+            reg = <0x0 0x1E000000 0 0x10000>;
+			compatible = "th1520,th1520-rpmsg";
+			log-memory-region = <&audio_log_mem>;
+			status = "okay";
+		};
+	};
+
 	thermal-zones {
 		cpu-thermal {
 			polling-delay = <1000>;
@@ -111,6 +134,11 @@
 			};
 		};
 	};
+};
+
+&aon_suspend_ctrl {
+	audio-text-memory-region = <&audio_text_mem>;
+	status = "okay";
 };
 
 &aogpio {
@@ -488,4 +516,30 @@
 		cap-sd-highspeed;
 		wakeup-source;
 		status = "okay";
+};
+
+
+&resmem {
+	#address-cells = <2>;
+	#size-cells = <2>;
+	ranges;
+    audio_text_mem: memory@32000000 {
+		reg = <0x0 0x32000000 0x0 0xE00000>;
+		//no-map;
+    };
+    audio_data_mem: memory@32E00000 {
+		reg = <0x0 0x32E00000 0x0 0x600000>;
+		//no-map;
+    };
+	audio_log_mem: memory@33400000 {
+        reg = <0x0 0x33400000 0x0 0x200000>;
+	};
+	//Note: with "no-map" reserv mem not saved in hibernation
+    audio_mem: memory@32000000 {
+		reg = <0x0 0x32000000 0x0 0x6400000>;
+    };
+	rpmsgmem: memory@1E000000 {
+		reg = <0x0 0x1E000000 0x0 0x10000>;
+	};
+
 };

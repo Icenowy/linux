@@ -118,6 +118,12 @@
 		};
 	};
 
+	resmem: reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+	};
+
 	pmu {
 		compatible = "riscv,pmu";
 		riscv,event-to-mhpmcounters =
@@ -425,6 +431,12 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			status = "disabled";
+		};
+
+		audio_mbox: audio_mbox@0xffefc48000 {
+			compatible = "thead,th1520-audio-mbox-reg", "syscon";
+			reg = <0xff 0xefc48000 0x0 0x1000>;
+			status = "okay";
 		};
 
 		gpio@ffe7f34000 {
@@ -857,6 +869,11 @@
 			compatible = "thead,th1520-visys-reg", "syscon";
 			reg = <0xff 0xe4040000 0x0 0x1000>;
 			status = "disabled";
+		};
+
+		aon_suspend_ctrl: aon_suspend_ctrl {
+		        compatible = "thead,th1520-aon-suspend-ctrl";
+		        status = "okay";
 		};
 
 		dspsys_reg: dspsys-reg@ffef040000 {
