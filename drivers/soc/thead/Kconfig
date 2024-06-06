@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: GPL-2.0-only
+menu "Thead SoC drivers"
+
+config TH1520_REBOOTMODE
+	bool "Thead th1520 rebootmode support"
+	default y
+	help
+	 This driver supports check rebootmode feature in TH1520 FM platform
+
+endmenu
