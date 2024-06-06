@@ -273,6 +273,11 @@
 		status = "okay";
 	};
 
+	aon_iram: aon-iram@ffffef8000 {
+		compatible = "syscon";
+		reg = <0xff 0xffef8000 0x0 0x10000>;
+	};
+
 	soc {
 		compatible = "simple-bus";
 		interrupt-parent = <&plic>;
@@ -1000,6 +1005,32 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			status = "disabled";
+		};
+
+		th1520_event: th1520-event {
+			compatible = "thead,th1520-event";
+			aon-iram-regmap = <&aon_iram>;
+			status = "okay";
+		};
+
+		watchdog0: watchdog@ffefc30000 {
+			compatible = "snps,dw-wdt";
+			reg = <0xff 0xefc30000 0x0 0x1000>;
+			interrupts = <60 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk CLKGEN_WDT0_PCLK>;
+			clock-names = "tclk";
+			resets = <&rst 	TH1520_RESET_WDT0>;
+			status = "okay";
+		};
+
+		watchdog1: watchdog@ffefc31000 {
+			compatible = "snps,dw-wdt";
+			reg = <0xff 0xefc31000 0x0 0x1000>;
+			interrupts = <63 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk CLKGEN_WDT1_PCLK>;
+			clock-names = "tclk";
+			resets = <&rst TH1520_RESET_WDT1>;
+			status = "okay";
 		};
 	};
 };
