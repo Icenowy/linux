@@ -165,23 +165,23 @@ static bool th1520_rpmsg_notify(struct virtqueue *vq)
 static int th1520_mu_rpmsg_callback(struct notifier_block *this,
 				    unsigned long index, void *data)
 {
-	u32 mu_msg = (phys_addr_t)data;
+	phys_addr_t mu_msg = (phys_addr_t)data;
 	struct th1520_virdev *virdev;
 
 	virdev = container_of(this, struct th1520_virdev, nb);
 
-	pr_debug("th1520 rpmsg: %s notifier_call mu_msg: 0x%x\n", __func__,
-		 mu_msg);
+	pr_debug("th1520 rpmsg: %s notifier_call mu_msg: 0x%pa\n", __func__,
+		 &mu_msg);
 	/* ignore vq indices which are clearly not for us */
 	mu_msg = mu_msg >> 16;
 	if (mu_msg < virdev->base_vq_id || mu_msg > virdev->base_vq_id + 1) {
-		pr_debug("th1520 rpmsg: mu_msg 0x%x is invalid\n", mu_msg);
+		pr_debug("th1520 rpmsg: mu_msg 0x%pa is invalid\n", &mu_msg);
 		//return NOTIFY_DONE;
 	}
 
 	mu_msg -= virdev->base_vq_id;
-	pr_debug("%smu_msg 0x%xbase_vq_id 0x%xvirdev num_of_vqs0x%x\n",
-		 __func__, mu_msg, virdev->base_vq_id, virdev->num_of_vqs);
+	pr_debug("%smu_msg 0x%pa base_vq_id 0x%xvirdev num_of_vqs0x%x\n",
+		 __func__, &mu_msg, virdev->base_vq_id, virdev->num_of_vqs);
 
 	/*
 	 * Currently both PENDING_MSG and explicit-virtqueue-index
@@ -414,14 +414,13 @@ static int set_vring_phy_buf(struct platform_device *pdev,
 
 static void rpmsg_work_handler(struct work_struct *work)
 {
-	u32 message = 0;
+	phys_addr_t message = 0;
 	struct delayed_work *dwork = to_delayed_work(work);
 	struct th1520_rpmsg_vproc *rpdev =
 		container_of(dwork, struct th1520_rpmsg_vproc, rpmsg_work);
 
 	//spin_lock_irqsave(&rpdev->mu_lock, flags);
-	blocking_notifier_call_chain(&(rpdev->notifier), 4,
-				     (void *)(phys_addr_t)message);
+	blocking_notifier_call_chain(&(rpdev->notifier), 4, (void *)message);
 	//spin_unlock_irqrestore(&rpdev->mu_lock, flags);
 }
 
