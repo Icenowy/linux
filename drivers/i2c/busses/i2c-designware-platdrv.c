@@ -317,6 +317,8 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
 
 	if (has_acpi_companion(&pdev->dev))
 		i2c_dw_acpi_configure(&pdev->dev);
+	else
+		i2c_dw_dt_configure(&pdev->dev);
 
 	ret = i2c_dw_validate_speed(dev);
 	if (ret)
