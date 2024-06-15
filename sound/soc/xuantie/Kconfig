@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: GPL-2.0-only
+config SND_SOC_XUANTIE
+        tristate "ASoC support for XUANTIE"
+	depends on ARCH_XUANTIE
+	default n
+	    help
+	      Say Y or M if you want to add support for codecs attached to
+	      the XUANTIE SoCs' Audio interfaces. You will also need to
+	      select the audio interfaces to support below.
+
+config SND_SOC_XUANTIE_TH1520_I2S
+        tristate "XuanTie TH1520 2-Channel I2S audio Support"
+	depends on SND_SOC_XUANTIE
+	select SND_SOC_GENERIC_DMAENGINE_PCM
+	default n
+        help
+          Say Y or M if you want to add support for codecs attached to the
+          XuanTie TH1520 interface
+
+config SND_SOC_XUANTIE_TH1520_I2S_CH8
+        tristate "XuanTie TH1520 8-Channel I2S audio Support"
+	depends on SND_SOC_XUANTIE
+	select SND_SOC_GENERIC_DMAENGINE_PCM
+	default n
+        help
+          Say Y or M if you want to add support for codecs attached to the
+          XuanTie TH1520 interface
+
+config SND_SOC_XUANTIE_TH1520_HDMI_PCM
+        tristate "XuanTie TH1520 HDMI PCM audio Support"
+	depends on SND_SOC_XUANTIE
+	default n
+        help
+          Say Y or M if you want to add support for HDMI PCM to the XuanTie
+          TH1520 interface

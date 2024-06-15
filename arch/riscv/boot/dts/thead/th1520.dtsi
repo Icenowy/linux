@@ -306,6 +306,125 @@
 			status = "disabled";
 		};
 
+		light_i2s: light-i2s@ffe7034000 {
+			#sound-dai-cells = <1>;
+			compatible = "xuantie,th1520-i2s";
+			reg = <0xff 0xe7034000 0x0 0x4000>;
+			interrupts = <70 IRQ_TYPE_LEVEL_HIGH>;
+			dmas = <&dmac0 35>, <&dmac0 40>;
+			dma-names = "tx", "rx";
+			#dma-cells = <1>;
+			clocks = <&vosys_clk_gate TH1520_CLKGEN_HDMI_I2S_CLK>;
+			clock-names = "pclk";
+			resets = <&rst TH1520_RESET_HDMI_I2S>;
+			status = "disabled";
+		};
+
+		i2s0: audio-i2s0@ffcb014000 {
+			#sound-dai-cells = <1>;
+			compatible = "xuantie,th1520-i2s";
+			reg = <0xff 0xcb014000 0x0 0x1000>;
+			audio-cpr-regmap = <&audio_cpr>;
+			interrupts = <174 IRQ_TYPE_LEVEL_HIGH>;
+			dmas = <&dmac2 9>, <&dmac2 8>;
+			dma-names = "tx", "rx";
+			#dma-cells = <1>;
+			clocks = <&audiosys_clk_gate TH1520_CLKGEN_AUDIO_I2S0>;
+			clock-names = "pclk";
+			resets = <&audiosys_rst TH1520_RESET_AUD_I2S0>;
+			status = "disabled";
+		};
+
+		i2s1: audio-i2s1@ffcb015000 {
+			#sound-dai-cells = <1>;
+			compatible = "xuantie,th1520-i2s";
+			reg = <0xff 0xcb015000 0x0 0x1000>;
+			audio-cpr-regmap = <&audio_cpr>;
+			interrupts = <175 IRQ_TYPE_LEVEL_HIGH>;
+			dmas = <&dmac2 11>, <&dmac2 10>;
+			dma-names = "tx", "rx";
+			#dma-cells = <1>;
+			clocks = <&audiosys_clk_gate TH1520_CLKGEN_AUDIO_I2S1>;
+			clock-names = "pclk";
+			resets = <&audiosys_rst TH1520_RESET_AUD_I2S1>;
+			status = "disabled";
+		};
+
+		i2s2: audio-i2s2@ffcb016000 {
+			#sound-dai-cells = <1>;
+			compatible = "xuantie,th1520-i2s";
+			reg = <0xff 0xcb016000 0x0 0x1000>;
+			audio-cpr-regmap = <&audio_cpr>;
+			interrupts = <176 IRQ_TYPE_LEVEL_HIGH>;
+			dmas = <&dmac2 13>, <&dmac2 12>;
+			dma-names = "tx", "rx";
+			#dma-cells = <1>;
+			clocks = <&audiosys_clk_gate TH1520_CLKGEN_AUDIO_I2S2>;
+			clock-names = "pclk";
+			resets = <&audiosys_rst TH1520_RESET_AUD_I2S2>;
+			status = "disabled";
+		};
+
+		i2s_8ch_sd0: i2s-8ch-sd0@ffcb017000 {
+			#sound-dai-cells = <0>;
+			compatible = "xuantie,th1520-i2s-8ch";
+			reg = <0xff 0xcb017000 0x0 0x1000>;
+			audio-cpr-regmap = <&audio_cpr>;
+			interrupts = <177 IRQ_TYPE_LEVEL_HIGH>;
+			dmas = <&dmac2 36>, <&dmac2 14>;
+			dma-names = "tx", "rx";
+			#dma-cells = <1>;
+			clocks = <&audiosys_clk_gate TH1520_CLKGEN_AUDIO_I2S8CH>;
+			clock-names = "pclk";
+			resets = <&audiosys_rst TH1520_RESET_AUD_I2S8CH>;
+			status = "disabled";
+		};
+
+		i2s_8ch_sd1: i2s-8ch-sd1@ffcb017000 {
+			#sound-dai-cells = <0>;
+			compatible = "xuantie,th1520-i2s-8ch";
+			reg = <0xff 0xcb017000 0x0 0x1000>;
+			audio-cpr-regmap = <&audio_cpr>;
+			interrupts = <177 IRQ_TYPE_LEVEL_HIGH>;
+			dmas = <&dmac2 37>, <&dmac2 15>;
+			dma-names = "tx", "rx";
+			#dma-cells = <1>;
+			clocks = <&audiosys_clk_gate TH1520_CLKGEN_AUDIO_I2S8CH>;
+			clock-names = "pclk";
+			resets = <&audiosys_rst TH1520_RESET_AUD_I2S8CH>;
+			status = "disabled";
+		};
+
+		i2s_8ch_sd2: i2s-8ch-sd2@ffcb017000 {
+			#sound-dai-cells = <0>;
+			compatible = "xuantie,th1520-i2s-8ch";
+			reg = <0xff 0xcb017000 0x0 0x1000>;
+			audio-cpr-regmap = <&audio_cpr>;
+			interrupts = <177 IRQ_TYPE_LEVEL_HIGH>;
+			dmas = <&dmac2 38>, <&dmac2 16>;
+			dma-names = "tx", "rx";
+			#dma-cells = <1>;
+			clocks = <&audiosys_clk_gate TH1520_CLKGEN_AUDIO_I2S8CH>;
+			clock-names = "pclk";
+			resets = <&audiosys_rst TH1520_RESET_AUD_I2S8CH>;
+			status = "disabled";
+		};
+
+		i2s_8ch_sd3: i2s-8ch-sd3@ffcb017000 {
+			#sound-dai-cells = <0>;
+			compatible = "xuantie,th1520-i2s-8ch";
+			reg = <0xff 0xcb017000 0x0 0x1000>;
+			audio-cpr-regmap = <&audio_cpr>;
+			interrupts = <177 IRQ_TYPE_LEVEL_HIGH>;
+			dmas = <&dmac2 39>, <&dmac2 17>;
+			dma-names = "tx", "rx";
+			#dma-cells = <1>;
+			clocks = <&audiosys_clk_gate TH1520_CLKGEN_AUDIO_I2S8CH>;
+			clock-names = "pclk";
+			resets = <&audiosys_rst TH1520_RESET_AUD_I2S8CH>;
+			status = "disabled";
+		};
+
 		plic: interrupt-controller@ffd8000000 {
 			compatible = "thead,th1520-plic", "thead,c900-plic";
 			reg = <0xff 0xd8000000 0x0 0x01000000>;
@@ -964,15 +1083,22 @@
 		};
 
 		rst: reset-controller@ffef014000 {
-			compatible = "thead,th1520-reset", "syscon";
+			compatible = "xuantie,th1520-reset", "syscon";
 			reg = <0xff 0xef014000 0x0 0x1000>;
 			#reset-cells = <1>;
 			status = "okay";
 		};
 
 		vpsys_rst: vpsys-reset-controller@ffecc30000 {
-			compatible = "thead,th1520-vpsys-reset","syscon";
+			compatible = "xuantie,th1520-vpsys-reset","syscon";
 			reg = <0xff 0xecc30000 0x0 0x1000>;
+			#reset-cells = <1>;
+			status = "okay";
+		};
+
+		audiosys_rst: audiosys-reset-controller@ffcb000000 {
+			compatible = "xuantie,th1520-audiosys-reset","syscon";
+			reg = <0xff 0xcb000000 0x0 0x1000>;
 			#reset-cells = <1>;
 			status = "okay";
 		};

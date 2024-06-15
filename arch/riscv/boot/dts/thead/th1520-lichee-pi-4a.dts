@@ -32,6 +32,10 @@
 		i2c4 = &i2c4;
 		i2c5 = &audio_i2c0;
 		i2c6 = &audio_i2c1;
+		light_i2s = &light_i2s;
+		i2s0 = &i2s0;
+		i2s1 = &i2s1;
+		i2s2 = &i2s2;
 	};
 
 	chosen {
@@ -89,6 +93,14 @@
 			status = "okay";
 		};
 	};
+
+	hdmi_codec: hdmi_codec@1 {
+		#sound-dai-cells = <0>;
+		compatible = "xuantie,th1520-hdmi-pcm";
+		status = "okay";
+		sound-name-prefix = "DUMMY";
+	};
+
 
 	thermal-zones {
 		cpu-thermal {
@@ -432,6 +444,18 @@
 	};
 };
 
+&padctrl_aosys {
+	i2s1_pa_pins: i2s1-pa-0 {
+		i2s-pa-pins {
+			pins = "AUDIO_PA14", "AUDIO_PA15", "AUDIO_PA16", "AUDIO_PA17";
+			function = "audio";
+			bias-disable;
+			drive-strength = <0>;
+			slew-rate = <0>;
+		};
+	};
+};
+
 &uart0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart0_pins>;
@@ -550,3 +574,14 @@
 	};
 
 };
+
+&light_i2s {
+        status = "okay";
+};
+
+&i2s1 {
+        status = "okay";
+        pinctrl-names = "default";
+        pinctrl-0 = <&i2s1_pa_pins>;
+};
+
