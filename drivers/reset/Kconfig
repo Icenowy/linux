@@ -255,11 +255,11 @@ config RESET_SUNXI
 
 config RESET_TH1520
 	bool "TH1520 Reset Driver"
-	depends on (ARCH_THEAD || COMPILE_TEST) && OF
+	depends on (ARCH_XUANTIE || COMPILE_TEST) && OF
 	select MFD_SYSCON
-	default ARCH_THEAD
+	default ARCH_XUANTIE
 	help
-	  Support for the T-HEAD 1520 RISC-V SoC reset controller.
+	  Support for the XuanTie 1520 RISC-V SoC reset controller.
 	  Say Y if you want to control reset signals provided by this
 	  controller.
 

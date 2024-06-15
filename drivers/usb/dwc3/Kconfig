@@ -190,11 +190,11 @@ config USB_DWC3_RTK
 	  Say 'Y' or 'M' if you have such device.
 
 config USB_DWC3_THEAD
-	tristate "T-HEAD Platform"
-	depends on ARCH_THEAD || COMPILE_TEST
+	tristate "XuanTie Platform"
+	depends on ARCH_XUANTIE || COMPILE_TEST
 	default USB_DWC3
 	help
-	  Support T-HEAD platform with DesignWare Core USB3 IP.
+	  Support XuanTie platform with DesignWare Core USB3 IP.
 	  Only the host mode is currently supported.
 	  Say 'Y' or 'M' here if you have one such device.
 

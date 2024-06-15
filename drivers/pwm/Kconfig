@@ -638,11 +638,11 @@ config PWM_TEGRA
 	  will be called pwm-tegra.
 
 config PWM_THEAD
-	tristate "T-HEAD PWM support"
-	depends on ARCH_THEAD || COMPILE_TEST
+	tristate "XuanTie PWM support"
+	depends on ARCH_XUANTIE || COMPILE_TEST
 	depends on HAS_IOMEM
 	help
-	  Generic PWM framework driver for the PWFM controller found on THEAD
+	  Generic PWM framework driver for the PWFM controller found on XuanTie
 	  SoCs.
 
 	  To compile this driver as a module, choose M here: the module

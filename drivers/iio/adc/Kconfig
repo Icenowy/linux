@@ -1449,16 +1449,16 @@ config XILINX_AMS
 	  xilinx-ams.
 
 config THEAD_TH1520_ADC
-	tristate "THEAD TH1520 ADC driver"
+	tristate "XuanTie TH1520 ADC driver"
 	depends on OF
 	depends on HAS_IOMEM
-	depends on ARCH_THEAD
+	depends on ARCH_XUANTIE
 	default y
 	help
-	  Say yes here to support for THEAD TH1520 MPW analog-to-digital
+	  Say yes here to support for XuanTie TH1520 MPW analog-to-digital
 	  converter.
 
 	  This driver can also be built as a module. If so, the module will be
-	  called thead-th1520-adc.
+	  called xuantie-th1520-adc.
 
 endmenu

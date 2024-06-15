@@ -297,7 +297,7 @@ config QCOM_IPCC
 
 config TH1520_MBOX
 	tristate "XuanTie TH1520 Mailbox driver"
-	depends on ARCH_THEAD || COMPILE_TEST
+	depends on ARCH_XUANTIE || COMPILE_TEST
 	default y
 	help
 	  Mailbox implementation for Xuantie TH1520 SoCs.
