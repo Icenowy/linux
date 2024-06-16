@@ -275,8 +275,8 @@
 		pd: th1520-aon-pd {
 			compatible = "thead,th1520-aon-pd";
 			#power-domain-cells = <1>;
+		};
 
-	};
 	};
 
 	aon_iram: aon-iram@ffffef8000 {

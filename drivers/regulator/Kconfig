@@ -1663,4 +1663,14 @@ config REGULATOR_QCOM_LABIBB
 	  boost regulator and IBB can be used as a negative boost regulator
 	  for LCD display panel.
 
+config REGULATOR_TH1520_AON
+        tristate "Thead Th1520 Aon regulator"
+        depends on TH1520_AON
+        default y
+        help
+	  This driver provides support for the thead Th1520 virtual regulators
+          that inmplemented on Th1520 Aon system.
+	  This driver relies on the IPC interface between host CPU and the AON
+	  firmware runnint on E902.
+
 endif
