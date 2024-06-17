@@ -580,7 +580,7 @@
 				gpio-controller;
 				#gpio-cells = <2>;
 				ngpios = <31>;
-				gpio-ranges = <&padctrl1_apsys 0 32 31>;
+				gpio-ranges = <&padctrl0_apsys 0 0 32>;
 				reg = <0>;
 				interrupt-controller;
 				#interrupt-cells = <2>;
@@ -599,7 +599,7 @@
 				gpio-controller;
 				#gpio-cells = <2>;
 				ngpios = <32>;
-				gpio-ranges = <&padctrl0_apsys 0 0 32>;
+				gpio-ranges = <&padctrl0_apsys 0 32 23>;
 				reg = <0>;
 				interrupt-controller;
 				#interrupt-cells = <2>;
@@ -634,7 +634,7 @@
 				gpio-controller;
 				#gpio-cells = <2>;
 				ngpios = <23>;
-				gpio-ranges = <&padctrl0_apsys 0 32 23>;
+				gpio-ranges = <&padctrl1_apsys 0 0 32>;
 				reg = <0>;
 				interrupt-controller;
 				#interrupt-cells = <2>;
@@ -653,7 +653,7 @@
 				gpio-controller;
 				#gpio-cells = <2>;
 				ngpios = <32>;
-				gpio-ranges = <&padctrl1_apsys 0 0 32>;
+				gpio-ranges = <&padctrl1_apsys 0 32 31>;
 				reg = <0>;
 				interrupt-controller;
 				#interrupt-cells = <2>;
