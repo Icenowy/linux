@@ -395,7 +395,7 @@
 
 	spi_pins: spi-0 {
 		spi-pins {
-			pins = "SPI_SCLK", "SPI_CSN", "SPI_MOSI", "SPI_MISO";
+			pins = "SPI_SCLK", "SPI_MOSI", "SPI_MISO";
 			function = "spi";
 			bias-disable;
 			drive-strength = <7>;
@@ -433,7 +433,7 @@
 
 	qspi1_pins: qspi1-0 {
 		qspi-pins {
-			pins = "QSPI1_SCLK", "QSPI1_CSN0", "QSPI1_D0_MOSI", "QSPI1_D1_MISO";
+			pins = "QSPI1_SCLK", "QSPI1_D0_MOSI", "QSPI1_D1_MISO";
 			function = "qspi";
 			bias-disable;
 			drive-strength = <7>;
