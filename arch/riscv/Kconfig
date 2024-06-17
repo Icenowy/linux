@@ -639,6 +639,18 @@ config THREAD_SIZE_ORDER
 
 endmenu # "Platform type"
 
+config XUANTIE_ISA
+	bool "XUANTIE ISA in AFLAGS with -march=_xtheadc"
+	default n
+	depends on $(cc-option, -march=rv64imafdcv_xtheadc)
+	help
+	  This config enable XUANTIE custom instruction set.
+	  XUANTIE custom instruction set including more instructions, like cache operation,
+	  computing, bit operation, load and store.
+	  It can imporve performance and reduce code size with XUANTIE toolchain.
+
+	  If unsure, say N.
+
 menu "Kernel features"
 
 source "kernel/Kconfig.hz"

@@ -1,6 +1,11 @@
 # SPDX-License-Identifier: GPL-2.0-only
 lib-y			+= delay.o
+
+ifeq ($(CONFIG_XUANTIE_ISA),y)
+lib-y			+= memcpy_xt.o
+else
 lib-y			+= memcpy.o
+endif
 lib-y			+= memset.o
 lib-y			+= memmove.o
 lib-y			+= strcmp.o
