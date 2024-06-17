@@ -9,7 +9,7 @@
  *
  */
 
-#define DEBUG
+//#define DEBUG
 
 #include <linux/dmaengine.h>
 #include <linux/io.h>
@@ -687,13 +687,11 @@ static int th1520_audio_i2s_probe(struct platform_device *pdev)
 	struct device_node *np = pdev->dev.of_node;
 	struct reset_control *resets;
 
-	pr_info("%s 1\n", __func__);
 	i2s_priv = devm_kzalloc(&pdev->dev, sizeof(*i2s_priv), GFP_KERNEL);
 
 	if (!i2s_priv)
 		return -ENOMEM;
 
-	pr_info("%s 2\n", __func__);
 	i2s_priv->dev = dev;
 
 	if (strstr(pdev->name, AP_I2S)) {
@@ -713,7 +711,6 @@ static int th1520_audio_i2s_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
-	pr_info("%s 3\n", __func__);
 	dev_set_drvdata(&pdev->dev, i2s_priv);
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 
@@ -722,7 +719,6 @@ static int th1520_audio_i2s_probe(struct platform_device *pdev)
 	if (IS_ERR(i2s_priv->regs))
 		return PTR_ERR(i2s_priv->regs);
 
-	pr_info("%s 4\n", __func__);
 	i2s_priv->regmap = devm_regmap_init_mmio(&pdev->dev, i2s_priv->regs,
 						 &th1520_i2s_regmap_config);
 	if (IS_ERR(i2s_priv->regmap)) {
@@ -731,7 +727,6 @@ static int th1520_audio_i2s_probe(struct platform_device *pdev)
 			return PTR_ERR(i2s_priv->regmap);
 	}
 
-	pr_info("%s 5\n", __func__);
 	if (strcmp(i2s_priv->name, AP_I2S)) {
 		i2s_priv->audio_cpr_regmap =
 			syscon_regmap_lookup_by_phandle(np, "audio-cpr-regmap");
@@ -748,13 +743,11 @@ static int th1520_audio_i2s_probe(struct platform_device *pdev)
 						CPR_I2S_SYNC_MSK, CPR_I2S_SYNC_EN);
 	}
 
-	pr_info("%s 6\n", __func__);
 	resets = devm_reset_control_get_optional_shared(&pdev->dev, NULL);
 	if (IS_ERR(resets)) {
 		ret = PTR_ERR(resets);
 		return ret;
 	}
-	pr_info("%s 7\n", __func__);
 	i2s_priv->rst = resets;
 
 	irq = platform_get_irq(pdev, 0);
@@ -764,12 +757,10 @@ static int th1520_audio_i2s_probe(struct platform_device *pdev)
 		return -ENODEV;
 	}
 
-	pr_info("%s 8\n", __func__);
 	i2s_priv->clk = devm_clk_get(&pdev->dev, "pclk");
 	if (IS_ERR(i2s_priv->clk))
                 return PTR_ERR(i2s_priv->clk);
 
-	pr_info("%s 9\n", __func__);
 	reset_control_deassert(i2s_priv->rst);
 
 	pm_runtime_enable(&pdev->dev);
@@ -796,13 +787,11 @@ static int th1520_audio_i2s_probe(struct platform_device *pdev)
 		goto err_pm_disable;
 	}
 
-	pr_info("%s 10\n", __func__);
 	ret = sysfs_create_group(&dev->kobj, &th1520_i2s_debug_attr_group);
 	if (ret) {
 			pr_err("failed to create attr group\n");
 	}
 
-	pr_info("%s 11\n", __func__);
 	return ret;
 
 err_pm_disable:
