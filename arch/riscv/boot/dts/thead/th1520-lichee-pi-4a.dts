@@ -51,7 +51,17 @@
 		cooling-levels = <0 66 196 255>;
 	};
 
-	hub_5v: regulator-hub_5v {
+	reg_tp0_pwr: regulator-tp0-pwr {
+		compatible = "regulator-fixed";
+		regulator-name = "tp0-pwr";
+		regulator-min-microvolt = <2800000>;
+		regulator-max-microvolt = <2800000>;
+		gpio = <&ioexp3 4 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		regulator-always-on;
+	};
+
+	reg_hub_5v: regulator-hub-5v {
 		compatible = "regulator-fixed";
 		regulator-name = "HUB_5V";
 		regulator-min-microvolt = <5000000>;
@@ -61,7 +71,7 @@
 		regulator-always-on;
 	};
 
-	vcc5v_usb: regulator-vcc5v_usb {
+	reg_vcc5v_usb: regulator-vcc5v-usb {
 		compatible = "regulator-fixed";
 		regulator-name = "VCC5V_USB";
 		regulator-min-microvolt = <5000000>;
@@ -69,6 +79,89 @@
 		gpio = <&gpio1 22 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 		regulator-always-on;
+	};
+
+	reg_vdd33_lcd0: regulator-vdd33-lcd0 {
+		compatible = "regulator-fixed";
+		regulator-name = "lcd0_vdd33";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&ioexp3 5 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	reg_vdd18_lcd0: regulator-vdd18-lcd0 {
+		compatible = "regulator-fixed";
+		regulator-name = "lcd0_vdd18";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		gpio = <&ioexp3 6 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	reg_vdd_3v3: regulator-vdd-3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "vdd_3v3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&gpio1 24 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	reg_vref_1v8: regulator-adc-verf {
+		compatible = "regulator-fixed";
+		regulator-name = "vref-1v8";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		regulator-alaways-on;
+		vin-supply = <&reg_vdd_3v3>;
+	};
+
+	reg_aud_3v3: regulator-aud-3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "aud_3v3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		enable-active-high;
+		regulator-always-on;
+	};
+
+	reg_aud_1v8: regulator-aud-1v8 {
+		compatible = "regulator-fixed";
+		regulator-name = "aud_1v8";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		enable-active-high;
+		regulator-always-on;
+	};
+
+	reg_cam0_dvdd12: regulator-cam0-dvdd12 {
+		compatible = "regulator-fixed";
+		regulator-name = "dvdd12_cam0";
+		regulator-min-microvolt = <1200000>;
+		regulator-max-microvolt = <1200000>;
+		gpio = <&ioexp1 0 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	reg_cam0_avdd28: regulator-cam0-avdd28 {
+		compatible = "regulator-fixed";
+		regulator-name = "avdd28_cam0";
+		regulator-min-microvolt = <2800000>;
+		regulator-max-microvolt = <2800000>;
+		gpio = <&ioexp1 1 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	reg_cam0_dovdd18: regulator-cam0-dovdd18 {
+		compatible = "regulator-fixed";
+		regulator-name = "dovdd18_cam0";
+		regulator-min-microvolt = <2800000>;
+		regulator-max-microvolt = <2800000>;
+		gpio = <&ioexp1 2 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
 	};
 
 	mbox_910t_client2: mbox_910t_client2 {
@@ -475,15 +568,15 @@
 		compatible = "usb2109,2817";
 		reg = <1>;
 		peer-hub = <&hub_3_0>;
-		vdd-supply = <&hub_5v>;
-		vbus-supply = <&vcc5v_usb>;
+		vdd-supply = <&reg_hub_5v>;
+		vbus-supply = <&reg_vcc5v_usb>;
 	};
 
 	hub_3_0: hub@2 {
 		compatible = "usb2109,817";
 		reg = <2>;
 		peer-hub = <&hub_2_0>;
-		vbus-supply = <&vcc5v_usb>;
+		vbus-supply = <&reg_vcc5v_usb>;
 	};
 };
 
