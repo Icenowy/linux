@@ -38,6 +38,14 @@
 			next-level-cache = <&l2_cache>;
 			mmu-type = "riscv,sv39";
 
+			clock-latency = <61036>;
+			clocks = <&clk C910_CCLK>,
+				 <&clk C910_CCLK_I0>,
+				 <&clk CPU_PLL1_FOUTPOSTDIV>,
+				 <&clk CPU_PLL0_FOUTPOSTDIV>;
+			clock-names = "c910_cclk", "c910_cclk_i0",
+				      "cpu_pll1_foutpostdiv", "cpu_pll0_foutpostdiv";
+
 			cpu0_intc: interrupt-controller {
 				compatible = "riscv,cpu-intc";
 				interrupt-controller;
@@ -58,6 +66,14 @@
 			d-cache-sets = <512>;
 			next-level-cache = <&l2_cache>;
 			mmu-type = "riscv,sv39";
+
+			clock-latency = <61036>;
+			clocks = <&clk C910_CCLK>,
+				 <&clk C910_CCLK_I0>,
+				 <&clk CPU_PLL1_FOUTPOSTDIV>,
+				 <&clk CPU_PLL0_FOUTPOSTDIV>;
+			clock-names = "c910_cclk", "c910_cclk_i0",
+				      "cpu_pll1_foutpostdiv", "cpu_pll0_foutpostdiv";
 
 			cpu1_intc: interrupt-controller {
 				compatible = "riscv,cpu-intc";
@@ -80,6 +96,14 @@
 			next-level-cache = <&l2_cache>;
 			mmu-type = "riscv,sv39";
 
+			clock-latency = <61036>;
+			clocks = <&clk C910_CCLK>,
+				 <&clk C910_CCLK_I0>,
+				 <&clk CPU_PLL1_FOUTPOSTDIV>,
+				 <&clk CPU_PLL0_FOUTPOSTDIV>;
+			clock-names = "c910_cclk", "c910_cclk_i0",
+				      "cpu_pll1_foutpostdiv", "cpu_pll0_foutpostdiv";
+
 			cpu2_intc: interrupt-controller {
 				compatible = "riscv,cpu-intc";
 				interrupt-controller;
@@ -100,6 +124,14 @@
 			d-cache-sets = <512>;
 			next-level-cache = <&l2_cache>;
 			mmu-type = "riscv,sv39";
+
+			clock-latency = <61036>;
+			clocks = <&clk C910_CCLK>,
+				 <&clk C910_CCLK_I0>,
+				 <&clk CPU_PLL1_FOUTPOSTDIV>,
+				 <&clk CPU_PLL0_FOUTPOSTDIV>;
+			clock-names = "c910_cclk", "c910_cclk_i0",
+				      "cpu_pll1_foutpostdiv", "cpu_pll0_foutpostdiv";
 
 			cpu3_intc: interrupt-controller {
 				compatible = "riscv,cpu-intc";
@@ -277,6 +309,10 @@
 			#power-domain-cells = <1>;
 		};
 
+		cpufreq: c910_cpufreq {
+			compatible = "xuantie,th1520-cpufreq";
+			status = "okay";
+		};
 	};
 
 	aon_iram: aon-iram@ffffef8000 {
@@ -1010,6 +1046,12 @@
 		aon_suspend_ctrl: aon_suspend_ctrl {
 		        compatible = "thead,th1520-aon-suspend-ctrl";
 		        status = "okay";
+		};
+
+		sys_reg: sys-reg@ffef010100 {
+			compatible = "xuantie,th1520-sys-reg";
+			reg = <0xff 0xef010100 0x0 0x100>;
+			status = "okay";
 		};
 
 		dspsys_reg: dspsys-reg@ffef040000 {
