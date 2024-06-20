@@ -65,6 +65,10 @@ cc-disable-warning = $(call try-run,\
 # Usage: cflags-$(call gcc-min-version, 70100) += -foo
 gcc-min-version = $(call test-ge, $(CONFIG_GCC_VERSION), $1)
 
+# gcc-max-version
+# Usage: cflags-$(call gcc-max-version, 100400) += -foo
+gcc-max-version = $(call test-le, $(CONFIG_GCC_VERSION), $1)
+
 # clang-min-version
 # Usage: cflags-$(call clang-min-version, 110000) += -foo
 clang-min-version = $(call test-ge, $(CONFIG_CLANG_VERSION), $1)

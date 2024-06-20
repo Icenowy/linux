@@ -582,6 +582,12 @@ config TOOLCHAIN_HAS_ZIHINTPAUSE
 	depends on !32BIT || $(cc-option,-mabi=ilp32 -march=rv32ima_zihintpause)
 	depends on LLD_VERSION >= 150000 || LD_VERSION >= 23600
 
+config TOOLCHAIN_HAS_XTHEADC
+	bool
+	default y
+	depends on !64BIT || $(cc-option,-mabi=lp64 -march=rv64ima_xtheadc)
+	depends on !32BIT || $(cc-option,-mabi=ilp32 -march=rv32ima_xtheadc)
+
 config TOOLCHAIN_NEEDS_EXPLICIT_ZICSR_ZIFENCEI
 	def_bool y
 	# https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=aed44286efa8ae8717a77d94b51ac3614e2ca6dc
@@ -642,7 +648,7 @@ endmenu # "Platform type"
 config XUANTIE_ISA
 	bool "XUANTIE ISA in AFLAGS with -march=_xtheadc"
 	default n
-	depends on $(cc-option, -march=rv64imafdcv_xtheadc)
+	depends on TOOLCHAIN_HAS_XTHEADC
 	help
 	  This config enable XUANTIE custom instruction set.
 	  XUANTIE custom instruction set including more instructions, like cache operation,
