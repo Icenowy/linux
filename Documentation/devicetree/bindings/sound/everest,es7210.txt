@@ -1,0 +1,12 @@
+ES7210 i2s DA converter
+
+Required properties:
+- compatible : "everest,es7210" or
+- VDD-supply : regulator phandle for the VDD supply
+- PVDD-supply: regulator phandle for the PVDD supply for the es7210
+
+Example:
+i2s_codec: external-codec {
+	compatible = "everest,es7210";
+	VDD-supply = <&vcc_5v>;
+};

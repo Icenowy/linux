@@ -668,6 +668,32 @@
 
 };
 
+&audio_i2c0 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	es8156_audio_codec: es8156@8 {
+		#sound-dai-cells = <0>;
+		compatible = "everest,es8156";
+		reg = <0x08>;
+		sound-name-prefix = "ES8156";
+		AVDD-supply = <&reg_aud_3v3>;
+		DVDD-supply = <&reg_aud_1v8>;
+		PVDD-supply = <&reg_aud_1v8>;
+	};
+
+	es7210_audio_codec: es7210@40 {
+		#sound-dai-cells = <0>;
+		compatible = "MicArray_0";
+		reg = <0x40>;
+		sound-name-prefix = "ES7210";
+		MVDD-supply = <&reg_aud_3v3>;
+		AVDD-supply = <&reg_aud_3v3>;
+		DVDD-supply = <&reg_aud_1v8>;
+		PVDD-supply = <&reg_aud_1v8>;
+	};
+};
+
 &light_i2s {
         status = "okay";
 };
