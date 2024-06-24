@@ -1471,7 +1471,7 @@ static void pvr_remove(struct platform_device *plat_dev)
 }
 
 static const struct of_device_id dt_match[] = {
-	{ .compatible = "img,img-axe", .data = NULL },
+	{ .compatible = "img-gpu", .data = NULL },
 	{}
 };
 MODULE_DEVICE_TABLE(of, dt_match);
@@ -1495,4 +1495,4 @@ MODULE_AUTHOR("Imagination Technologies Ltd.");
 MODULE_DESCRIPTION(PVR_DRIVER_DESC);
 MODULE_LICENSE("Dual MIT/GPL");
 MODULE_IMPORT_NS(DMA_BUF);
-MODULE_FIRMWARE("powervr/rogue_33.15.11.3_v1.fw");
+MODULE_FIRMWARE("powervr/rogue_36.50.54.182_v1.fw");

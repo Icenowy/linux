@@ -23,6 +23,7 @@
 #include <linux/kernel.h>
 #include <linux/math.h>
 #include <linux/mutex.h>
+#include <linux/reset.h>
 #include <linux/timer.h>
 #include <linux/types.h>
 #include <linux/wait.h>
@@ -129,6 +130,13 @@ struct pvr_device {
 	 * Interface (MEMIF). If present, this needs to be enabled/disabled together with @core_clk.
 	 */
 	struct clk *mem_clk;
+	bool mem_clk_enabled;
+
+	struct clk *apb_clk;
+	struct clk *rtc_clk;
+
+	struct reset_control *apb_rst;
+	struct reset_control *doma_rst;
 
 	/** @irq: IRQ number. */
 	int irq;

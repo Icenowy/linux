@@ -19,6 +19,8 @@
 #include <linux/types.h>
 #include <linux/workqueue.h>
 
+#include <soc/starfive/jh7110_pmu.h>
+
 #define POWER_SYNC_TIMEOUT_US (1000000) /* 1s */
 
 #define WATCHDOG_TIME_MS (500)
@@ -248,9 +250,13 @@ pvr_power_device_suspend(struct device *dev)
 			goto err_drm_dev_exit;
 	}
 
-	clk_disable_unprepare(pvr_dev->mem_clk);
+	reset_control_assert(pvr_dev->apb_rst);
+	reset_control_assert(pvr_dev->doma_rst);
 	clk_disable_unprepare(pvr_dev->sys_clk);
 	clk_disable_unprepare(pvr_dev->core_clk);
+	clk_disable_unprepare(pvr_dev->rtc_clk);
+	clk_disable_unprepare(pvr_dev->apb_clk);
+	starfive_pmu_hw_event_turn_off_mask((uint32_t)-1);
 
 err_drm_dev_exit:
 	drm_dev_exit(idx);
@@ -270,36 +276,67 @@ pvr_power_device_resume(struct device *dev)
 	if (!drm_dev_enter(drm_dev, &idx))
 		return -EIO;
 
-	err = clk_prepare_enable(pvr_dev->core_clk);
+	starfive_pmu_hw_event_turn_off_mask(0);
+
+	if (!pvr_dev->mem_clk_enabled) {
+		err = clk_prepare_enable(pvr_dev->mem_clk);
+		if (err)
+			goto err_drm_dev_exit;
+
+		pvr_dev->mem_clk_enabled = true;
+	}
+
+	err = clk_prepare_enable(pvr_dev->apb_clk);
 	if (err)
 		goto err_drm_dev_exit;
+
+	err = clk_prepare_enable(pvr_dev->rtc_clk);
+	if (err)
+		goto err_apb_clk_disable;
+
+	err = clk_prepare_enable(pvr_dev->core_clk);
+	if (err)
+		goto err_rtc_clk_disable;
 
 	err = clk_prepare_enable(pvr_dev->sys_clk);
 	if (err)
 		goto err_core_clk_disable;
 
-	err = clk_prepare_enable(pvr_dev->mem_clk);
+	err = reset_control_deassert(pvr_dev->apb_rst);
 	if (err)
 		goto err_sys_clk_disable;
+
+	err = reset_control_deassert(pvr_dev->doma_rst);
+	if (err)
+		goto err_apb_rst_assert;
 
 	if (pvr_dev->fw_dev.booted) {
 		err = pvr_power_fw_enable(pvr_dev);
 		if (err)
-			goto err_mem_clk_disable;
+			goto err_doma_rst_assert;
 	}
 
 	drm_dev_exit(idx);
 
 	return 0;
 
-err_mem_clk_disable:
-	clk_disable_unprepare(pvr_dev->mem_clk);
+err_doma_rst_assert:
+	reset_control_assert(pvr_dev->doma_rst);
+
+err_apb_rst_assert:
+	reset_control_assert(pvr_dev->apb_rst);
 
 err_sys_clk_disable:
 	clk_disable_unprepare(pvr_dev->sys_clk);
 
 err_core_clk_disable:
 	clk_disable_unprepare(pvr_dev->core_clk);
+
+err_rtc_clk_disable:
+	clk_disable_unprepare(pvr_dev->rtc_clk);
+
+err_apb_clk_disable:
+	clk_disable_unprepare(pvr_dev->apb_clk);
 
 err_drm_dev_exit:
 	drm_dev_exit(idx);

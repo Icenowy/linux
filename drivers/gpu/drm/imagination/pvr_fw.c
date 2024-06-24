@@ -983,6 +983,7 @@ pvr_fw_init(struct pvr_device *pvr_dev)
 
 	err = pvr_wait_for_fw_boot(pvr_dev);
 	if (err) {
+		dump_stack();
 		drm_err(from_pvr_device(pvr_dev), "Firmware failed to boot\n");
 		goto err_fw_stop;
 	}

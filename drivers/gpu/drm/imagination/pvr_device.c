@@ -94,28 +94,56 @@ pvr_device_reg_init(struct pvr_device *pvr_dev)
 static int pvr_device_clk_init(struct pvr_device *pvr_dev)
 {
 	struct drm_device *drm_dev = from_pvr_device(pvr_dev);
+	struct clk *apb_clk;
+	struct clk *rtc_clk;
 	struct clk *core_clk;
 	struct clk *sys_clk;
 	struct clk *mem_clk;
+	struct reset_control *apb_rst;
+	struct reset_control *doma_rst;
 
-	core_clk = devm_clk_get(drm_dev->dev, "core");
+	core_clk = devm_clk_get(drm_dev->dev, "clk_core");
 	if (IS_ERR(core_clk))
 		return dev_err_probe(drm_dev->dev, PTR_ERR(core_clk),
 				     "failed to get core clock\n");
 
-	sys_clk = devm_clk_get_optional(drm_dev->dev, "sys");
+	sys_clk = devm_clk_get_optional(drm_dev->dev, "clk_sys");
 	if (IS_ERR(sys_clk))
 		return dev_err_probe(drm_dev->dev, PTR_ERR(sys_clk),
 				     "failed to get sys clock\n");
 
-	mem_clk = devm_clk_get_optional(drm_dev->dev, "mem");
+	mem_clk = devm_clk_get_optional(drm_dev->dev, "clk_axi");
 	if (IS_ERR(mem_clk))
 		return dev_err_probe(drm_dev->dev, PTR_ERR(mem_clk),
 				     "failed to get mem clock\n");
 
+	apb_clk = devm_clk_get_optional(drm_dev->dev, "clk_apb");
+	if (IS_ERR(apb_clk))
+		return dev_err_probe(drm_dev->dev, PTR_ERR(apb_clk),
+				     "failed to get apb clock\n");
+
+	rtc_clk = devm_clk_get_optional(drm_dev->dev, "clk_rtc");
+	if (IS_ERR(rtc_clk))
+		return dev_err_probe(drm_dev->dev, PTR_ERR(rtc_clk),
+				     "failed to get rtc clock\n");
+
+	apb_rst = devm_reset_control_get_exclusive(drm_dev->dev, "rst_apb");
+	if (IS_ERR(apb_rst))
+		return dev_err_probe(drm_dev->dev, PTR_ERR(apb_rst),
+				     "failed to get apb reset\n");
+
+	doma_rst = devm_reset_control_get_exclusive(drm_dev->dev, "rst_doma");
+	if (IS_ERR(doma_rst))
+		return dev_err_probe(drm_dev->dev, PTR_ERR(doma_rst),
+				     "failed to get doma reset\n");
+
 	pvr_dev->core_clk = core_clk;
 	pvr_dev->sys_clk = sys_clk;
 	pvr_dev->mem_clk = mem_clk;
+	pvr_dev->apb_clk = apb_clk;
+	pvr_dev->rtc_clk = rtc_clk;
+	pvr_dev->apb_rst = apb_rst;
+	pvr_dev->doma_rst = doma_rst;
 
 	return 0;
 }
@@ -467,6 +495,10 @@ pvr_device_gpu_fini(struct pvr_device *pvr_dev)
 	if (pvr_dev->fw_dev.processor_type != PVR_FW_PROCESSOR_TYPE_MIPS) {
 		WARN_ON(!pvr_vm_context_put(pvr_dev->kernel_vm_ctx));
 		pvr_dev->kernel_vm_ctx = NULL;
+	}
+
+	if (pvr_dev->mem_clk_enabled) {
+		clk_disable_unprepare(pvr_dev->mem_clk);
 	}
 }
 
