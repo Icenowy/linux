@@ -160,9 +160,9 @@ static inline u64 riscv_page_io(void)
 	return val;
 }
 
-#define _PAGE_NOCACHE		riscv_page_nocache()
-#define _PAGE_IO		riscv_page_io()
-#define _PAGE_MTMASK		riscv_page_mtmask()
+#define _PAGE_NOCACHE		(1 << 9)
+#define _PAGE_IO		(1 << 9)
+#define _PAGE_MTMASK		(1 << 9)
 
 /* Set of bits to preserve across pte_modify() */
 #define _PAGE_CHG_MASK  (~(unsigned long)(_PAGE_PRESENT | _PAGE_READ |	\

@@ -265,7 +265,7 @@ static void note_page(struct ptdump_state *pt_st, unsigned long addr,
 		      int level, u64 val)
 {
 	struct pg_state *st = container_of(pt_st, struct pg_state, ptdump);
-	u64 pa = PFN_PHYS(pte_pfn(__pte(val)));
+	u64 pa = __page_val_to_pfn(val) << PAGE_SHIFT;
 	u64 prot = 0;
 
 	if (level >= 0)

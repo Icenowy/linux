@@ -330,6 +330,9 @@ static inline unsigned long pte_pfn(pte_t pte)
 	if (has_svnapot() && pte_napot(pte))
 		res = res & (res - 1UL);
 
+	if (res >= 0x440000UL && res < 0x840000UL)
+		res -= 0x400000UL;
+
 	return res;
 }
 
@@ -341,6 +344,9 @@ static inline pte_t pfn_pte(unsigned long pfn, pgprot_t prot)
 	unsigned long prot_val = pgprot_val(prot);
 
 	ALT_THEAD_PMA(prot_val);
+
+	if ((prot_val & _PAGE_IO) && (pfn >= 0x40000UL) && (pfn < 0x440000UL))
+		pfn += 0x400000UL;
 
 	return __pte((pfn << _PAGE_PFN_SHIFT) | prot_val);
 }
