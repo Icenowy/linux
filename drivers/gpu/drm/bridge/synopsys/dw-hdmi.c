@@ -19,6 +19,8 @@
 #include <linux/regmap.h>
 #include <linux/dma-mapping.h>
 #include <linux/spinlock.h>
+#include <linux/pm_runtime.h>
+#include <linux/suspend.h>
 
 #include <media/cec-notifier.h>
 
@@ -140,6 +142,7 @@ struct dw_hdmi {
 	struct clk *isfr_clk;
 	struct clk *iahb_clk;
 	struct clk *cec_clk;
+	struct clk *pix_clk;
 	struct dw_hdmi_i2c *i2c;
 
 	struct hdmi_data_info hdmi_data;
@@ -197,7 +200,10 @@ struct dw_hdmi {
 	hdmi_codec_plugged_cb plugged_cb;
 	struct device *codec_dev;
 	enum drm_connector_status last_connector_result;
+
+	struct notifier_block pm_notify;  /*Used to receive STD notification*/
 };
+static bool g_is_hdmi_std_suspend __nosavedata;
 
 #define HDMI_IH_PHY_STAT0_RX_SENSE \
 	(HDMI_IH_PHY_STAT0_RX_SENSE0 | HDMI_IH_PHY_STAT0_RX_SENSE1 | \
@@ -1533,6 +1539,11 @@ static int dw_hdmi_phy_power_on(struct dw_hdmi *hdmi)
 	const struct dw_hdmi_phy_data *phy = hdmi->phy.data;
 	unsigned int i;
 	u8 val;
+
+	if (g_is_hdmi_std_suspend) {
+		pr_info("%s under std mod, do not resume\n", __func__);
+		return 0;
+	}
 
 	if (phy->gen == 1) {
 		dw_hdmi_phy_enable_powerdown(hdmi, false);
@@ -2952,6 +2963,7 @@ static void dw_hdmi_bridge_atomic_disable(struct drm_bridge *bridge,
 	dw_hdmi_update_phy_mask(hdmi);
 	handle_plugged_change(hdmi, false);
 	mutex_unlock(&hdmi->mutex);
+	pm_runtime_put(hdmi->dev);
 }
 
 static void dw_hdmi_bridge_atomic_enable(struct drm_bridge *bridge,
@@ -2964,6 +2976,7 @@ static void dw_hdmi_bridge_atomic_enable(struct drm_bridge *bridge,
 	connector = drm_atomic_get_new_connector_for_encoder(state,
 							     bridge->encoder);
 
+	pm_runtime_get_sync(hdmi->dev);
 	mutex_lock(&hdmi->mutex);
 	hdmi->disabled = false;
 	hdmi->curr_conn = connector;
@@ -3278,6 +3291,27 @@ static void dw_hdmi_init_hw(struct dw_hdmi *hdmi)
 		hdmi->phy.ops->setup_hpd(hdmi, hdmi->phy.data);
 }
 
+static int hdmi_light_notify(struct notifier_block *notify_block,
+						unsigned long mode, void *unused)
+{
+	pr_info("pm_notify: mode (%ld)\n", mode);
+
+	switch (mode) {
+	case PM_HIBERNATION_PREPARE:
+			pr_info("hdmi_pm_notify PM_HIBERNATION_PREPARE\n");
+			g_is_hdmi_std_suspend = true;
+			break;
+	case PM_POST_HIBERNATION:
+			pr_info("hdmi_pm_notify PM_HIBERNATION_PREPARE\n");
+			g_is_hdmi_std_suspend = false;
+			break;
+	default:
+			break;
+	}
+
+	return NOTIFY_DONE;
+}
+
 /* -----------------------------------------------------------------------------
  * Probe/remove API, used from platforms based on the DRM bridge API.
  */
@@ -3467,6 +3501,13 @@ struct dw_hdmi *dw_hdmi_probe(struct platform_device *pdev,
 		}
 	}
 
+	hdmi->pix_clk = devm_clk_get(hdmi->dev, "pixclk");
+	if (IS_ERR(hdmi->pix_clk)) {
+		ret = PTR_ERR(hdmi->pix_clk);
+		dev_err(hdmi->dev, "Unable to get HDMI pix clk: %d\n", ret);
+		goto err_iahb;
+	}
+
 	/* Product and revision IDs */
 	hdmi->version = (hdmi_readb(hdmi, HDMI_DESIGN_ID) << 8)
 		      | (hdmi_readb(hdmi, HDMI_REVISION_ID) << 0);
@@ -3618,6 +3659,13 @@ struct dw_hdmi *dw_hdmi_probe(struct platform_device *pdev,
 
 	drm_bridge_add(&hdmi->bridge);
 
+	if (IS_ENABLED(CONFIG_PM))
+		hdmi->pm_notify.notifier_call = hdmi_light_notify;
+
+	ret = register_pm_notifier(&hdmi->pm_notify);
+	if (ret)
+		dev_err(dev, "register_pm_notifier failed: %d\n", ret);
+
 	return hdmi;
 
 err_iahb:
@@ -3634,6 +3682,8 @@ EXPORT_SYMBOL_GPL(dw_hdmi_probe);
 
 void dw_hdmi_remove(struct dw_hdmi *hdmi)
 {
+	unregister_pm_notifier(&hdmi->pm_notify);
+
 	drm_bridge_remove(&hdmi->bridge);
 
 	if (hdmi->audio && !IS_ERR(hdmi->audio))
@@ -3672,6 +3722,7 @@ struct dw_hdmi *dw_hdmi_bind(struct platform_device *pdev,
 	ret = drm_bridge_attach(encoder, &hdmi->bridge, NULL, 0);
 	if (ret) {
 		dw_hdmi_remove(hdmi);
+		DRM_ERROR("Failed to initialize bridge with drm\n");
 		return ERR_PTR(ret);
 	}
 
@@ -3688,8 +3739,27 @@ EXPORT_SYMBOL_GPL(dw_hdmi_unbind);
 void dw_hdmi_resume(struct dw_hdmi *hdmi)
 {
 	dw_hdmi_init_hw(hdmi);
+	hdmi_init_clk_regenerator(hdmi);
 }
 EXPORT_SYMBOL_GPL(dw_hdmi_resume);
+
+#ifdef CONFIG_PM
+int dw_hdmi_runtime_suspend(struct dw_hdmi *hdmi)
+{
+	clk_disable_unprepare(hdmi->pix_clk);
+	clk_disable_unprepare(hdmi->cec_clk);
+	return 0;
+}
+EXPORT_SYMBOL_GPL(dw_hdmi_runtime_suspend);
+
+int dw_hdmi_runtime_resume(struct dw_hdmi *hdmi)
+{
+	clk_prepare_enable(hdmi->cec_clk);
+	clk_prepare_enable(hdmi->pix_clk);
+	return 0;
+}
+EXPORT_SYMBOL_GPL(dw_hdmi_runtime_resume);
+#endif
 
 MODULE_AUTHOR("Sascha Hauer <s.hauer@pengutronix.de>");
 MODULE_AUTHOR("Andy Yan <andy.yan@rock-chips.com>");

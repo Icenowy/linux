@@ -51,6 +51,13 @@
 		cooling-levels = <0 66 196 255>;
 	};
 
+	lcd0_backlight: pwm-backlight@0 {
+		compatible = "pwm-backlight";
+		pwms = <&pwm 0 5000000 0>;
+		brightness-levels = <0 4 8 16 32 64 128 255>;
+		default-brightness-level = <7>;
+	};
+
 	reg_tp0_pwr: regulator-tp0-pwr {
 		compatible = "regulator-fixed";
 		regulator-name = "tp0-pwr";
@@ -704,3 +711,82 @@
         pinctrl-0 = <&i2s1_pa_pins>;
 };
 
+&dpu_enc1 {
+	ports {
+		/delete-node/ port@0;
+	};
+};
+
+&disp1_out {
+	remote-endpoint = <&hdmi_tx_in>;
+};
+
+&hdmi_tx {
+	status = "okay";
+
+	port@0 {
+		/* input */
+		hdmi_tx_in: endpoint {
+			remote-endpoint = <&disp1_out>;
+		};
+	};
+};
+
+&dpu_enc0 {
+	ports {
+		/* output */
+		port@1 {
+			reg = <1>;
+
+			enc0_out: endpoint {
+				remote-endpoint = <&dsi0_in>;
+			};
+		};
+	};
+};
+
+&dhost_0 {
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@0 {
+			reg = <0>;
+
+			dsi0_in: endpoint {
+				remote-endpoint = <&enc0_out>;
+			};
+		};
+
+		port@1 {
+			reg = <1>;
+
+			dsi0_out: endpoint {
+				remote-endpoint = <&panel0_in>;
+			};
+		};
+	};
+
+	panel0@0 {
+		compatible = "jadard,jd9365da-h3";
+		reg = <0>;
+		backlight = <&lcd0_backlight>;
+		reset-gpio = <&ioexp3 7 0>; /* active low */
+		vccio-supply = <&reg_vdd18_lcd0>;
+		vdd-supply = <&reg_vdd33_lcd0>;
+
+		port {
+			panel0_in: endpoint {
+				remote-endpoint = <&dsi0_out>;
+			};
+		};
+	};
+};
+
+&dsi0 {
+	status = "okay";
+};
+
+&dpu_enc0 {
+	status = "okay";
+};

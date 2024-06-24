@@ -110,13 +110,13 @@ static int jadard_prepare(struct drm_panel *panel)
 	if (ret)
 		return ret;
 
-	gpiod_set_value(jadard->reset, 1);
+	gpiod_set_value_cansleep(jadard->reset, 1);
 	msleep(5);
 
-	gpiod_set_value(jadard->reset, 0);
+	gpiod_set_value_cansleep(jadard->reset, 0);
 	msleep(10);
 
-	gpiod_set_value(jadard->reset, 1);
+	gpiod_set_value_cansleep(jadard->reset, 1);
 	msleep(120);
 
 	return 0;
@@ -126,7 +126,7 @@ static int jadard_unprepare(struct drm_panel *panel)
 {
 	struct jadard *jadard = panel_to_jadard(panel);
 
-	gpiod_set_value(jadard->reset, 1);
+	gpiod_set_value_cansleep(jadard->reset, 1);
 	msleep(120);
 
 	regulator_disable(jadard->vdd);
@@ -584,6 +584,31 @@ static const struct jadard_panel_desc cz101b4001_desc = {
 	.num_init_cmds = ARRAY_SIZE(cz101b4001_init_cmds),
 };
 
+static const struct jadard_panel_desc jd9365da_h3_desc = {
+	.mode = {
+		.clock		= 76000,
+
+		.hdisplay	= 800,
+		.hsync_start	= 800 + 32,
+		.hsync_end	= 800 + 32 + 8,
+		.htotal		= 800 + 32 + 8 + 32,
+
+		.vdisplay	= 1280,
+		.vsync_start	= 1280 + 16,
+		.vsync_end	= 1280 + 16 + 8,
+		.vtotal		= 1280 + 16 + 8 + 16,
+
+		.width_mm	= 62,
+		.height_mm	= 110,
+		.type		= DRM_MODE_TYPE_DRIVER | DRM_MODE_TYPE_PREFERRED,
+		.flags      = DRM_MODE_FLAG_NHSYNC | DRM_MODE_FLAG_NVSYNC,
+	},
+	.lanes = 4,
+	.format = MIPI_DSI_FMT_RGB888,
+	.init_cmds = cz101b4001_init_cmds,
+	.num_init_cmds = ARRAY_SIZE(cz101b4001_init_cmds),
+};
+
 static int jadard_dsi_probe(struct mipi_dsi_device *dsi)
 {
 	struct device *dev = &dsi->dev;
@@ -659,6 +684,10 @@ static const struct of_device_id jadard_of_match[] = {
 	{
 		.compatible = "radxa,display-8hd-ad002",
 		.data = &radxa_display_8hd_ad002_desc
+	},
+	{
+		.compatible = "jadard,jd9365da-h3",
+		.data = &jd9365da_h3_desc
 	},
 	{ /* sentinel */ }
 };

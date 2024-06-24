@@ -321,6 +321,60 @@
 		reg = <0xff 0xffef8000 0x0 0x10000>;
 	};
 
+	display-subsystem {
+		compatible = "verisilicon,display-subsystem";
+		ports = <&dpu_disp0>, <&dpu_disp1>;
+		status = "okay";
+	};
+
+	dpu-encoders {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		dpu_enc0: dpu-encoder@0 {
+			/* default encoder is DSI */
+			compatible = "verisilicon,dsi-encoder";
+			reg = <0>;
+			status = "disabled";
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				/* input */
+				port@0 {
+					reg = <0>;
+
+					enc0_in: endpoint {
+						remote-endpoint = <&disp0_out>;
+					};
+				};
+			};
+		};
+
+		dpu_enc1: dpu-encoder@1 {
+			/* default encoder is DSI */
+			compatible = "verisilicon,dsi-encoder";
+			reg = <1>;
+			status = "disabled";
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				/* input */
+				port@0 {
+					reg = <0>;
+
+					enc1_in: endpoint {
+						remote-endpoint = <&disp1_out>;
+					};
+				};
+			};
+		};
+	};
+
 	soc {
 		compatible = "simple-bus";
 		interrupt-parent = <&plic>;
@@ -1042,6 +1096,132 @@
 			compatible = "thead,th1520-visys-reg", "syscon";
 			reg = <0xff 0xe4040000 0x0 0x1000>;
 			status = "disabled";
+		};
+
+		vosys_reg: vosys-reg@ffef528000 {
+			compatible = "xuantie,th1520-vosys-reg", "syscon";
+			reg = <0xff 0xef528000 0x0 0x1000>;
+			status = "okay";
+		};
+
+		dsi0: dw-mipi-dsi0@ffef500000 {
+			compatible = "xuantie,th1520-mipi-dsi", "simple-bus", "syscon";
+			reg = <0xff 0xef500000 0x0 0x10000>;
+			status = "disabled";
+
+			dphy_0: dsi0-dphy {
+				compatible = "xuantie,th1520-mipi-dphy";
+				regmap = <&dsi0>;
+				vosys-regmap = <&vosys_reg>;
+				clocks = <&vosys_clk_gate TH1520_CLKGEN_MIPIDSI0_REFCLK>,
+					 <&vosys_clk_gate TH1520_CLKGEN_MIPIDSI0_CFG_CLK>,
+					 <&vosys_clk_gate TH1520_CLKGEN_MIPIDSI0_PCLK>,
+					 <&clk OSC_24M>,
+					 <&clk OSC_24M>;
+				clock-names = "refclk", "cfgclk", "pclk", "prefclk", "pcfgclk";
+				#phy-cells = <0>;
+			};
+
+			dhost_0: dsi0-host {
+				compatible = "verisilicon,dw-mipi-dsi";
+				regmap = <&dsi0>;
+				interrupts = <129 IRQ_TYPE_LEVEL_HIGH>;
+				clocks = <&vosys_clk_gate TH1520_CLKGEN_MIPIDSI0_PCLK>,
+					 <&vosys_clk_gate TH1520_CLKGEN_MIPIDSI0_PIXCLK>;
+				clock-names = "pclk", "pixclk";
+				phys = <&dphy_0>;
+				phy-names = "dphy";
+				#address-cells = <1>;
+				#size-cells = <0>;
+			};
+		};
+
+		dsi1: dw-mipi-dsi1@ffef510000 {
+			compatible = "xuantie,th1520-mipi-dsi", "simple-bus", "syscon";
+			reg = <0xff 0xef510000 0x0 0x10000>;
+			status = "disabled";
+
+			dphy_1: dsi1-dphy {
+				compatible = "xuantie,th1520-mipi-dphy";
+				regmap = <&dsi1>;
+				vosys-regmap = <&vosys_reg>;
+				clocks = <&vosys_clk_gate TH1520_CLKGEN_MIPIDSI1_REFCLK>,
+					 <&vosys_clk_gate TH1520_CLKGEN_MIPIDSI1_CFG_CLK>,
+					 <&vosys_clk_gate TH1520_CLKGEN_MIPIDSI1_PCLK>,
+					 <&clk OSC_24M>,
+					 <&clk OSC_24M>;
+				clock-names = "refclk", "cfgclk", "pclk", "prefclk", "pcfgclk";
+				#phy-cells = <0>;
+			};
+
+			dhost_1: dsi1-host {
+				compatible = "verisilicon,dw-mipi-dsi";
+				regmap = <&dsi1>;
+				interrupts = <129 IRQ_TYPE_LEVEL_HIGH>;
+				clocks = <&vosys_clk_gate TH1520_CLKGEN_MIPIDSI1_PCLK>,
+					 <&vosys_clk_gate TH1520_CLKGEN_MIPIDSI1_PIXCLK>;
+				clock-names = "pclk", "pixclk";
+				phys = <&dphy_1>;
+				phy-names = "dphy";
+				#address-cells = <1>;
+				#size-cells = <0>;
+			};
+		};
+
+		hdmi_tx: dw-hdmi-tx@ffef540000 {
+			compatible = "xuantie,th1520-hdmi-tx";
+			reg = <0xff 0xef540000 0x0 0x40000>;
+			interrupts = <111 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&vosys_clk_gate TH1520_CLKGEN_HDMI_PCLK>,
+				 <&vosys_clk_gate TH1520_CLKGEN_HDMI_SFR_CLK>,
+				 <&vosys_clk_gate TH1520_CLKGEN_HDMI_CEC_CLK>,
+				 <&vosys_clk_gate TH1520_CLKGEN_HDMI_PIXCLK>;
+			clock-names = "iahb", "isfr", "cec", "pixclk";
+			reg-io-width = <4>;
+			phy_version = <301>;
+			/* TODO: add phy property */
+			status = "disabled";
+		};
+
+		dpu: dc8200@ffef600000 {
+			compatible = "verisilicon,dc8200";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0xff 0xef600000 0x0 0x100>,
+			      <0xff 0xef600800 0x0 0x2000>,
+			      <0xff 0xef630010 0x0 0x60>;
+			interrupts = <93 IRQ_TYPE_LEVEL_HIGH>;
+			vosys-regmap = <&vosys_reg>;
+			clocks = <&vosys_clk_gate TH1520_CLKGEN_DPU_CCLK>,
+				 <&vosys_clk_gate TH1520_CLKGEN_DPU_PIXCLK0>,
+				 <&vosys_clk_gate TH1520_CLKGEN_DPU_PIXCLK1>,
+				 <&vosys_clk_gate TH1520_CLKGEN_DPU_ACLK>,
+				 <&vosys_clk_gate TH1520_CLKGEN_DPU_HCLK>,
+				 <&clk DPU0_PLL_DIV_CLK>,
+				 <&clk DPU1_PLL_DIV_CLK>,
+				 <&clk DPU0_PLL_FOUTPOSTDIV>,
+				 <&clk DPU1_PLL_FOUTPOSTDIV>;
+			clock-names = "core_clk", "pix_clk0", "pix_clk1",
+				      "axi_clk", "cfg_clk", "pixclk0",
+				      "pixclk1", "dpu0_pll_foutpostdiv",
+				      "dpu1_pll_foutpostdiv";
+			status = "okay";
+
+			dpu_disp0: port@0 {
+				reg = <0>;
+
+				disp0_out: endpoint {
+					remote-endpoint = <&enc0_in>;
+				};
+			};
+
+			dpu_disp1: port@1 {
+				reg = <1>;
+
+				disp1_out: endpoint {
+					remote-endpoint = <&enc1_in>;
+				};
+			};
 		};
 
 		aon_suspend_ctrl: aon_suspend_ctrl {

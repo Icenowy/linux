@@ -79,6 +79,7 @@ static int drm_fbdev_generic_helper_fb_probe(struct drm_fb_helper *fb_helper,
 	void *screen_buffer;
 	u32 format;
 	int ret;
+	struct fb_fillrect region;
 
 	drm_dbg_kms(dev, "surface width(%d), height(%d) and bpp(%d)\n",
 		    sizes->surface_width, sizes->surface_height,
@@ -123,6 +124,14 @@ static int drm_fbdev_generic_helper_fb_probe(struct drm_fb_helper *fb_helper,
 	ret = fb_deferred_io_init(info);
 	if (ret)
 		goto err_drm_fb_helper_release_info;
+
+	region.color = 0;
+	region.rop = ROP_COPY;
+	region.dx = 0;
+	region.dy = 0;
+	region.width = sizes->surface_width;
+	region.height = sizes->surface_height;
+	info->fbops->fb_fillrect(info, &region);
 
 	return 0;
 
