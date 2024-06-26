@@ -614,6 +614,16 @@
 			status = "disabled";
 		};
 
+		uart2: serial@ffec010000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0xff 0xec010000 0x0 0x100>;
+			interrupts = <38 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&uart_sclk>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			status = "disabled";
+		};
+
 		uart3: serial@ffe7f04000 {
 			compatible = "snps,dw-apb-uart";
 			reg = <0xff 0xe7f04000 0x0 0x100>;
@@ -624,10 +634,30 @@
 			status = "disabled";
 		};
 
+		uart4: serial@fff7f08000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0xff 0xf7f08000 0x0 0x100>;
+			interrupts = <40 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&uart_sclk>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			status = "disabled";
+		};
+
+		uart5: serial@fff7f0c000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0xff 0xf7f0c000 0x0 0x100>;
+			interrupts = <41 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&uart_sclk>;
+			reg-shift = <2>;
+			reg-io-width = <4>;
+			status = "disabled";
+		};
+
 		i2c0: i2c@ffe7f20000 {
 			compatible = "snps,designware-i2c";
 			reg = <0xff 0xe7f20000 0x0 0x1000>;
-			clocks = <&apb_clk>;
+			clocks = <&clk CLKGEN_I2C0_PCLK>;
 			interrupts = <44 IRQ_TYPE_LEVEL_HIGH>;
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -637,8 +667,28 @@
 		i2c1: i2c@ffe7f24000 {
 			compatible = "snps,designware-i2c";
 			reg = <0xff 0xe7f24000 0x0 0x1000>;
-			clocks = <&apb_clk>;
+			clocks = <&clk CLKGEN_I2C1_PCLK>;
 			interrupts = <45 IRQ_TYPE_LEVEL_HIGH>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		i2c2: i2c@ffec00c000 {
+			compatible = "snps,designware-i2c";
+			reg = <0xff 0xec00c000 0x0 0x1000>;
+			clocks = <&clk CLKGEN_I2C2_PCLK>;
+			interrupts = <46 IRQ_TYPE_LEVEL_HIGH>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		i2c3: i2c@ffec014000 {
+			compatible = "snps,designware-i2c";
+			reg = <0xff 0xec014000 0x0 0x1000>;
+			clocks = <&clk CLKGEN_I2C3_PCLK>;
+			interrupts = <47 IRQ_TYPE_LEVEL_HIGH>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			status = "disabled";
@@ -647,7 +697,7 @@
 		i2c4: i2c@ffe7f28000 {
 			compatible = "snps,designware-i2c";
 			reg = <0xff 0xe7f28000 0x0 0x1000>;
-			clocks = <&apb_clk>;
+			clocks = <&clk CLKGEN_I2C4_PCLK>;
 			interrupts = <48 IRQ_TYPE_LEVEL_HIGH>;
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -758,36 +808,6 @@
 			clocks = <&apb_clk>;
 		};
 
-		i2c2: i2c@ffec00c000 {
-			compatible = "snps,designware-i2c";
-			reg = <0xff 0xec00c000 0x0 0x1000>;
-			clocks = <&apb_clk>;
-			interrupts = <46 IRQ_TYPE_LEVEL_HIGH>;
-			#address-cells = <1>;
-			#size-cells = <0>;
-			status = "disabled";
-		};
-
-		uart2: serial@ffec010000 {
-			compatible = "snps,dw-apb-uart";
-			reg = <0xff 0xec010000 0x0 0x4000>;
-			interrupts = <38 IRQ_TYPE_LEVEL_HIGH>;
-			clocks = <&uart_sclk>;
-			reg-shift = <2>;
-			reg-io-width = <4>;
-			status = "disabled";
-		};
-
-		i2c3: i2c@ffec014000 {
-			compatible = "snps,designware-i2c";
-			reg = <0xff 0xec014000 0x0 0x1000>;
-			clocks = <&apb_clk>;
-			interrupts = <47 IRQ_TYPE_LEVEL_HIGH>;
-			#address-cells = <1>;
-			#size-cells = <0>;
-			status = "disabled";
-		};
-
 		pwm: pwm@ffec01c000 {
 			compatible = "thead,th1520-pwm";
 			reg = <0xff 0xec01c000 0x0 0x4000>;
@@ -843,7 +863,7 @@
 		dmac1: dma-controller@ffff340000 {
 			compatible = "snps,axi-dma-1.01a";
 			reg = <0xff 0xff340000 0x0 0x1000>;
-			interrupts = <26 IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <150 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&clk CLKGEN_DMAC_CPUSYS_ACLK>, <&clk CLKGEN_DMAC_CPUSYS_HCLK>;
 			clock-names = "core-clk", "cfgr-clk";
 			#dma-cells = <1>;
@@ -859,7 +879,7 @@
 		dmac2: dma-controller@ffc8000000 {
 			compatible = "snps,axi-dma-1.01a";
 			reg = <0xff 0xc8000000 0x0 0x2000>;
-			interrupts = <25 IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <167 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&clk CLKGEN_DMAC_CPUSYS_ACLK>, <&clk CLKGEN_DMAC_CPUSYS_HCLK>;
 			clock-names = "core-clk", "cfgr-clk";
 			#dma-cells = <1>;
@@ -935,26 +955,6 @@
 			clocks = <&apb_clk>;
 			clock-names = "timer";
 			interrupts = <19 IRQ_TYPE_LEVEL_HIGH>;
-			status = "disabled";
-		};
-
-		uart4: serial@fff7f08000 {
-			compatible = "snps,dw-apb-uart";
-			reg = <0xff 0xf7f08000 0x0 0x4000>;
-			interrupts = <40 IRQ_TYPE_LEVEL_HIGH>;
-			clocks = <&uart_sclk>;
-			reg-shift = <2>;
-			reg-io-width = <4>;
-			status = "disabled";
-		};
-
-		uart5: serial@fff7f0c000 {
-			compatible = "snps,dw-apb-uart";
-			reg = <0xff 0xf7f0c000 0x0 0x4000>;
-			interrupts = <41 IRQ_TYPE_LEVEL_HIGH>;
-			clocks = <&uart_sclk>;
-			reg-shift = <2>;
-			reg-io-width = <4>;
 			status = "disabled";
 		};
 
@@ -1377,7 +1377,7 @@
 		watchdog0: watchdog@ffefc30000 {
 			compatible = "snps,dw-wdt";
 			reg = <0xff 0xefc30000 0x0 0x1000>;
-			interrupts = <60 IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <24 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&clk CLKGEN_WDT0_PCLK>;
 			clock-names = "tclk";
 			resets = <&rst 	TH1520_RESET_WDT0>;
@@ -1387,7 +1387,7 @@
 		watchdog1: watchdog@ffefc31000 {
 			compatible = "snps,dw-wdt";
 			reg = <0xff 0xefc31000 0x0 0x1000>;
-			interrupts = <63 IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <25 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&clk CLKGEN_WDT1_PCLK>;
 			clock-names = "tclk";
 			resets = <&rst TH1520_RESET_WDT1>;
