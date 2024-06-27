@@ -209,6 +209,10 @@
 	clock-frequency = <73728000>;
 };
 
+&audiosys_clk {
+	clock-frequency = <294912000>;
+};
+
 &apb_clk {
 	clock-frequency = <62500000>;
 };

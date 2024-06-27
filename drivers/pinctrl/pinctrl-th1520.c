@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Pinctrl driver for the T-Head TH1520 SoC
+ * Pinctrl driver for the XuanTie TH1520 SoC
  *
  * Copyright (C) 2023 Emil Renner Berthing <emil.renner.berthing@canonical.com>
  */
@@ -43,10 +43,21 @@
 #define TH1520_PAD_NO_PADCFG	BIT(30)
 #define TH1520_PAD_MUXDATA	GENMASK(29, 0)
 
+struct th1520_pinctrl;
+
+struct custom_operations {
+	int (*init)(struct th1520_pinctrl *thp, unsigned int pin);
+};
+
 struct th1520_pad_group {
 	const char *name;
 	const struct pinctrl_pin_desc *pins;
 	unsigned int npins;
+	unsigned int offset_mux;
+	unsigned int mask_mux;
+	unsigned int offset_cfg;
+	unsigned int mask_cfg;
+	struct custom_operations *custom_ops;
 };
 
 struct th1520_pinctrl {
@@ -54,37 +65,85 @@ struct th1520_pinctrl {
 	struct mutex mutex;	/* serialize adding functions */
 	raw_spinlock_t lock;	/* serialize register access */
 	void __iomem *base;
+	unsigned int offset_mux;
+	unsigned int mask_mux;
+	unsigned int offset_cfg;
+	unsigned int mask_cfg;
+	struct custom_operations *custom_ops;
 	struct pinctrl_dev *pctl;
 };
+
+static const unsigned int m1  = 0x55555555; // 01010101010101010101010101010101
+static const unsigned int m2  = 0x33333333; // 00110011001100110011001100110011
+static const unsigned int m4  = 0x0f0f0f0f; // 00001111000011110000111100001111
+static const unsigned int m8  = 0x00ff00ff; // 00000000111111110000000011111111
+static const unsigned int m16 = 0x0000ffff; // 00000000000000001111111111111111
+
+static int __popcount(unsigned int x)
+{
+	x = (x & m1) + ((x >> 1) & m1);
+	x = (x & m2) + ((x >> 2) & m2);
+	x = (x & m4) + ((x >> 4) & m4);
+	x = (x & m8) + ((x >> 8) & m8);
+	x = (x & m16) + ((x >> 16) & m16);
+	return x;
+}
 
 static void __iomem *th1520_padcfg(struct th1520_pinctrl *thp,
 				   unsigned int pin)
 {
-	return thp->base + 4 * (pin / 2);
+	int width = __popcount(thp->mask_cfg);
+
+	return thp->base + thp->offset_cfg + 4 * (pin * width / 32);
 }
 
-static unsigned int th1520_padcfg_shift(unsigned int pin)
+static unsigned int th1520_padcfg_shift(struct th1520_pinctrl *thp,
+					unsigned int pin)
 {
-	return 16 * (pin & BIT(0));
+	int width = __popcount(thp->mask_cfg);
+
+	return width * (pin & (32 / width - 1));
 }
 
 static void __iomem *th1520_muxcfg(struct th1520_pinctrl *thp,
-				   unsigned int pin)
+					unsigned int pin)
 {
-	return thp->base + 0x400 + 4 * (pin / 8);
+	int width = __popcount(thp->mask_mux);
+
+	return thp->base + thp->offset_mux + 4 * (pin * width / 32);
 }
 
-static unsigned int th1520_muxcfg_shift(unsigned int pin)
+static unsigned int th1520_muxcfg_shift(struct th1520_pinctrl *thp,
+					unsigned int pin)
 {
-	return 4 * (pin & GENMASK(2, 0));
+	int width = __popcount(thp->mask_mux);
+
+	return width * (pin & (32 / width - 1));
 }
+
+static int th1520_audio_func_sel(struct th1520_pinctrl *thp,
+					unsigned int pin)
+{
+	void __iomem *padsel = thp->base;
+	unsigned int tmp;
+
+	scoped_guard(raw_spinlock_irqsave, &thp->lock) {
+		tmp = readl_relaxed(padsel);
+		tmp |= 1 << pin;
+		writel_relaxed(tmp, padsel);
+	}
+	return 0;
+}
+
+static struct custom_operations th1520_custom_ops = {
+	.init = th1520_audio_func_sel,
+};
 
 enum th1520_muxtype {
 	TH1520_MUX_____,
 	TH1520_MUX_GPIO,
 	TH1520_MUX_PWM,
 	TH1520_MUX_UART,
-	TH1520_MUX_IR,
 	TH1520_MUX_I2C,
 	TH1520_MUX_SPI,
 	TH1520_MUX_QSPI,
@@ -97,20 +156,29 @@ enum th1520_muxtype {
 	TH1520_MUX_DPU1,
 	TH1520_MUX_ISP,
 	TH1520_MUX_HDMI,
-	TH1520_MUX_BSEL,
-	TH1520_MUX_DBG,
 	TH1520_MUX_CLK,
 	TH1520_MUX_JTAG,
 	TH1520_MUX_ISO,
 	TH1520_MUX_FUSE,
 	TH1520_MUX_RST,
+	TH1520_MUX_AUD_VAD,
+	TH1520_MUX_AUD_VAD_PDM,
+	TH1520_MUX_AUD_I2C0,
+	TH1520_MUX_AUD_I2C1,
+	TH1520_MUX_AUD_I2S0,
+	TH1520_MUX_AUD_I2S1,
+	TH1520_MUX_AUD_I2S2,
+	TH1520_MUX_AUD_I2S_8CH,
+	TH1520_MUX_AUD_TDM,
+	TH1520_MUX_AUD_SPDIF0,
+	TH1520_MUX_AUD_SPDIF1,
+	TH1520_MUX_MAX = 31, // [4:0]
 };
 
 static const char *const th1520_muxtype_string[] = {
 	[TH1520_MUX_GPIO] = "gpio",
 	[TH1520_MUX_PWM]  = "pwm",
 	[TH1520_MUX_UART] = "uart",
-	[TH1520_MUX_IR]   = "ir",
 	[TH1520_MUX_I2C]  = "i2c",
 	[TH1520_MUX_SPI]  = "spi",
 	[TH1520_MUX_QSPI] = "qspi",
@@ -123,13 +191,22 @@ static const char *const th1520_muxtype_string[] = {
 	[TH1520_MUX_DPU1] = "dpu1",
 	[TH1520_MUX_ISP]  = "isp",
 	[TH1520_MUX_HDMI] = "hdmi",
-	[TH1520_MUX_BSEL] = "bootsel",
-	[TH1520_MUX_DBG]  = "debug",
 	[TH1520_MUX_CLK]  = "clock",
 	[TH1520_MUX_JTAG] = "jtag",
 	[TH1520_MUX_ISO]  = "iso7816",
 	[TH1520_MUX_FUSE] = "efuse",
 	[TH1520_MUX_RST]  = "reset",
+	[TH1520_MUX_AUD_VAD]      = "aud_vad",
+	[TH1520_MUX_AUD_VAD_PDM]  = "aud_vad_pdm",
+	[TH1520_MUX_AUD_I2C0]     = "aud_i2c0",
+	[TH1520_MUX_AUD_I2C1]     = "aud_i2c1",
+	[TH1520_MUX_AUD_I2S0]     = "aud_i2s0",
+	[TH1520_MUX_AUD_I2S1]     = "aud_i2s1",
+	[TH1520_MUX_AUD_I2S2]     = "aud_i2s2",
+	[TH1520_MUX_AUD_I2S_8CH]  = "aud_i2s_8ch",
+	[TH1520_MUX_AUD_TDM]      = "aud_tdm",
+	[TH1520_MUX_AUD_SPDIF0]   = "aud_spdif0",
+	[TH1520_MUX_AUD_SPDIF1]   = "aud_spdif1",
 };
 
 static enum th1520_muxtype th1520_muxtype_get(const char *str)
@@ -156,7 +233,7 @@ static const struct pinctrl_pin_desc th1520_group1_pins[] = {
 	TH1520_PAD(4,  RTC_CLK_OUT,   ____, ____, ____, ____, ____, ____, TH1520_PAD_NO_PADCFG),
 	/* skip number 5 so we can calculate register offsets and shifts from the pin number */
 	TH1520_PAD(6,  TEST_MODE,     ____, ____, ____, ____, ____, ____, TH1520_PAD_NO_PADCFG),
-	TH1520_PAD(7,  DEBUG_MODE,    DBG,  ____, ____, GPIO, ____, ____, TH1520_PAD_NO_PADCFG),
+	TH1520_PAD(7,  DEBUG_MODE,    ____, ____, ____, GPIO, ____, ____, TH1520_PAD_NO_PADCFG),
 	TH1520_PAD(8,  POR_SEL,       ____, ____, ____, ____, ____, ____, TH1520_PAD_NO_PADCFG),
 	TH1520_PAD(9,  I2C_AON_SCL,   I2C,  ____, ____, GPIO, ____, ____, 0),
 	TH1520_PAD(10, I2C_AON_SDA,   I2C,  ____, ____, GPIO, ____, ____, 0),
@@ -166,8 +243,8 @@ static const struct pinctrl_pin_desc th1520_group1_pins[] = {
 	TH1520_PAD(14, CPU_JTG_TDO,   JTAG, ____, ____, GPIO, ____, ____, 0),
 	TH1520_PAD(15, CPU_JTG_TRST,  JTAG, ____, ____, GPIO, ____, ____, 0),
 	TH1520_PAD(16, AOGPIO_7,      CLK,  AUD,  ____, GPIO, ____, ____, 0),
-	TH1520_PAD(17, AOGPIO_8,      UART, AUD,  IR,   GPIO, ____, ____, 0),
-	TH1520_PAD(18, AOGPIO_9,      UART, AUD,  IR,   GPIO, ____, ____, 0),
+	TH1520_PAD(17, AOGPIO_8,      UART, AUD,  ____, GPIO, ____, ____, 0),
+	TH1520_PAD(18, AOGPIO_9,      UART, AUD,  ____, GPIO, ____, ____, 0),
 	TH1520_PAD(19, AOGPIO_10,     CLK,  AUD,  ____, GPIO, ____, ____, 0),
 	TH1520_PAD(20, AOGPIO_11,     GPIO, AUD,  ____, ____, ____, ____, 0),
 	TH1520_PAD(21, AOGPIO_12,     GPIO, AUD,  ____, ____, ____, ____, 0),
@@ -215,12 +292,12 @@ static const struct pinctrl_pin_desc th1520_group2_pins[] = {
 	TH1520_PAD(13, UART4_RXD,     UART, ____, ____, GPIO, ____, ____, 0),
 	TH1520_PAD(14, UART4_CTSN,    UART, ____, ____, GPIO, ____, ____, 0),
 	TH1520_PAD(15, UART4_RTSN,    UART, ____, ____, GPIO, ____, ____, 0),
-	TH1520_PAD(16, UART3_TXD,     DBG,  UART, ____, GPIO, ____, ____, 0),
-	TH1520_PAD(17, UART3_RXD,     DBG,  UART, ____, GPIO, ____, ____, 0),
+	TH1520_PAD(16, UART3_TXD,     ____, UART, ____, GPIO, ____, ____, 0),
+	TH1520_PAD(17, UART3_RXD,     ____, UART, ____, GPIO, ____, ____, 0),
 	TH1520_PAD(18, GPIO0_18,      GPIO, I2C,  ____, ____, ____, ____, 0),
 	TH1520_PAD(19, GPIO0_19,      GPIO, I2C,  ____, ____, ____, ____, 0),
-	TH1520_PAD(20, GPIO0_20,      GPIO, UART, IR,   ____, ____, ____, 0),
-	TH1520_PAD(21, GPIO0_21,      GPIO, UART, IR,   ____, DPU0, DPU1, 0),
+	TH1520_PAD(20, GPIO0_20,      GPIO, UART, ____, ____, ____, ____, 0),
+	TH1520_PAD(21, GPIO0_21,      GPIO, UART, ____, ____, DPU0, DPU1, 0),
 	TH1520_PAD(22, GPIO0_22,      GPIO, JTAG, I2C,  ____, DPU0, DPU1, 0),
 	TH1520_PAD(23, GPIO0_23,      GPIO, JTAG, I2C,  ____, DPU0, DPU1, 0),
 	TH1520_PAD(24, GPIO0_24,      GPIO, JTAG, QSPI, ____, DPU0, DPU1, 0),
@@ -248,10 +325,10 @@ static const struct pinctrl_pin_desc th1520_group2_pins[] = {
 	TH1520_PAD(46, GPIO1_14,      GPIO, UART, ____, ____, DPU0, DPU1, 0),
 	TH1520_PAD(47, GPIO1_15,      GPIO, UART, ____, ____, DPU0, DPU1, 0),
 	TH1520_PAD(48, GPIO1_16,      GPIO, UART, ____, ____, DPU0, DPU1, 0),
-	TH1520_PAD(49, CLK_OUT_0,     BSEL, CLK,  ____, GPIO, ____, ____, 0),
-	TH1520_PAD(50, CLK_OUT_1,     BSEL, CLK,  ____, GPIO, ____, ____, 0),
-	TH1520_PAD(51, CLK_OUT_2,     BSEL, CLK,  ____, GPIO, ____, ____, 0),
-	TH1520_PAD(52, CLK_OUT_3,     BSEL, CLK,  ____, GPIO, ____, ____, 0),
+	TH1520_PAD(49, CLK_OUT_0,     ____, CLK,  ____, GPIO, ____, ____, 0),
+	TH1520_PAD(50, CLK_OUT_1,     ____, CLK,  ____, GPIO, ____, ____, 0),
+	TH1520_PAD(51, CLK_OUT_2,     ____, CLK,  ____, GPIO, ____, ____, 0),
+	TH1520_PAD(52, CLK_OUT_3,     ____, CLK,  ____, GPIO, ____, ____, 0),
 	TH1520_PAD(53, GPIO1_21,      GPIO, ____, ISP,  ____, ____, ____, 0),
 	TH1520_PAD(54, GPIO1_22,      GPIO, ____, ISP,  ____, ____, ____, 0),
 	TH1520_PAD(55, GPIO1_23,      GPIO, ____, ISP,  ____, ____, ____, 0),
@@ -273,14 +350,14 @@ static const struct pinctrl_pin_desc th1520_group3_pins[] = {
 	TH1520_PAD(5,  QSPI0_D0_MOSI, QSPI, PWM,  I2S,  GPIO, ____, ____, 0),
 	TH1520_PAD(6,  QSPI0_D1_MISO, QSPI, PWM,  I2S,  GPIO, ____, ____, 0),
 	TH1520_PAD(7,  QSPI0_D2_WP,   QSPI, PWM,  I2S,  GPIO, ____, ____, 0),
-	TH1520_PAD(8,  QSPI1_D3_HOLD, QSPI, ____, I2S,  GPIO, ____, ____, 0),
+	TH1520_PAD(8,  QSPI0_D3_HOLD, QSPI, ____, I2S,  GPIO, ____, ____, 0),
 	TH1520_PAD(9,  I2C2_SCL,      I2C,  UART, ____, GPIO, ____, ____, 0),
 	TH1520_PAD(10, I2C2_SDA,      I2C,  UART, ____, GPIO, ____, ____, 0),
 	TH1520_PAD(11, I2C3_SCL,      I2C,  ____, ____, GPIO, ____, ____, 0),
 	TH1520_PAD(12, I2C3_SDA,      I2C,  ____, ____, GPIO, ____, ____, 0),
 	TH1520_PAD(13, GPIO2_13,      GPIO, SPI,  ____, ____, ____, ____, 0),
-	TH1520_PAD(14, SPI_SCLK,      SPI,  UART, IR,   GPIO, ____, ____, 0),
-	TH1520_PAD(15, SPI_CSN,       SPI,  UART, IR,   GPIO, ____, ____, 0),
+	TH1520_PAD(14, SPI_SCLK,      SPI,  UART, ____, GPIO, ____, ____, 0),
+	TH1520_PAD(15, SPI_CSN,       SPI,  UART, ____, GPIO, ____, ____, 0),
 	TH1520_PAD(16, SPI_MOSI,      SPI,  ____, ____, GPIO, ____, ____, 0),
 	TH1520_PAD(17, SPI_MISO,      SPI,  ____, ____, GPIO, ____, ____, 0),
 	TH1520_PAD(18, GPIO2_18,      GPIO, MAC1, ____, ____, ____, ____, 0),
@@ -322,22 +399,82 @@ static const struct pinctrl_pin_desc th1520_group3_pins[] = {
 	TH1520_PAD(54, GMAC0_CRS,     MAC0, PWM,  ____, GPIO, ____, ____, 0),
 };
 
+static const struct pinctrl_pin_desc th1520_group4_pins[] = {
+	TH1520_PAD(0,  PA0_FUNC,  AUD_VAD,  AUD_VAD_PDM, AUD_SPDIF0, AUD_I2S_8CH, ____, ____, 0),
+	TH1520_PAD(1,  PA1_FUNC,  AUD_VAD,  AUD_VAD_PDM, AUD_SPDIF0, AUD_I2S_8CH, ____, ____, 0),
+	TH1520_PAD(2,  PA2_FUNC,  AUD_VAD,  ____,        AUD_SPDIF1, AUD_I2S_8CH, ____, ____, 0),
+	TH1520_PAD(3,  PA3_FUNC,  AUD_VAD,  AUD_VAD_PDM, AUD_SPDIF1, AUD_I2S_8CH, ____, ____, 0),
+	TH1520_PAD(4,  PA4_FUNC,  AUD_VAD,  AUD_VAD_PDM, ____,       AUD_I2S_8CH, ____, ____, 0),
+	TH1520_PAD(5,  PA5_FUNC,  AUD_VAD,  AUD_VAD_PDM, ____,       AUD_I2S_8CH, ____, ____, 0),
+	TH1520_PAD(6,  PA6_FUNC,  AUD_I2C0, ____,        AUD_I2C1,   ____,        ____, ____, 0),
+	TH1520_PAD(7,  PA7_FUNC,  AUD_I2C0, ____,        AUD_I2C1,   ____,        ____, ____, 0),
+	TH1520_PAD(8,  PA8_FUNC,  ____,     ____,        AUD_VAD,    AUD_I2S_8CH, ____, ____, 0),
+	TH1520_PAD(9,  PA9_FUNC,  AUD_I2S0, ____,        AUD_TDM,    AUD_I2S1,    ____, ____, 0),
+	TH1520_PAD(10, PA10_FUNC, AUD_I2S0, ____,        AUD_TDM,    AUD_I2S1,    ____, ____, 0),
+	TH1520_PAD(11, PA11_FUNC, AUD_I2S0, ____,        AUD_TDM,    AUD_I2S1,    ____, ____, 0),
+	TH1520_PAD(12, PA12_FUNC, AUD_I2S0, AUD_I2C1,    ____,       AUD_I2S1,    ____, ____, 0),
+	TH1520_PAD(13, PA13_FUNC, AUD_I2S1, AUD_I2C1,    AUD_VAD,    ____,        ____, ____, 0),
+	TH1520_PAD(14, PA14_FUNC, AUD_I2S1, AUD_VAD_PDM, AUD_VAD,    AUD_I2S0,    ____, ____, 0),
+	TH1520_PAD(15, PA15_FUNC, AUD_I2S1, AUD_VAD_PDM, AUD_VAD,    ____,        ____, ____, 0),
+	TH1520_PAD(16, PA16_FUNC, AUD_I2S1, AUD_VAD_PDM, AUD_VAD,    AUD_I2C1,    ____, ____, 0),
+	TH1520_PAD(17, PA17_FUNC, AUD_I2S1, AUD_VAD_PDM, AUD_VAD,    AUD_I2C1,    ____, ____, 0),
+	TH1520_PAD(18, PA18_FUNC, AUD_I2S2, AUD_TDM,     AUD_VAD,    ____,        ____, ____, 0),
+	TH1520_PAD(19, PA19_FUNC, AUD_I2S2, AUD_TDM,     AUD_VAD,    ____,        ____, ____, 0),
+	TH1520_PAD(20, PA20_FUNC, AUD_I2S2, AUD_TDM,     AUD_I2C1,   AUD_I2C1,    ____, ____, 0),
+	TH1520_PAD(21, PA21_FUNC, AUD_I2S2, AUD_SPDIF0,  AUD_I2C1,   AUD_I2C1,    ____, ____, 0),
+	TH1520_PAD(22, PA22_FUNC, AUD_I2S2, AUD_SPDIF0,  ____,       ____,        ____, ____, 0),
+	TH1520_PAD(23, PA23_FUNC, ____,     AUD_SPDIF1,  AUD_SPDIF0, ____,        ____, ____, 0),
+	TH1520_PAD(24, PA24_FUNC, ____,     AUD_SPDIF1,  AUD_SPDIF0, AUD_I2S_8CH, ____, ____, 0),
+	TH1520_PAD(25, PA25_FUNC, AUD_I2S_8CH, ____,     AUD_SPDIF0, AUD_I2C1,    ____, ____, 0),
+	TH1520_PAD(26, PA26_FUNC, AUD_I2S_8CH, ____,     AUD_SPDIF0, AUD_I2C1,    ____, ____, 0),
+	TH1520_PAD(27, PA27_FUNC, AUD_I2S_8CH, AUD_TDM,  AUD_SPDIF1, AUD_I2S0,    ____, ____, 0),
+	TH1520_PAD(28, PA28_FUNC, AUD_I2S_8CH, AUD_TDM,  AUD_SPDIF1, AUD_I2S0,    ____, ____, 0),
+	TH1520_PAD(29, PA29_FUNC, AUD_I2S_8CH, AUD_TDM,  AUD_I2C0,   AUD_I2S0,    ____, ____, 0),
+	TH1520_PAD(30, PA30_FUNC, AUD_I2S_8CH, ____,     AUD_I2C0,   AUD_I2S0,    ____, ____, 0),
+};
+
 static const struct th1520_pad_group th1520_group1 = {
 	.name = "th1520-group1",
 	.pins = th1520_group1_pins,
 	.npins = ARRAY_SIZE(th1520_group1_pins),
+	.offset_mux = 0x400,
+	.mask_mux = 0xf,
+	.offset_cfg = 0x0,
+	.mask_cfg = 0xffff,
+	.custom_ops = NULL,
 };
 
 static const struct th1520_pad_group th1520_group2 = {
 	.name = "th1520-group2",
 	.pins = th1520_group2_pins,
 	.npins = ARRAY_SIZE(th1520_group2_pins),
+	.offset_mux = 0x400,
+	.mask_mux = 0xf,
+	.offset_cfg = 0x0,
+	.mask_cfg = 0xffff,
+	.custom_ops = NULL,
 };
 
 static const struct th1520_pad_group th1520_group3 = {
 	.name = "th1520-group3",
 	.pins = th1520_group3_pins,
 	.npins = ARRAY_SIZE(th1520_group3_pins),
+	.offset_mux = 0x400,
+	.mask_mux = 0xf,
+	.offset_cfg = 0x0,
+	.mask_cfg = 0xffff,
+	.custom_ops = NULL,
+};
+
+static const struct th1520_pad_group th1520_group4 = {
+	.name = "th1520-group4",
+	.pins = th1520_group4_pins,
+	.npins = ARRAY_SIZE(th1520_group4_pins),
+	.offset_mux = 0x4,
+	.mask_mux = 0x3,
+	.offset_cfg = 0xc,
+	.mask_cfg = 0xffff,
+	.custom_ops = &th1520_custom_ops,
 };
 
 static int th1520_pinctrl_get_groups_count(struct pinctrl_dev *pctldev)
@@ -566,7 +703,7 @@ static int th1520_padcfg_rmw(struct th1520_pinctrl *thp, unsigned int pin,
 			     u32 mask, u32 value)
 {
 	void __iomem *padcfg = th1520_padcfg(thp, pin);
-	unsigned int shift = th1520_padcfg_shift(pin);
+	unsigned int shift = th1520_padcfg_shift(thp, pin);
 	u32 tmp;
 
 	mask <<= shift;
@@ -594,7 +731,7 @@ static int th1520_pinconf_get(struct pinctrl_dev *pctldev,
 		return -ENOTSUPP;
 
 	value = readl_relaxed(th1520_padcfg(thp, pin));
-	value = (value >> th1520_padcfg_shift(pin)) & GENMASK(9, 0);
+	value = (value >> th1520_padcfg_shift(thp, pin)) & GENMASK(9, 0);
 
 	param = pinconf_to_config_param(*config);
 	switch (param) {
@@ -743,7 +880,7 @@ static void th1520_pinconf_dbg_show(struct pinctrl_dev *pctldev,
 	struct th1520_pinctrl *thp = pinctrl_dev_get_drvdata(pctldev);
 	u32 value = readl_relaxed(th1520_padcfg(thp, pin));
 
-	value = (value >> th1520_padcfg_shift(pin)) & GENMASK(9, 0);
+	value = (value >> th1520_padcfg_shift(thp, pin)) & GENMASK(9, 0);
 
 	seq_printf(s, " [0x%03x]", value);
 }
@@ -764,8 +901,12 @@ static int th1520_pinmux_set(struct th1520_pinctrl *thp, unsigned int pin,
 			     unsigned long muxdata, enum th1520_muxtype muxtype)
 {
 	void __iomem *muxcfg = th1520_muxcfg(thp, pin);
-	unsigned int shift = th1520_muxcfg_shift(pin);
+	unsigned int shift = th1520_muxcfg_shift(thp, pin);
 	u32 mask, value, tmp;
+
+	if (thp->custom_ops && thp->custom_ops->init) {
+		thp->custom_ops->init(thp, pin);
+	}
 
 	for (value = 0; muxdata; muxdata >>= 5, value++) {
 		if ((muxdata & GENMASK(4, 0)) == muxtype)
@@ -777,7 +918,7 @@ static int th1520_pinmux_set(struct th1520_pinctrl *thp, unsigned int pin,
 		return -EINVAL;
 	}
 
-	mask = GENMASK(3, 0) << shift;
+	mask = thp->mask_mux << shift;
 	value = value << shift;
 
 	scoped_guard(raw_spinlock_irqsave, &thp->lock) {
@@ -854,6 +995,11 @@ static int th1520_pinctrl_probe(struct platform_device *pdev)
 	thp->desc.name = group->name;
 	thp->desc.pins = group->pins;
 	thp->desc.npins = group->npins;
+	thp->offset_mux = group->offset_mux;
+	thp->mask_mux = group->mask_mux;
+	thp->offset_cfg = group->offset_cfg;
+	thp->mask_cfg = group->mask_cfg;
+	thp->custom_ops = group->custom_ops;
 	thp->desc.pctlops = &th1520_pinctrl_ops;
 	thp->desc.pmxops = &th1520_pinmux_ops;
 	thp->desc.confops = &th1520_pinconf_ops;
@@ -869,9 +1015,10 @@ static int th1520_pinctrl_probe(struct platform_device *pdev)
 }
 
 static const struct of_device_id th1520_pinctrl_of_match[] = {
-	{ .compatible = "thead,th1520-group1-pinctrl", .data = &th1520_group1 },
-	{ .compatible = "thead,th1520-group2-pinctrl", .data = &th1520_group2 },
-	{ .compatible = "thead,th1520-group3-pinctrl", .data = &th1520_group3 },
+	{ .compatible = "xuantie,th1520-group1-pinctrl", .data = &th1520_group1 },
+	{ .compatible = "xuantie,th1520-group2-pinctrl", .data = &th1520_group2 },
+	{ .compatible = "xuantie,th1520-group3-pinctrl", .data = &th1520_group3 },
+	{ .compatible = "xuantie,th1520-group4-pinctrl", .data = &th1520_group4 },
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, th1520_pinctrl_of_match);
@@ -885,6 +1032,6 @@ static struct platform_driver th1520_pinctrl_driver = {
 };
 module_platform_driver(th1520_pinctrl_driver);
 
-MODULE_DESCRIPTION("Pinctrl driver for the T-Head TH1520 SoC");
+MODULE_DESCRIPTION("Pinctrl driver for the XuanTie TH1520 SoC");
 MODULE_AUTHOR("Emil Renner Berthing <emil.renner.berthing@canonical.com>");
 MODULE_LICENSE("GPL");

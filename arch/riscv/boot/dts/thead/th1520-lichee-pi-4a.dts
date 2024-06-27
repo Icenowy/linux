@@ -554,6 +554,38 @@
 			slew-rate = <0>;
 		};
 	};
+	aud_i2c0_pa_pins: aud-i2c0-pa-0 {
+		aud-i2c-pa-pins {
+			pins = "AUDIO_PA29", "AUDIO_PA30";
+			function = "audio";
+			bias-disable;
+			drive-strength = <0>;
+			slew-rate = <0>;
+		};
+	};
+};
+
+&padctrl_audiosys {
+	aud_i2c0_pins: aud-i2c0-0 {
+		i2c-pins {
+			pins = "PA29_FUNC", "PA30_FUNC";
+			function = "aud_i2c0";
+			bias-disable;
+			drive-strength = <7>;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+	};
+	i2s1_pins: i2s1-0 {
+		i2s-pins {
+			pins = "PA14_FUNC", "PA15_FUNC", "PA16_FUNC", "PA17_FUNC";
+			function = "aud_i2s1";
+			bias-disable;
+			drive-strength = <13>;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+	};
 };
 
 &uart0 {
@@ -678,6 +710,9 @@
 &audio_i2c0 {
 	clock-frequency = <100000>;
 	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&aud_i2c0_pa_pins>,
+				<&aud_i2c0_pins>;
 
 	es8156_audio_codec: es8156@8 {
 		#sound-dai-cells = <0>;
@@ -702,13 +737,13 @@
 };
 
 &light_i2s {
-        status = "okay";
+	status = "okay";
 };
 
 &i2s1 {
-        status = "okay";
-        pinctrl-names = "default";
-        pinctrl-0 = <&i2s1_pa_pins>;
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2s1_pa_pins>, <&i2s1_pins>;
 };
 
 &dpu_enc1 {
