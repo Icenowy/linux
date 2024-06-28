@@ -409,7 +409,7 @@
 			status = "disabled";
 		};
 
-		light_i2s: light-i2s@ffe7034000 {
+		ap_i2s: ap-i2s@ffe7034000 {
 			#sound-dai-cells = <1>;
 			compatible = "xuantie,th1520-i2s";
 			reg = <0xff 0xe7034000 0x0 0x4000>;

@@ -469,7 +469,7 @@
 #define STEREO_CHANNEL		2
 
 //for 2ch mode
-#define AP_I2S			"light-i2s"
+#define AP_I2S			"ap-i2s"
 #define AUDIO_I2S0		"audio-i2s0"
 #define AUDIO_I2S1		"audio-i2s1"
 #define AUDIO_I2S2		"audio-i2s2"

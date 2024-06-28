@@ -238,12 +238,14 @@ static int th1520_i2s_set_fmt_dai(struct snd_soc_dai *cpu_dai, unsigned int fmt)
 	pm_runtime_resume_and_get(i2s_private->dev);
 
 	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
-	case SND_SOC_DAIFMT_CBS_CFS:
+	// directly indicate whether the cpu-dai is clock provider
+	case SND_SOC_DAIFMT_CBP_CFP:
 		cnfin |= CNFIN_I2S_RXMODE_MASTER_MODE;
 		cnfout |= IISCNFOUT_TSAFS_I2S;
 		cnfout &= ~IISCNFOUT_I2S_TXMODE_SLAVE;
 		break;
-	case SND_SOC_DAIFMT_CBM_CFM:
+	// directly indicate whether the cpu-dai is clock consumer
+	case SND_SOC_DAIFMT_CBC_CFC:
 		cnfin &= ~CNFIN_I2S_RXMODE_MASTER_MODE;
 		cnfout |= IISCNFOUT_TSAFS_RIGHT_JUSTIFIED;
 		cnfout |= IISCNFOUT_I2S_TXMODE_SLAVE;
@@ -270,8 +272,6 @@ static int th1520_i2s_set_fmt_dai(struct snd_soc_dai *cpu_dai, unsigned int fmt)
 
 	regmap_update_bits(i2s_private->regmap, I2S_IISCNF_OUT,
 			   IISCNFOUT_TSAFS_MSK, cnfout);
-
-	cnfin |= CNFIN_I2S_RXMODE_MASTER_MODE;
 
 	regmap_update_bits(i2s_private->regmap, I2S_IISCNF_IN,
 			   CNFIN_I2S_RXMODE_Msk,
