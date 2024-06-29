@@ -246,6 +246,12 @@ int ttm_device_init(struct ttm_device *bdev, const struct ttm_device_funcs *func
 	list_add_tail(&bdev->device_list, &glob->device_list);
 	mutex_unlock(&ttm_global_mutex);
 
+#if defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_DEVICE) || \
+	defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU) || \
+	defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU_ALL)
+	bdev->dma_coherent = dev->dma_coherent;
+#endif
+
 	return 0;
 }
 EXPORT_SYMBOL(ttm_device_init);

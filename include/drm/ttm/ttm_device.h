@@ -225,6 +225,15 @@ struct ttm_device {
 	 */
 	const struct ttm_device_funcs *funcs;
 
+#if defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_DEVICE) || \
+	defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU) || \
+	defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU_ALL)
+	/**
+	 * @dma_coherent: if the device backed is dma-coherent.
+	 */
+	bool dma_coherent;
+#endif
+
 	/**
 	 * @sysman: Resource manager for the system domain.
 	 * Access via ttm_manager_type.
