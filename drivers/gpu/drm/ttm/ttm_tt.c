@@ -154,6 +154,14 @@ static void ttm_tt_init_fields(struct ttm_tt *ttm,
 			       enum ttm_caching caching,
 			       unsigned long extra_pages)
 {
+#if defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_DEVICE) || \
+	defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU) || \
+	defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU_ALL)
+	/* Downgrade cached mapping for non-snooping devices */
+	if (!bo->bdev->dma_coherent && caching == ttm_cached)
+		caching = ttm_write_combined;
+#endif
+
 	ttm->num_pages = (PAGE_ALIGN(bo->base.size) >> PAGE_SHIFT) + extra_pages;
 	ttm->page_flags = page_flags;
 	ttm->dma_address = NULL;

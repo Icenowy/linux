@@ -307,6 +307,14 @@ pgprot_t ttm_io_prot(struct ttm_buffer_object *bo, struct ttm_resource *res,
 		caching = res->bus.caching;
 	}
 
+#if defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_DEVICE) || \
+	defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU) || \
+	defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU_ALL)
+	/* Downgrade cached mapping for non-snooping devices */
+	if (!bo->bdev->dma_coherent && caching == ttm_cached)
+		caching = ttm_write_combined;
+#endif
+
 	return ttm_prot_from_caching(caching, tmp);
 }
 EXPORT_SYMBOL(ttm_io_prot);
@@ -360,6 +368,11 @@ static int ttm_bo_kmap_ttm(struct ttm_buffer_object *bo,
 		return ret;
 
 	if (num_pages == 1 && ttm->caching == ttm_cached &&
+#if defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_DEVICE) || \
+	defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU) || \
+	defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU_ALL)
+	    bo->bdev->dma_coherent &&
+#endif
 	    !(man->use_tt && (ttm->page_flags & TTM_TT_FLAG_DECRYPTED))) {
 		/*
 		 * We're mapping a single page, and the desired
