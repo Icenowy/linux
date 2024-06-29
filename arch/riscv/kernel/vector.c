@@ -91,7 +91,8 @@ static bool insn_is_vector(u32 insn_buf)
 static int riscv_v_thread_zalloc(void)
 {
 	void *datap;
-
+	if (!riscv_v_vsize)
+		return -EINVAL;
 	datap = kzalloc(riscv_v_vsize, GFP_KERNEL);
 	if (!datap)
 		return -ENOMEM;
