@@ -755,7 +755,7 @@
 		};
 
 		padctrl1_apsys: pinctrl@ffe7f3c000 {
-			compatible = "xuantie,th1520-group2-pinctrl";
+			compatible = "thead,th1520-group2-pinctrl";
 			reg = <0xff 0xe7f3c000 0x0 0x1000>;
 			clocks = <&apb_clk>;
 		};
@@ -809,7 +809,7 @@
 		};
 
 		padctrl0_apsys: pinctrl@ffec007000 {
-			compatible = "xuantie,th1520-group3-pinctrl";
+			compatible = "thead,th1520-group3-pinctrl";
 			reg = <0xff 0xec007000 0x0 0x1000>;
 			clocks = <&apb_clk>;
 		};
@@ -1031,13 +1031,13 @@
 		};
 
 		padctrl_aosys: pinctrl@fffff4a000 {
-			compatible = "xuantie,th1520-group1-pinctrl";
+			compatible = "thead,th1520-group1-pinctrl";
 			reg = <0xff 0xfff4a000 0x0 0x2000>;
 			clocks = <&aonsys_clk>;
 		};
 
 		padctrl_audiosys: pinctrl@ffcb01d000 {
-			compatible = "xuantie,th1520-group4-pinctrl";
+			compatible = "thead,th1520-group4-pinctrl";
 			reg = <0xff 0xcb01d000 0x0 0x2000>;
 			clocks = <&audiosys_clk>;
 		};

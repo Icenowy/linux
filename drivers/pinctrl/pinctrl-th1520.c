@@ -1015,10 +1015,10 @@ static int th1520_pinctrl_probe(struct platform_device *pdev)
 }
 
 static const struct of_device_id th1520_pinctrl_of_match[] = {
-	{ .compatible = "xuantie,th1520-group1-pinctrl", .data = &th1520_group1 },
-	{ .compatible = "xuantie,th1520-group2-pinctrl", .data = &th1520_group2 },
-	{ .compatible = "xuantie,th1520-group3-pinctrl", .data = &th1520_group3 },
-	{ .compatible = "xuantie,th1520-group4-pinctrl", .data = &th1520_group4 },
+	{ .compatible = "thead,th1520-group1-pinctrl", .data = &th1520_group1 },
+	{ .compatible = "thead,th1520-group2-pinctrl", .data = &th1520_group2 },
+	{ .compatible = "thead,th1520-group3-pinctrl", .data = &th1520_group3 },
+	{ .compatible = "thead,th1520-group4-pinctrl", .data = &th1520_group4 },
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, th1520_pinctrl_of_match);

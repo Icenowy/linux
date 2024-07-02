@@ -4,19 +4,20 @@
 $id: http://devicetree.org/schemas/pinctrl/thead,th1520-pinctrl.yaml#
 $schema: http://devicetree.org/meta-schemas/core.yaml#
 
-title: T-Head TH1520 SoC pin controller
+title: XuanTie TH1520 SoC pin controller
 
 maintainers:
   - Emil Renner Berthing <emil.renner.berthing@canonical.com>
 
 description: |
-  Pinmux and pinconf controller in the T-Head TH1520 RISC-V SoC.
+  Pinmux and pinconf controller in the XuanTie TH1520 RISC-V SoC.
 
   The TH1520 has 3 groups of pads each controlled from different memory ranges.
   Confusingly the memory ranges are named
     PADCTRL_AOSYS  -> PAD Group 1
     PADCTRL1_APSYS -> PAD Group 2
     PADCTRL0_APSYS -> PAD Group 3
+    PADCTRL_AUDIOSYS -> PAD Group 4
 
   Each pad can be muxed individually to up to 6 different functions. For most
   pads only a few of those 6 configurations are valid though, and a few pads in
@@ -40,6 +41,7 @@ properties:
       - thead,th1520-group1-pinctrl
       - thead,th1520-group2-pinctrl
       - thead,th1520-group3-pinctrl
+      - thead,th1520-group4-pinctrl
 
   reg:
     maxItems: 1
