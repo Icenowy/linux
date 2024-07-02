@@ -37,7 +37,7 @@
 #include <linux/context_tracking.h>
 #include <trace/events/error_report.h>
 #include <asm/sections.h>
-#include <linux/firmware/thead/th1520_event.h>
+#include <linux/firmware/xuantie/th1520_event.h>
 
 #define PANIC_TIMER_STEP 100
 #define PANIC_BLINK_SPD 18

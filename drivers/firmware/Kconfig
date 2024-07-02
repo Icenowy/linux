@@ -314,6 +314,6 @@ source "drivers/firmware/psci/Kconfig"
 source "drivers/firmware/smccc/Kconfig"
 source "drivers/firmware/tegra/Kconfig"
 source "drivers/firmware/xilinx/Kconfig"
-source "drivers/firmware/thead/Kconfig"
+source "drivers/firmware/xuantie/Kconfig"
 
 endmenu

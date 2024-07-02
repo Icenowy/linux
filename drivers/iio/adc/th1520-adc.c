@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
- * THEAD TH1520 ADC driver
+ * XuanTie TH1520 ADC driver
  *
  * Copyright (C) 2021-2024 Alibaba Group Holding Limited.
  * Fugang Duan <duanfugang.dfg@linux.alibaba.com>
@@ -349,7 +349,7 @@ static const struct iio_info th1520_adc_iio_info = {
 };
 
 static const struct of_device_id th1520_adc_match[] = {
-	{ .compatible = "thead,th1520-adc", },
+	{ .compatible = "xuantie,th1520-adc", },
 	{ /* end */ }
 };
 MODULE_DEVICE_TABLE(of, th1520_adc_match);
@@ -489,7 +489,7 @@ static int th1520_adc_probe(struct platform_device *pdev)
 		goto error_iio_device_register;
 	}
 
-	dev_info(&pdev->dev, "THEAD TH1520 adc registered.\n");
+	dev_info(&pdev->dev, "XuanTie TH1520 adc registered.\n");
 	return 0;
 
 error_iio_device_register:
@@ -569,5 +569,5 @@ static struct platform_driver th1520_adc_driver = {
 module_platform_driver(th1520_adc_driver);
 
 MODULE_AUTHOR("fugang.duan <duanfugang.dfg@linux.alibaba.com>");
-MODULE_DESCRIPTION("Thead TH1520 ADC driver");
+MODULE_DESCRIPTION("XuanTie TH1520 ADC driver");
 MODULE_LICENSE("GPL");

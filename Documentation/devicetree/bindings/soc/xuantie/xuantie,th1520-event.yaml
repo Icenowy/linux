@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/soc/xuantie/xuantie,th1520-event.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: XuanTie TH1520 SOC Rebootmode Feature
+
+maintainers:
+  - Hao Li <ben.lihao@linux.alibaba.com>
+  - Xiangyi Zeng <xiangyi.zeng@linux.alibaba.com>
+
+description:
+  This driver supports check rebootmode feature in th1520 FM platform.
+  When the system reboots, event driver recording the reboot cause to a
+  piece of always-on ram, which is data-hold during the system reboot.
+
+properties:
+  compatible:
+      - items:
+          - const: xuantie,th1520-event
+
+  aon-iram-regmap:
+    description:
+      always-on ram address range for driver to save rebootmode
+
+required:
+  - compatible
+  - aon-iram-regmap
+
+examples:
+  - |
+    th1520_event: th1520-event {
+        compatible = "xuantie,th1520-event";
+        aon-iram-regmap = <&aon_iram>;
+        status = "okay";
+    };

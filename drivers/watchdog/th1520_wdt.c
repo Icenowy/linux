@@ -16,8 +16,8 @@
 #include <linux/regmap.h>
 #include <linux/device.h>
 #include <linux/watchdog.h>
-#include <linux/firmware/thead/ipc.h>
-#include <linux/firmware/thead/th1520_event.h>
+#include <linux/firmware/xuantie/ipc.h>
+#include <linux/firmware/xuantie/th1520_event.h>
 
 #define DRV_NAME	"th1520-wdt"
 

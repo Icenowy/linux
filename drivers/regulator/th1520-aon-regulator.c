@@ -17,7 +17,7 @@
 #include <linux/regulator/machine.h>
 #include <linux/slab.h>
 #include <linux/uaccess.h>
-#include <linux/firmware/thead/ipc.h>
+#include <linux/firmware/xuantie/ipc.h>
 
 #define MBOX_MAX_MSG_LEN	28
 
@@ -738,7 +738,7 @@ static int th1520_aon_regulator_probe(struct platform_device *pdev)
 }
 
 static const struct of_device_id th1520_pmic_dev_id[] = {
-	{ .compatible = "thead,th1520-aon-pmic", .data = &th1520_aon_regus},
+	{ .compatible = "xuantie,th1520-aon-pmic", .data = &th1520_aon_regus},
 	{},
 };
 MODULE_DEVICE_TABLE(of, th1520_pmic_dev_id);
@@ -766,5 +766,5 @@ module_exit(th1520_aon_regulator_exit);
 
 MODULE_AUTHOR("fugang.duan <duanfugang.dfg@linux.alibaba.com>");
 MODULE_AUTHOR("linghui.zlh <linghui.zlh@linux.alibaba.com>");
-MODULE_DESCRIPTION("Thead TH1520 Aon regulator virtual driver");
+MODULE_DESCRIPTION("XuanTie TH1520 Aon regulator virtual driver");
 MODULE_LICENSE("GPL");

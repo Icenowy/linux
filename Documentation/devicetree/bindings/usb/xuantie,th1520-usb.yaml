@@ -1,0 +1,76 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/usb/xuantie,th1520-usb.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: XuanTie TH1520 DWC3 USB Controller Glue
+
+maintainers:
+  - Jisheng Zhang <jszhang@kernel.org>
+
+properties:
+  compatible:
+    const: xuantie,th1520-usb
+
+  reg:
+    maxItems: 1
+
+  clocks:
+    maxItems: 4
+
+  clock-names:
+    items:
+      - const: ref
+      - const: bus_early
+      - const: phy
+      - const: suspend
+
+  ranges: true
+
+  '#address-cells':
+    enum: [ 1, 2 ]
+
+  '#size-cells':
+    enum: [ 1, 2 ]
+
+# Required child node:
+
+patternProperties:
+  "^usb@[0-9a-f]+$":
+    $ref: snps,dwc3.yaml#
+
+required:
+  - compatible
+  - reg
+  - clocks
+  - clock-names
+  - ranges
+
+additionalProperties: false
+
+examples:
+  - |
+		usb: usb@ffec03f000 {
+			compatible = "xuantie,th1520-usb";
+			usb3-misc-regmap = <&misc_sysreg>;
+			reg = <0xff 0xec03f000 0x0 0x1000>;
+			xuantie,misc-sysreg = <&misc_sysreg>;
+			clocks = <&miscsys_clk_gate CLKGEN_MISCSYS_USB3_DRD_CLK>,
+					<&miscsys_clk_gate CLKGEN_MISCSYS_USB3_DRD_CTRL_REF_CLK>,
+					<&miscsys_clk_gate CLKGEN_MISCSYS_USB3_DRD_PHY_REF_CLK>,
+					<&miscsys_clk_gate CLKGEN_MISCSYS_USB3_DRD_SUSPEND_CLK>;
+			clock-names = "drd", "ctrl", "phy", "suspend";
+			#address-cells = <2>;
+			#size-cells = <2>;
+			ranges;
+
+			usb_dwc3: usb@ffe7040000 {
+				compatible = "snps,dwc3";
+				reg = <0xff 0xe7040000 0x0 0x10000>;
+				interrupts = <68 IRQ_TYPE_LEVEL_HIGH>;
+				dr_mode = "host";
+				snps,usb3_lpm_capable;
+				status = "disabled";
+			};
+		};

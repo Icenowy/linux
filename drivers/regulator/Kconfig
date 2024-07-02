@@ -1664,7 +1664,7 @@ config REGULATOR_QCOM_LABIBB
 	  for LCD display panel.
 
 config REGULATOR_TH1520_AON
-        tristate "Thead Th1520 Aon regulator"
+        tristate "XuanTie Th1520 Aon regulator"
         depends on TH1520_AON
         default y
         help

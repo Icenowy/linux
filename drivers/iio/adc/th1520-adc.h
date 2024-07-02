@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
- * THEAD TH1520 ADC driver
+ * XuanTie TH1520 ADC driver
  *
  * Copyright (C) 2021-2024 Alibaba Group Holding Limited.
  * Fugang Duan <duanfugang.dfg@linux.alibaba.com>
@@ -10,7 +10,7 @@
 #include <linux/bitops.h>
 
 /* This will be the driver name the kernel reports */
-#define DRIVER_NAME "thead-th1520-adc"
+#define DRIVER_NAME "xuantie-th1520-adc"
 
 /* ADC registers */
 #define TH1520_ADC_PHY_CFG			0x00

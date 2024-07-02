@@ -189,7 +189,7 @@ config USB_DWC3_RTK
 	  or dual-role mode.
 	  Say 'Y' or 'M' if you have such device.
 
-config USB_DWC3_THEAD
+config USB_DWC3_XUANTIE
 	tristate "XuanTie Platform"
 	depends on ARCH_XUANTIE || COMPILE_TEST
 	default USB_DWC3

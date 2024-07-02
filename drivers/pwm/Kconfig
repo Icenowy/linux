@@ -637,7 +637,7 @@ config PWM_TEGRA
 	  To compile this driver as a module, choose M here: the module
 	  will be called pwm-tegra.
 
-config PWM_THEAD
+config PWM_XUANTIE
 	tristate "XuanTie PWM support"
 	depends on ARCH_XUANTIE || COMPILE_TEST
 	depends on HAS_IOMEM
@@ -646,7 +646,7 @@ config PWM_THEAD
 	  SoCs.
 
 	  To compile this driver as a module, choose M here: the module
-	  will be called pwm-thead.
+	  will be called pwm-xuantie.
 
 config PWM_TIECAP
 	tristate "ECAP PWM support"

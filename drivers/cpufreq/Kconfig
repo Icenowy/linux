@@ -315,7 +315,7 @@ config QORIQ_CPUFREQ
 config RISCV_XUANTIE_TH1520_CPUFREQ
 	tristate "CPU frequency scaling driver for XuanTie th1520 SoCs"
 	depends on OF && COMMON_CLK && TH1520_AON && REGULATOR_TH1520_AON
-	select THEAD_CLK
+	select XUANTIE_CLK
 	select PM_OPP
 	help
 	  This adds the CPUFreq driver support for XuanTie th1520 SoCs

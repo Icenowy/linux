@@ -47,8 +47,7 @@
 #include <linux/th1520_rpmsg.h>
 #include <linux/th1520_proc_debug.h>
 #ifdef CONFIG_PM_SLEEP
-#include <linux/firmware/thead/ipc.h>
-//#include <linux/firmware/thead/light_event.h>
+#include <linux/firmware/xuantie/ipc.h>
 #endif
 #define MBOX_MAX_MSG_LEN 28
 #define WJ_MBOX_SEND_MAX_MESSAGE_LENGTH 28
@@ -940,13 +939,13 @@ static int mbox_client_th1520_remove(struct platform_device *pdev)
 }
 
 static const struct of_device_id mbox_client_th1520_match[] = {
-	{ .compatible = "thead,th1520-mbox-client" },
+	{ .compatible = "xuantie,th1520-mbox-client" },
 	{},
 };
 
 static struct platform_driver mbox_client_th1520_driver = {
 	.driver = {
-		.name = "thead,th1520-mbox-client",
+		.name = "xuantie,th1520-mbox-client",
 		.of_match_table = mbox_client_th1520_match,
 	},
 	.probe  = mbox_client_th1520_probe,
@@ -955,5 +954,5 @@ static struct platform_driver mbox_client_th1520_driver = {
 module_platform_driver(mbox_client_th1520_driver);
 
 MODULE_AUTHOR("Alibaba Group Holding Limited");
-MODULE_DESCRIPTION("Thead Light mailbox IPC client driver");
+MODULE_DESCRIPTION("XuanTie TH1520 mailbox IPC client driver");
 MODULE_LICENSE("GPL v2");

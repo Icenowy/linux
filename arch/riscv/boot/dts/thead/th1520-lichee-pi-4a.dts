@@ -172,7 +172,7 @@
 	};
 
 	mbox_910t_client2: mbox_910t_client2 {
-		compatible = "thead,th1520-mbox-client";
+		compatible = "xuantie,th1520-mbox-client";
 		mbox-names = "906";
 		mboxes = <&mbox_910t 2 0>;
 		audio-mbox-regmap = <&audio_mbox>;

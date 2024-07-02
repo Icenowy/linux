@@ -1448,7 +1448,7 @@ config XILINX_AMS
 	  The driver can also be built as a module. If so, the module will be called
 	  xilinx-ams.
 
-config THEAD_TH1520_ADC
+config XUANTIE_TH1520_ADC
 	tristate "XuanTie TH1520 ADC driver"
 	depends on OF
 	depends on HAS_IOMEM

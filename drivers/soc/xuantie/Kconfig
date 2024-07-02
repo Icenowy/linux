@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: GPL-2.0-only
+menu "XuanTie SoC drivers"
+
+config TH1520_REBOOTMODE
+	bool "XuanTie th1520 rebootmode support"
+	depends on TH1520_AON
+	default y
+	help
+	 This driver supports check rebootmode feature in TH1520 FM platform
+
+endmenu

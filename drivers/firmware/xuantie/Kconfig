@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: GPL-2.0-only
+config TH1520_AON
+	bool "XuanTie TH1520 Aon Protocol driver"
+	depends on TH1520_MBOX
+	default y
+	help
+	  XuanTie TH1520 Aon is a low-level system function which runs a dedicated
+	  XuanTie riscv E902 core to provide power, clock and resource management.
+
+	  This driver manages the IPC interface between host cpu likes xuantie
+	  and the Aon firmware running on xuantie riscv E902 core.
+
+config TH1520_AON_PD
+    bool "XuanTie TH1520 Aon Power Domain driver"
+    depends on TH1520_AON
+    help
+	  The Xuantie TH1520 Aon based power domain virtual driver.
+	  When selected, this option adds kernel support for dynamically
+	  configuring power to various peripherals and functional block.
+
+          Note: Enabling this option requires the "Xuantie TH1520 Aon Support"
+	  (`TH1520_AON`) to be selected first, as this driver is built upon
+	  the foundational Aon infrastructure provided by that configuration.

@@ -56,4 +56,4 @@ obj-$(CONFIG_USB_DWC3_IMX8MP)		+= dwc3-imx8mp.o
 obj-$(CONFIG_USB_DWC3_XILINX)		+= dwc3-xilinx.o
 obj-$(CONFIG_USB_DWC3_OCTEON)		+= dwc3-octeon.o
 obj-$(CONFIG_USB_DWC3_RTK)		+= dwc3-rtk.o
-obj-$(CONFIG_USB_DWC3_THEAD)		+= dwc3-thead.o
+obj-$(CONFIG_USB_DWC3_XUANTIE)		+= dwc3-xuantie.o

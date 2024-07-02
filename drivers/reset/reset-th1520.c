@@ -13,7 +13,7 @@
 #include <linux/platform_device.h>
 #include <linux/reset-controller.h>
 #include <linux/regmap.h>
-#include <dt-bindings/reset/thead,th1520-reset.h>
+#include <dt-bindings/reset/xuantie,th1520-reset.h>
 
 struct th1520_rst_signal {
 	unsigned int offset, bit;
