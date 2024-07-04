@@ -14,6 +14,7 @@
 #include <dt-bindings/clock/th1520-miscsys.h>
 #include <dt-bindings/reset/xuantie,th1520-reset.h>
 #include <dt-bindings/firmware/xuantie/rsrc.h>
+#include <dt-bindings/thermal/thermal.h>
 
 / {
 	compatible = "thead,th1520";
@@ -38,6 +39,8 @@
 			d-cache-sets = <512>;
 			next-level-cache = <&l2_cache>;
 			mmu-type = "riscv,sv39";
+			#cooling-cells = <2>;
+			dynamic-power-coefficient = <500>;
 
 			clock-latency = <61036>;
 			clocks = <&clk C910_CCLK>,
@@ -67,6 +70,8 @@
 			d-cache-sets = <512>;
 			next-level-cache = <&l2_cache>;
 			mmu-type = "riscv,sv39";
+			#cooling-cells = <2>;
+			dynamic-power-coefficient = <500>;
 
 			clock-latency = <61036>;
 			clocks = <&clk C910_CCLK>,
@@ -96,6 +101,8 @@
 			d-cache-sets = <512>;
 			next-level-cache = <&l2_cache>;
 			mmu-type = "riscv,sv39";
+			#cooling-cells = <2>;
+			dynamic-power-coefficient = <500>;
 
 			clock-latency = <61036>;
 			clocks = <&clk C910_CCLK>,
@@ -125,6 +132,8 @@
 			d-cache-sets = <512>;
 			next-level-cache = <&l2_cache>;
 			mmu-type = "riscv,sv39";
+			#cooling-cells = <2>;
+			dynamic-power-coefficient = <500>;
 
 			clock-latency = <61036>;
 			clocks = <&clk C910_CCLK>,
@@ -325,6 +334,81 @@
 	aon_iram: aon-iram@ffffef8000 {
 		compatible = "syscon";
 		reg = <0xff 0xffef8000 0x0 0x10000>;
+	};
+
+	thermal-zones {
+		cpu-thermal {
+			polling-delay-passive = <250>;
+			polling-delay = <2000>;
+			thermal-sensors = <&pvt 0>;
+
+			trips {
+				cpu_threshold: trip0 {
+					temperature = <80000>;
+					hysteresis = <2000>;
+					type = "passive";
+				};
+
+				cpu_target: trip1 {
+					temperature = <85000>;
+					hysteresis = <2000>;
+					type = "passive";
+				};
+
+				cpu_crit: trip2 {
+					temperature = <110000>;
+					hysteresis = <2000>;
+					type = "critical";
+				};
+			};
+
+			cooling-maps {
+				cpu_cdev {
+					trip = <&cpu_target>;
+					cooling-device =
+						<&c910_0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
+						<&c910_1 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
+						<&c910_2 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
+						<&c910_3 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
+					contribution = <1024>;
+				};
+			};
+		};
+
+		dev-thermal {
+			polling-delay-passive = <250>;
+			polling-delay = <2000>;
+			thermal-sensors = <&pvt 1>;
+
+			trips {
+				dev_threshold: trip0 {
+					temperature = <80000>;
+					hysteresis = <2000>;
+					type = "passive";
+				};
+
+				dev_target: trip1 {
+					temperature = <85000>;
+					hysteresis = <2000>;
+					type = "passive";
+				};
+
+				dev_crit: trip2 {
+					temperature = <110000>;
+					hysteresis = <2000>;
+					type = "critical";
+				};
+			};
+
+			cooling-maps {
+				npu_devfreq {
+					trip = <&dev_target>;
+					cooling-device =
+						<&npu THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
+						contribution = <1024>;
+				};
+			};
+		};
 	};
 
 	display-subsystem {

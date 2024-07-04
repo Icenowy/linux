@@ -245,6 +245,7 @@
 			polling-delay = <1000>;
 			polling-delay-passive = <1000>;
 			thermal-sensors = <&pvt 0>;
+			sustainable-power = <1600>;
 
 			trips {
 				trip_active0: active-0 {
@@ -282,6 +283,10 @@
 					trip = <&trip_active2>;
 				};
 			};
+		};
+
+		dev-thermal {
+			sustainable-power = <3000>;
 		};
 	};
 };
