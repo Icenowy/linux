@@ -282,12 +282,14 @@ void panic(const char *fmt, ...)
 	int state = 0;
 	int old_cpu, this_cpu;
 	bool _crash_kexec_post_notifiers = crash_kexec_post_notifiers;
+
+#ifdef CONFIG_TH1520_REBOOTMODE
 	enum th1520_rebootmode_index mode;
 
 	if (!th1520_event_get_rebootmode(&mode) &&
 			mode != TH1520_EVENT_SW_WATCHDOG)
 			th1520_event_set_rebootmode(TH1520_EVENT_SW_PANIC);
-
+#endif
 	if (panic_on_warn) {
 		/*
 		 * This thread may hit another WARN() in the panic path.
