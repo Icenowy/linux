@@ -663,6 +663,8 @@
 };
 
 &adc {
+	vref-supply = <&reg_vref_1v8>;
+    #io-channel-cells = <1>;
 	status = "okay";
 };
 
