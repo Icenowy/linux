@@ -1,0 +1,18 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright (C) 2023 Han Gao <gaohan@iscas.ac.cn>
+ */
+
+/dts-v1/;
+
+#include "th1520-lichee-pi-4a.dts"
+
+/ {
+        model = "Sipeed Lichee Pi 4A 16G";
+        compatible = "sipeed,lichee-pi-4a", "sipeed,lichee-module-4a", "thead,th1520";
+
+        memory@0 {
+                device_type = "memory";
+                reg = <0x0 0x00000000 0x4 0x00000000>;
+        };
+};
