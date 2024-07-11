@@ -5,6 +5,27 @@
 
 #include "th1520-a-val.dtsi"
 
+&dpu_enc1 {
+	ports {
+		/delete-node/ port@0;
+	};
+};
+
+&disp1_out {
+	remote-endpoint = <&hdmi_tx_in>;
+};
+
+&hdmi_tx {
+	status = "okay";
+
+	port@0 {
+		/* input */
+		hdmi_tx_in: endpoint {
+			remote-endpoint = <&disp1_out>;
+		};
+	};
+};
+
 &th1520_sound {
     status = "okay";
 
