@@ -935,7 +935,7 @@
 		};
 
 		dmac0: dma-controller@ffefc00000 {
-			compatible = "snps,axi-dma-1.01a";
+			compatible = "xuantie,th1520-axi-dma";
 			reg = <0xff 0xefc00000 0x0 0x1000>;
 			interrupts = <27 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&clk CLKGEN_DMAC_CPUSYS_ACLK>, <&clk CLKGEN_DMAC_CPUSYS_HCLK>;
@@ -967,7 +967,7 @@
 		};
 
 		dmac2: dma-controller@ffc8000000 {
-			compatible = "snps,axi-dma-1.01a";
+			compatible = "xuantie,th1520-axi-dma";
 			reg = <0xff 0xc8000000 0x0 0x2000>;
 			interrupts = <167 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&clk CLKGEN_DMAC_CPUSYS_ACLK>, <&clk CLKGEN_DMAC_CPUSYS_HCLK>;
