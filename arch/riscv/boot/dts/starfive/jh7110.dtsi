@@ -1404,6 +1404,7 @@
 			power-domains = <&pwrc JH7110_PD_GPUA>;
 			interrupts = <82>;
 			current-clock = <8000000>;
+			dma-noncoherent;
 			status = "disabled";
 		};
 
