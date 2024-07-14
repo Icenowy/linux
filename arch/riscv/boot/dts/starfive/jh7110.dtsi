@@ -408,6 +408,7 @@
 			cache-sets = <2048>;
 			cache-size = <2097152>;
 			cache-unified;
+			uncached-offset = /bits/ 64 <0x400000000>;
 		};
 
 		plic: interrupt-controller@c000000 {
