@@ -679,8 +679,6 @@ static int th1520_audio_i2s_probe(struct platform_device *pdev)
 {
 	int ret;
 	unsigned int irq;
-	const char *sprop;
-	const uint32_t *iprop;
 	struct resource *res;
 	struct th1520_i2s_priv *i2s_priv;
 	struct device *dev = &pdev->dev;
