@@ -124,6 +124,16 @@ pvr_fw_start(struct pvr_device *pvr_dev)
 	if (has_reset2)
 		(void)pvr_cr_read64(pvr_dev, ROGUE_CR_SOFT_RESET2);
 
+	pvr_cr_write32(pvr_dev, 0x38, 0xff000703);
+	err = pvr_cr_poll_reg32(pvr_dev, ROGUE_CR_EVENT_STATUS,
+				ROGUE_CR_EVENT_STATUS_POWER_COMPLETE_EN,
+				ROGUE_CR_EVENT_STATUS_POWER_COMPLETE_EN,
+				POLL_TIMEOUT_USEC);
+	if (err)
+		goto err_reset;
+	pvr_cr_write32(pvr_dev, 0x38, 0x0);
+	pvr_cr_write32(pvr_dev, 0x138, ROGUE_CR_EVENT_STATUS_POWER_COMPLETE_EN);
+
 	/* Take Rascal and Dust out of reset. */
 	pvr_cr_write64(pvr_dev, ROGUE_CR_SOFT_RESET,
 		       soft_reset_mask ^ ROGUE_CR_SOFT_RESET_RASCALDUSTS_EN);
