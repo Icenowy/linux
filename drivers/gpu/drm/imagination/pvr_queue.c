@@ -1360,6 +1360,7 @@ void pvr_queue_kill(struct pvr_queue *queue)
 	drm_sched_entity_destroy(&queue->entity);
 	dma_fence_put(queue->last_queued_job_scheduled_fence);
 	queue->last_queued_job_scheduled_fence = NULL;
+	drm_sched_stop(&queue->scheduler, NULL);
 }
 
 /**
