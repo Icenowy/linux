@@ -23,6 +23,7 @@
 #include <linux/firmware.h>
 #include <linux/gfp.h>
 #include <linux/interrupt.h>
+#include <linux/of.h>
 #include <linux/platform_device.h>
 #include <linux/pm_runtime.h>
 #include <linux/slab.h>
@@ -99,6 +100,7 @@ static int pvr_device_clk_init(struct pvr_device *pvr_dev)
 	struct clk *core_clk;
 	struct clk *sys_clk;
 	struct clk *mem_clk;
+	struct clk *bv_clk;
 	struct reset_control *apb_rst;
 	struct reset_control *doma_rst;
 
@@ -106,6 +108,14 @@ static int pvr_device_clk_init(struct pvr_device *pvr_dev)
 	if (IS_ERR(core_clk))
 		return dev_err_probe(drm_dev->dev, PTR_ERR(core_clk),
 				     "failed to get core clock\n");
+
+	bv_clk = devm_clk_get_optional(drm_dev->dev, "clk_bv");
+	if (!IS_ERR(bv_clk)) {
+		if (of_find_node_by_path("/opp-table-0/opp-1250000000"))
+			clk_set_rate(bv_clk, 594000000UL);
+		else
+			clk_set_rate(bv_clk, 396000000UL);
+	}
 
 	sys_clk = devm_clk_get_optional(drm_dev->dev, "clk_sys");
 	if (IS_ERR(sys_clk))
