@@ -540,7 +540,7 @@ void __init riscv_fill_hwcap(void)
 		elf_hwcap &= ~COMPAT_HWCAP_ISA_F;
 	}
 
-	if (elf_hwcap & COMPAT_HWCAP_ISA_V) {
+	if ((elf_hwcap & COMPAT_HWCAP_ISA_V) || test_bit(RISCV_ISA_EXT_XTHEADVECTOR, hart_isa[0].isa)) {
 		riscv_v_setup_vsize();
 		/*
 		 * ISA string in device tree might have 'v' flag, but

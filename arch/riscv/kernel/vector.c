@@ -30,9 +30,9 @@ int riscv_v_setup_vsize(void)
 {
 	unsigned long this_vsize;
 
-	if (riscv_cached_mvendorid(0) == THEAD_VENDOR_ID &&
-	    riscv_cached_marchid(0) == 0 &&
-	    riscv_cached_mimpid(0) == 0) {
+	if (sbi_get_mvendorid() == THEAD_VENDOR_ID &&
+	    sbi_get_marchid() == 0 &&
+	    sbi_get_mimpid() == 0) {
 		riscv_v_vsize = 128 / 8 * 32;
 		return 0;
 	}
