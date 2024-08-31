@@ -1,0 +1,67 @@
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (C) 2021 Alibaba Group Holding Limited.
+ */
+
+#include "th1520-a-val.dtsi"
+
+/ {
+	model = "XuanTie TH1520 FM Audio VAL board";
+	compatible = "xuantie,th1520-val-audio-i2s-8ch", "xuantie,th1520";
+};
+
+&th1520_sound_i2s_8ch {
+	status = "okay";
+};
+
+&i2s0 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2s0_pa_pins>;
+};
+
+&i2s_8ch_sd0 {
+	status = "okay";
+    pinctrl-names = "default";
+	pinctrl-0 = <&i2s_8ch_bus_pa_pins>,
+				<&i2s_8ch_sd0_pa_pins>;
+};
+
+&i2s_8ch_sd1 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2s_8ch_bus_pa_pins>,
+				<&i2s_8ch_sd1_pa_pins>;
+};
+
+&i2s_8ch_sd2 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2s_8ch_bus_pa_pins>,
+				<&i2s_8ch_sd2_pa_pins>;
+};
+
+&i2s_8ch_sd3 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2s_8ch_bus_pa_pins>,
+				<&i2s_8ch_sd3_pa_pins>;
+};
+
+&es8156_audio_codec {
+	status = "okay";
+};
+
+&es7210_audio_codec_adc0 {
+	status = "okay";
+	channels-max = <8>;
+};
+
+&es7210_audio_codec_adc1 {
+	status = "okay";
+	channels-max = <8>;
+};
+
+&audio_aw87519_pa {
+	status = "okay";
+};

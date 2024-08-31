@@ -7,6 +7,7 @@
 
 #include "th1520.dtsi"
 #include <dt-bindings/gpio/gpio.h>
+#include "th1520-a-val-audio.dtsi"
 
 / {
 	model = "XUANTIE TH1520 VAL Board";
@@ -375,6 +376,27 @@
 	};
 };
 
+&audio_i2c0 {
+	clock-frequency = <100000>;
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&audio_i2c0_pa_pins>;
+};
+
+&audio_i2c1 {
+	clock-frequency = <100000>;
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&audio_i2c1_pa_pins>;
+
+	pcal6408ahk_b: gpio@20 {
+		compatible = "nxp,pcal9554b";
+		reg = <0x20>;
+		gpio-controller;
+		#gpio-cells = <2>;
+	};
+};
+
 &mdio0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&mdio0_pins>;
@@ -711,9 +733,72 @@
 };
 
 &padctrl_aosys {
-	i2s1_pa_pins: i2s1-pa-0 {
+	audio_i2c0_pa_pins: audio-i2c0-pa-0 {
+		i2c-pa-pins {
+			pins = "AUDIO_PA6", "AUDIO_PA7";
+			function = "audio";
+			bias-disable;
+			drive-strength = <0>;
+			slew-rate = <0>;
+		};
+	};
+	audio_i2c1_pa_pins: audio-i2c1-pa-0 {
+		i2c-pa-pins {
+			pins = "AUDIO_PA13", "AUDIO_PA16";
+			function = "audio";
+			bias-disable;
+			drive-strength = <0>;
+			slew-rate = <0>;
+		};
+	};
+	i2s0_pa_pins: i2s0-pa-0 {
 		i2s-pa-pins {
-			pins = "AUDIO_PA14", "AUDIO_PA15", "AUDIO_PA16", "AUDIO_PA17";
+			pins = "AUDIO_PA9", "AUDIO_PA10", "AUDIO_PA11", "AUDIO_PA12";
+			function = "audio";
+			bias-disable;
+			drive-strength = <0>;
+			slew-rate = <0>;
+		};
+	};
+	i2s_8ch_bus_pa_pins: i2s-8ch-bus-pa-0 {
+		i2s-pa-pins {
+			pins = "AUDIO_PA2", "AUDIO_PA3", "AUDIO_PA8";
+			function = "audio";
+			bias-disable;
+			drive-strength = <0>;
+			slew-rate = <0>;
+		};
+	};
+	i2s_8ch_sd0_pa_pins: i2s-8ch-sd0-pa-0 {
+		i2s-pa-pins {
+			pins = "AUDIO_PA4";
+			function = "audio";
+			bias-disable;
+			drive-strength = <0>;
+			slew-rate = <0>;
+		};
+	};
+	i2s_8ch_sd1_pa_pins: i2s-8ch-sd1-pa-0 {
+		i2s-pa-pins {
+			pins = "AUDIO_PA5";
+			function = "audio";
+			bias-disable;
+			drive-strength = <0>;
+			slew-rate = <0>;
+		};
+	};
+	i2s_8ch_sd2_pa_pins: i2s-8ch-sd2-pa-0 {
+		i2s-pa-pins {
+			pins = "AUDIO_PA0";
+			function = "audio";
+			bias-disable;
+			drive-strength = <0>;
+			slew-rate = <0>;
+		};
+	};
+	i2s_8ch_sd3_pa_pins: i2s-8ch-sd3-pa-0 {
+		i2s-pa-pins {
+			pins = "AUDIO_PA1";
 			function = "audio";
 			bias-disable;
 			drive-strength = <0>;
@@ -902,40 +987,8 @@
 	};
 };
 
-&audio_i2c0 {
-	clock-frequency = <100000>;
+&ap_i2s {
 	status = "okay";
-
-	es8156_audio_codec: es8156@8 {
-		#sound-dai-cells = <0>;
-		compatible = "everest,es8156";
-		reg = <0x08>;
-		sound-name-prefix = "ES8156";
-		AVDD-supply = <&reg_aud_3v3>;
-		DVDD-supply = <&reg_aud_1v8>;
-		PVDD-supply = <&reg_aud_1v8>;
-	};
-
-	es7210_audio_codec: es7210@40 {
-		#sound-dai-cells = <0>;
-		compatible = "MicArray_0";
-		reg = <0x40>;
-		sound-name-prefix = "ES7210";
-		MVDD-supply = <&reg_aud_3v3>;
-		AVDD-supply = <&reg_aud_3v3>;
-		DVDD-supply = <&reg_aud_1v8>;
-		PVDD-supply = <&reg_aud_1v8>;
-	};
-};
-
-&light_i2s {
-	status = "okay";
-};
-
-&i2s1 {
-	status = "okay";
-	pinctrl-names = "default";
-	pinctrl-0 = <&i2s1_pa_pins>;
 };
 
 &cpus {

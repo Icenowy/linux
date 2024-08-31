@@ -434,6 +434,7 @@ static const struct snd_soc_dai_ops th1520_hdmi_dai_ops = {
 
 static struct snd_soc_dai_driver th1520_i2s_8ch_soc_dai[] = {
 	{
+		.name			= "th1520-i2s-8ch-dai",
 		.playback	= {
 			.rates		= TH1520_RATES,
 			.formats	= TH1520_FMTS,

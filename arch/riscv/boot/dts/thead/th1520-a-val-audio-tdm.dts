@@ -1,0 +1,62 @@
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (C) 2021 Alibaba Group Holding Limited.
+ */
+
+#include "th1520-a-val.dtsi"
+
+&tdm_slot1 {
+	status = "okay";
+};
+
+&tdm_slot2 {
+	status = "okay";
+};
+
+&tdm_slot3 {
+	status = "okay";
+};
+
+&tdm_slot4 {
+	status = "okay";
+};
+
+&tdm_slot5 {
+	status = "okay";
+};
+
+&tdm_slot6 {
+	status = "okay";
+};
+
+&tdm_slot7 {
+	status = "okay";
+};
+
+&tdm_slot8 {
+	status = "okay";
+};
+
+&es8156_audio_codec {
+	status = "okay";
+};
+
+&es7210_adc2 {
+	status = "okay";
+};
+
+&es7210_adc3 {
+	status = "okay";
+};
+
+&th1520_sound_tdm {
+	status = "okay";
+};
+
+&i2s0 {
+	status = "okay";
+};
+
+&audio_aw87519_pa {
+	status = "okay";
+};

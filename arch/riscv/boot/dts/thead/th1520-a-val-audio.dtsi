@@ -1,0 +1,334 @@
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (C) 2021-2022 Alibaba Group Holding Limited.
+ */
+
+/ {
+	th1520_sound: soundcard@1 {
+		compatible = "simple-audio-card";
+		simple-audio-card,name = "TH1520-Sound-Card";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
+
+		simple-audio-card,widgets = "Speaker", "Speaker";
+		simple-audio-card,routing =
+			"Speaker", "AW87519 VO",
+			"AW87519 IN", "ES8156 ROUT";
+		simple-audio-card,aux-devs = <&audio_aw87519_pa>;
+		simple-audio-card,dai-link@0 {          /* I2S - AUDIO SYS CODEC 8156*/
+				reg = <0>;
+				format = "i2s";
+				cpu {
+						sound-dai = <&i2s0 0>;
+				};
+				codec {
+						sound-dai = <&es8156_audio_codec>;
+				};
+		};
+
+		simple-audio-card,dai-link@1 {          /* I2S - AUDIO SYS CODEC 7210*/
+				reg = <1>;
+				format = "i2s";
+				cpu {
+						sound-dai = <&i2s_8ch_sd2 2>;
+				};
+				codec {
+						sound-dai = <&es7210_audio_codec_adc0>;
+				};
+		};
+	};
+
+	th1520_sound_spdif: soundcard@2 {
+		compatible = "simple-audio-card";
+		simple-audio-card,name = "TH1520-Sound-Card";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
+
+		simple-audio-card,dai-link@0 {          /* SPDIF0 */
+				reg = <1>;
+				format = "i2s";
+				cpu {
+						sound-dai = <&spdif0>;
+				};
+				codec {
+						sound-dai = <&hdmi_codec>;
+				};
+		};
+		simple-audio-card,dai-link@1 {          /* SPDIF1 */
+				reg = <1>;
+				format = "i2s";
+				cpu {
+						sound-dai = <&spdif1>;
+				};
+				codec {
+						sound-dai = <&hdmi_codec>;
+				};
+		};
+	};
+
+	th1520_sound_tdm: soundcard@3 {
+		compatible = "simple-audio-card";
+		simple-audio-card,name = "TH1520-Sound-Card";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
+
+		simple-audio-card,widgets = "Speaker", "Speaker";
+		simple-audio-card,routing =
+			"Speaker", "AW87519 VO",
+			"AW87519 IN", "ES8156 ROUT";
+		simple-audio-card,aux-devs = <&audio_aw87519_pa>;
+		simple-audio-card,dai-link@0 {          /* I2S - AUDIO SYS CODEC 8156*/
+				reg = <0>;
+				format = "i2s";
+				cpu {
+						sound-dai = <&i2s0 0>;
+				};
+				codec {
+						sound-dai = <&es8156_audio_codec>;
+				};
+		};
+
+		simple-audio-card,dai-link@1 {          /* TDM - AUDIO SYS CODEC 7210*/
+				reg = <1>;
+				format = "dsp_b";
+				cpu {
+						sound-dai = <&tdm_slot1>;
+				};
+				codec {
+						sound-dai = <&es7210_adc2>;
+				};
+		};
+
+		simple-audio-card,dai-link@2 {
+				reg = <1>;
+				format = "dsp_b";
+				cpu {
+						sound-dai = <&tdm_slot2>;
+				};
+				codec {
+						sound-dai = <&es7210_adc2>;
+				};
+		};
+
+		simple-audio-card,dai-link@3 {
+				reg = <1>;
+				format = "dsp_b";
+				cpu {
+						sound-dai = <&tdm_slot3>;
+				};
+				codec {
+						sound-dai = <&es7210_adc2>;
+				};
+		};
+
+		simple-audio-card,dai-link@4 {
+				reg = <1>;
+				format = "dsp_b";
+				cpu {
+						sound-dai = <&tdm_slot4>;
+				};
+				codec {
+						sound-dai = <&es7210_adc2>;
+				};
+		};
+
+		simple-audio-card,dai-link@5 {
+				reg = <1>;
+				format = "dsp_b";
+				cpu {
+						sound-dai = <&tdm_slot5>;
+				};
+				codec {
+						sound-dai = <&es7210_adc2>;
+				};
+		};
+
+		simple-audio-card,dai-link@6 {
+				reg = <1>;
+				format = "dsp_b";
+				cpu {
+						sound-dai = <&tdm_slot6>;
+				};
+				codec {
+						sound-dai = <&es7210_adc2>;
+				};
+		};
+
+		simple-audio-card,dai-link@7 {
+				reg = <1>;
+				format = "dsp_b";
+				cpu {
+						sound-dai = <&tdm_slot7>;
+				};
+				codec {
+						sound-dai = <&es7210_adc2>;
+				};
+		};
+
+		simple-audio-card,dai-link@8 {
+				reg = <1>;
+				format = "dsp_b";
+				cpu {
+						sound-dai = <&tdm_slot8>;
+				};
+				codec {
+						sound-dai = <&es7210_adc2>;
+				};
+		};
+	};
+
+	th1520_sound_i2s_8ch: soundcard@4 {
+		compatible = "simple-audio-card";
+		simple-audio-card,name = "TH1520-Sound-Card";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
+
+		simple-audio-card,widgets = "Speaker", "Speaker";
+		simple-audio-card,routing =
+			"Speaker", "AW87519 VO",
+			"AW87519 IN", "ES8156 ROUT";
+		simple-audio-card,aux-devs = <&audio_aw87519_pa>;
+		simple-audio-card,dai-link@0 {          /* I2S - AUDIO SYS CODEC 8156*/
+				reg = <0>;
+				format = "i2s";
+				cpu {
+						sound-dai = <&i2s0 0>;
+				};
+				codec {
+						sound-dai = <&es8156_audio_codec>;
+				};
+		};
+
+		simple-audio-card,dai-link@1 {          /* I2S - AUDIO SYS CODEC 7210*/
+				reg = <1>;
+				format = "i2s";
+				cpu {
+						sound-dai = <&i2s_8ch_sd2>;
+				};
+				codec {
+						mclk-fs = <512>;
+						sound-dai = <&es7210_audio_codec_adc0>;
+				};
+		};
+
+		simple-audio-card,dai-link@2 {          /* I2S - AUDIO SYS CODEC 7210*/
+				reg = <2>;
+				format = "i2s";
+				cpu {
+						sound-dai = <&i2s_8ch_sd3>;
+				};
+				codec {
+						mclk-fs = <512>;
+						sound-dai = <&es7210_audio_codec_adc0>;
+				};
+		};
+
+		simple-audio-card,dai-link@3 {          /* I2S - AUDIO SYS CODEC 7210_1*/
+				reg = <3>;
+				format = "i2s";
+				cpu {
+						sound-dai = <&i2s_8ch_sd0>;
+				};
+				codec {
+						mclk-fs = <512>;
+						sound-dai = <&es7210_audio_codec_adc1>;
+				};
+		};
+
+		simple-audio-card,dai-link@4 {          /* I2S - AUDIO SYS CODEC 7210_1*/
+				reg = <4>;
+				format = "i2s";
+				cpu {
+						sound-dai = <&i2s_8ch_sd1>;
+				};
+				codec {
+						mclk-fs = <512>;
+						sound-dai = <&es7210_audio_codec_adc1>;
+				};
+		};
+	};
+};
+
+&audio_i2c0 {
+		es8156_audio_codec: es8156@8 {
+			#sound-dai-cells = <0>;
+			compatible = "everest,es8156";
+			reg = <0x08>;
+			sound-name-prefix = "ES8156";
+			AVDD-supply = <&reg_aud_3v3>;
+			DVDD-supply = <&soc_dvdd18_aon_reg>;
+			PVDD-supply = <&soc_dvdd18_aon_reg>;
+			mclk-sclk-ratio = <4>;
+			status = "disabled";
+		};
+
+		es7210_audio_codec_adc0: es7210@40 {
+			#sound-dai-cells = <0>;
+			compatible = "MicArray_0";
+			reg = <0x40>;
+			work-mode = "ES7210_NORMAL_I2S";
+			channels-max = <2>;
+			mclk-sclk-ratio = <4>;
+			sound-name-prefix = "ES7210_ADC0";
+			MVDD-supply = <&reg_aud_3v3>;
+			AVDD-supply = <&reg_aud_3v3>;
+			DVDD-supply = <&soc_dvdd18_aon_reg>;
+			PVDD-supply = <&soc_dvdd18_aon_reg>;
+			status = "disabled";
+		};
+
+		es7210_audio_codec_adc1: es7210@41 {
+			#sound-dai-cells = <0>;
+			compatible = "MicArray_1";
+			reg = <0x41>;
+			work-mode = "ES7210_NORMAL_I2S";
+			channels-max = <2>;
+			mclk-sclk-ratio = <4>;
+			sound-name-prefix = "ES7210_ADC1";
+			MVDD-supply = <&reg_aud_3v3>;
+			AVDD-supply = <&reg_aud_3v3>;
+			DVDD-supply = <&soc_dvdd18_aon_reg>;
+			PVDD-supply = <&soc_dvdd18_aon_reg>;
+			status = "disabled";
+		};
+
+		es7210_adc2: es7210@42 {
+			#sound-dai-cells = <0>;
+			compatible = "MicArray_0";
+			reg = <0x42>;
+			work-mode = "ES7210_TDM_1LRCK_DSPB";
+			channels-max = <8>;
+			sound-name-prefix = "ES7210_ADC2";
+			MVDD-supply = <&reg_aud_3v3>;
+			AVDD-supply = <&reg_aud_3v3>;
+			DVDD-supply = <&soc_dvdd18_aon_reg>;
+			PVDD-supply = <&soc_dvdd18_aon_reg>;
+			status = "disabled";
+		};
+
+		es7210_adc3: es7210@43 {
+			#sound-dai-cells = <0>;
+			compatible = "MicArray_1";
+			reg = <0x43>;
+			work-mode = "ES7210_TDM_1LRCK_DSPB";
+			channels-max = <8>;
+			sound-name-prefix = "ES7210_ADC3";
+			MVDD-supply = <&reg_aud_3v3>;
+			AVDD-supply = <&reg_aud_3v3>;
+			DVDD-supply = <&soc_dvdd18_aon_reg>;
+			PVDD-supply = <&soc_dvdd18_aon_reg>;
+			status = "disabled";
+		};
+
+		audio_aw87519_pa: amp@58 {
+			compatible = "awinic,aw87519_pa";
+			reg = <0x58>;
+			reset-gpio = <&pcal6408ahk_b 3 0x1>;
+			sound-name-prefix = "AW87519";
+			status = "disabled";
+		};
+};

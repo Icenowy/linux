@@ -4,3 +4,42 @@
  */
 
 #include "th1520-a-val.dtsi"
+
+&th1520_sound {
+    status = "okay";
+
+    simple-audio-card,dai-link@2 {          /* I2S - HDMI */
+        reg = <2>;
+        format = "i2s";
+        cpu {
+            sound-dai = <&ap_i2s 1>;
+        };
+        codec {
+            sound-dai = <&hdmi_codec>;
+        };
+    };
+};
+
+&ap_i2s {
+	status = "okay";
+};
+
+&i2s0 {
+	status = "okay";
+};
+
+&i2s_8ch_sd2 {
+	status = "okay";
+};
+
+&es8156_audio_codec {
+	status = "okay";
+};
+
+&es7210_audio_codec_adc0 {
+	status = "okay";
+};
+
+&audio_aw87519_pa {
+	status = "okay";
+};

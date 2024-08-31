@@ -1,0 +1,18 @@
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (C) 2021 Alibaba Group Holding Limited.
+ */
+
+#include "th1520-a-val.dtsi"
+
+&spdif0 {
+	status = "okay";
+};
+
+&spdif1 {
+	status = "okay";
+};
+
+&th1520_sound_spdif {
+	status = "okay";
+};
