@@ -5,6 +5,7 @@
 
 #include "th1520-lichee-module-4a.dtsi"
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/linux-event-codes.h>
 
 / {
 	model = "Sipeed Lichee Pi 4A";
@@ -396,6 +397,29 @@
 		pinctrl-0 = <&pinctrl_bt_wake>;
 		BT,power-gpios    = <&ioexp2 5 0>;
 		status = "okay";
+	};
+
+	gpio-keys {
+		compatible = "gpio-keys";
+		key-volumedown {
+			label = "Volume Down Key";
+			linux,code = <KEY_VOLUMEDOWN>;
+			debounce-interval = <1>;
+			gpios = <&gpio1 19 GPIO_ACTIVE_LOW>;
+		};
+		key-volumeup {
+			label = "Volume Up Key";
+			linux,code = <KEY_VOLUMEUP>;
+			debounce-interval = <1>;
+			gpios = <&gpio1 0 GPIO_ACTIVE_LOW>;
+		};
+		key-sleep {
+			label = "Sleep Wake Key";
+			wakeup-source;
+			linux,code = <KEY_SLEEP>;
+			debounce-interval = <1>;
+			gpios = <&aogpio 2 GPIO_ACTIVE_LOW>;
+		};
 	};
 
 	thermal-zones {
