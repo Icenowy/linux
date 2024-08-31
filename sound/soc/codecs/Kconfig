@@ -54,6 +54,7 @@ config SND_SOC_ALL_CODECS
 	imply SND_SOC_ALC5632
 	imply SND_SOC_AUDIO_IIO_AUX
 	imply SND_SOC_AW8738
+	imply SND_SOC_AW87519
 	imply SND_SOC_AW88395
 	imply SND_SOC_AW88261
 	imply SND_SOC_BT_SCO
@@ -635,6 +636,15 @@ config SND_SOC_AW8738
 	select GPIOLIB
 	help
 	  Enable support for the Awinic AW8738 audio amplifier (or similar).
+	  The driver supports simple audio amplifiers similar to
+	  SND_SOC_SIMPLE_AMPLIFIER, but additionally allows setting the
+	  operation mode using the Awinic-specific one-wire pulse control.
+
+config SND_SOC_AW87519
+	tristate "Awinic AW87519 Audio Amplifier"
+	select GPIOLIB
+	help
+	  Enable support for the Awinic AW87519 audio amplifier (or similar).
 	  The driver supports simple audio amplifiers similar to
 	  SND_SOC_SIMPLE_AMPLIFIER, but additionally allows setting the
 	  operation mode using the Awinic-specific one-wire pulse control.
