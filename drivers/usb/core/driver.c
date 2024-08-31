@@ -1577,6 +1577,9 @@ int usb_suspend(struct device *dev, pm_message_t msg)
 	if (udev->quirks & USB_QUIRK_DISCONNECT_SUSPEND)
 		usb_port_disable(udev);
 
+	pm_runtime_disable(dev);
+	pm_runtime_set_suspended(dev);
+
 	return 0;
 }
 
@@ -1597,29 +1600,12 @@ int usb_resume_complete(struct device *dev)
 int usb_resume(struct device *dev, pm_message_t msg)
 {
 	struct usb_device	*udev = to_usb_device(dev);
-	int			status;
 
-	/* For all calls, take the device back to full power and
-	 * tell the PM core in case it was autosuspended previously.
-	 * Unbind the interfaces that will need rebinding later,
-	 * because they fail to support reset_resume.
-	 * (This can't be done in usb_resume_interface()
-	 * above because it doesn't own the right set of locks.)
-	 */
-	status = usb_resume_both(udev, msg);
-	if (status == 0) {
-		pm_runtime_disable(dev);
-		pm_runtime_set_active(dev);
-		pm_runtime_enable(dev);
-		unbind_marked_interfaces(udev);
-	}
+	/* call usb_resume_both in usb_runtime_resume */
+	pm_runtime_enable(dev);
+	unbind_marked_interfaces(udev);
 
-	/* Avoid PM error messages for devices disconnected while suspended
-	 * as we'll display regular disconnect messages just a bit later.
-	 */
-	if (status == -ENODEV || status == -ESHUTDOWN)
-		status = 0;
-	return status;
+	return 0;
 }
 
 /**
