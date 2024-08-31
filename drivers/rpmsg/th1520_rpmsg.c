@@ -48,6 +48,7 @@
 #include <linux/th1520_proc_debug.h>
 #ifdef CONFIG_PM_SLEEP
 #include <linux/firmware/xuantie/ipc.h>
+#include <linux/suspend.h>
 #endif
 #define MBOX_MAX_MSG_LEN 28
 #define WJ_MBOX_SEND_MAX_MESSAGE_LENGTH 28
@@ -452,102 +453,30 @@ int get_audio_log_mem(struct device *dev, phys_addr_t *mem, size_t *mem_size)
 	return 0;
 }
 
-static int th1520_rpmsg_probe(struct platform_device *pdev)
+int  get_audio_text_mem(struct device *dev, phys_addr_t* mem, size_t* mem_size)
 {
-	int core_id, j, ret = 0;
-	struct device *dev = &pdev->dev;
-	struct device_node *np = pdev->dev.of_node;
-	struct th1520_rpmsg_vproc *rpdev;
-	char dir_name[32] = { 0x0 };
-	if (of_property_read_u32(np, "multi-core-id", &core_id))
-		core_id = 0;
-	rpdev = &th1520_rpmsg_vprocs[core_id];
-	rpdev->core_id = core_id;
-	rpdev->variant =
-		(enum th1520_rpmsg_variants)of_device_get_match_data(dev);
-	spin_lock_init(&rpdev->mu_lock);
+    struct resource r;
+	struct device_node *node;
+	int ret;
 
-	pri_rpdev = rpdev;
+	*mem = 0;
+	*mem_size = 0;
 
-	INIT_DELAYED_WORK(&(rpdev->rpmsg_work), rpmsg_work_handler);
-	BLOCKING_INIT_NOTIFIER_HEAD(&(rpdev->notifier));
-#ifdef CONFIG_PM_SLEEP
-	sema_init(&rpdev->pm_sem, 0);
-#endif
-	pr_info("th1520 rpmsg: Ready for cross core communication!\n");
-
-	ret = of_property_read_u32(np, "vdev-nums", &rpdev->vdev_nums);
-	if (ret) {
-		rpdev->vdev_nums = 1;
-	}
-
-	if (rpdev->vdev_nums > MAX_VDEV_NUMS) {
-		pr_err("th1520 rpmsg: vdev-nums exceed the max %d\n",
-		       MAX_VDEV_NUMS);
+	node = of_parse_phandle(dev->of_node, "audio-text-memory-region", 0);
+	if (!node) {
+		dev_err(dev, "no audio-text-memory-region specified\n");
 		return -EINVAL;
 	}
 
-	rpdev->first_notify = rpdev->vdev_nums;
-
-	pr_info("th1520 rpmsg: rproc_name = %s", rpdev->rproc_name);
-	if (!strcmp(rpdev->rproc_name, "m4")) {
-		ret = set_vring_phy_buf(pdev, rpdev, rpdev->vdev_nums);
-		if (ret) {
-			pr_err("th1520 rpmsg: No vring buffer.\n");
-			return -ENOMEM;
-		}
-	} else {
-		pr_err("th1520 rpmsg: No remote processor.\n");
-		return -ENODEV;
-	}
-
-	for (j = 0; j < rpdev->vdev_nums; j++) {
-		pr_debug("%s rpdev%d vdev%d: vring0 0x%x, vring1 0x%x\n",
-			 __func__, rpdev->core_id, rpdev->vdev_nums,
-			 rpdev->ivdev[j].vring[0], rpdev->ivdev[j].vring[1]);
-		rpdev->ivdev[j].vdev.id.device = VIRTIO_ID_RPMSG;
-		rpdev->ivdev[j].vdev.config = &th1520_rpmsg_config_ops;
-		rpdev->ivdev[j].vdev.dev.parent = &pdev->dev;
-		rpdev->ivdev[j].vdev.dev.release = th1520_rpmsg_vproc_release;
-		rpdev->ivdev[j].base_vq_id = j * 2;
-
-		ret = register_virtio_device(&rpdev->ivdev[j].vdev);
-		if (ret) {
-			pr_err("th1520 rpmsg: %s failed to register rpdev: %d\n",
-			       __func__, ret);
-			return ret;
-		}
-	}
-
-	ret = get_audio_log_mem(dev, &rpdev->log_phy, &rpdev->log_size);
+	ret = of_address_to_resource(node, 0, &r);
 	if (ret) {
-		return ret;
-	}
-	rpdev->log_mem = ioremap(rpdev->log_phy, rpdev->log_size);
-	if (!IS_ERR(rpdev->log_mem)) {
-		pr_info("virtual_log_mem=0x%p, phy base=0x%pa\n",
-			rpdev->log_mem, &rpdev->log_phy);
-	} else {
-		rpdev->log_mem = NULL;
-		dev_err(dev, "%s:get audio log region fail\n", __func__);
-		return -1;
+	    dev_err(dev, "audio-text-memory-region get resource faild\n");
+		return -EINVAL;
 	}
 
-	sprintf(dir_name, "audio_proc");
-	rpdev->proc_dir = proc_mkdir(dir_name, NULL);
-	if (NULL != rpdev->proc_dir) {
-		rpdev->log_ctrl = th1520_create_panic_log_proc(rpdev->log_phy,
-							       rpdev->proc_dir,
-							       rpdev->log_mem,
-							       rpdev->log_size);
-	} else {
-		dev_err(dev, "create %s fail\n", dir_name);
-		return ret;
-	}
-
-	platform_set_drvdata(pdev, rpdev);
-
-	return ret;
+	*mem = r.start;
+	*mem_size = resource_size(&r);
+    return 0;
 }
 
 #ifdef CONFIG_PM_SLEEP
@@ -683,7 +612,140 @@ static int th1520_rpmsg_resume(struct device *dev)
 	}
 	return 0;
 }
+
+//this is called after dpm_suspend_end,before snapshot
+static int xuantie_hibernation_audio_pre_snapshot(void)
+{
+	return 0;
+}
+//called before dpm_resume_start after slave cores up
+static void xuantie_hibernation_audio_finish(void)
+{
+	reset_audio();
+	return;
+}
+
+static const struct platform_hibernation_ops xuantie_hibernation_audio_ops = {
+	.pre_snapshot = xuantie_hibernation_audio_pre_snapshot,
+	.finish = xuantie_hibernation_audio_finish,
+};
+
 #endif
+
+
+static int th1520_rpmsg_probe(struct platform_device *pdev)
+{
+	int core_id, j, ret = 0;
+	struct device *dev = &pdev->dev;
+	struct device_node *np = pdev->dev.of_node;
+	struct th1520_rpmsg_vproc *rpdev;
+#ifdef CONFIG_PM_SLEEP
+    phys_addr_t audio_text_mem;
+	size_t audio_text_mem_size;
+#endif
+	char dir_name[32] = { 0x0 };
+	if (of_property_read_u32(np, "multi-core-id", &core_id))
+		core_id = 0;
+	rpdev = &th1520_rpmsg_vprocs[core_id];
+	rpdev->core_id = core_id;
+	rpdev->variant =
+		(enum th1520_rpmsg_variants)of_device_get_match_data(dev);
+	spin_lock_init(&rpdev->mu_lock);
+
+	pri_rpdev = rpdev;
+
+	INIT_DELAYED_WORK(&(rpdev->rpmsg_work), rpmsg_work_handler);
+	BLOCKING_INIT_NOTIFIER_HEAD(&(rpdev->notifier));
+#ifdef CONFIG_PM_SLEEP
+	sema_init(&rpdev->pm_sem, 0);
+#endif
+	pr_info("th1520 rpmsg: Ready for cross core communication!\n");
+
+	ret = of_property_read_u32(np, "vdev-nums", &rpdev->vdev_nums);
+	if (ret) {
+		rpdev->vdev_nums = 1;
+	}
+
+	if (rpdev->vdev_nums > MAX_VDEV_NUMS) {
+		pr_err("th1520 rpmsg: vdev-nums exceed the max %d\n",
+		       MAX_VDEV_NUMS);
+		return -EINVAL;
+	}
+
+	rpdev->first_notify = rpdev->vdev_nums;
+
+	pr_info("th1520 rpmsg: rproc_name = %s", rpdev->rproc_name);
+	if (!strcmp(rpdev->rproc_name, "m4")) {
+		ret = set_vring_phy_buf(pdev, rpdev, rpdev->vdev_nums);
+		if (ret) {
+			pr_err("th1520 rpmsg: No vring buffer.\n");
+			return -ENOMEM;
+		}
+	} else {
+		pr_err("th1520 rpmsg: No remote processor.\n");
+		return -ENODEV;
+	}
+
+	for (j = 0; j < rpdev->vdev_nums; j++) {
+		pr_debug("%s rpdev%d vdev%d: vring0 0x%x, vring1 0x%x\n",
+			 __func__, rpdev->core_id, rpdev->vdev_nums,
+			 rpdev->ivdev[j].vring[0], rpdev->ivdev[j].vring[1]);
+		rpdev->ivdev[j].vdev.id.device = VIRTIO_ID_RPMSG;
+		rpdev->ivdev[j].vdev.config = &th1520_rpmsg_config_ops;
+		rpdev->ivdev[j].vdev.dev.parent = &pdev->dev;
+		rpdev->ivdev[j].vdev.dev.release = th1520_rpmsg_vproc_release;
+		rpdev->ivdev[j].base_vq_id = j * 2;
+
+		ret = register_virtio_device(&rpdev->ivdev[j].vdev);
+		if (ret) {
+			pr_err("th1520 rpmsg: %s failed to register rpdev: %d\n",
+			       __func__, ret);
+			return ret;
+		}
+	}
+
+#ifdef CONFIG_PM_SLEEP
+	/*only save BSS and data section for audio*/
+	ret = get_audio_text_mem(dev, &audio_text_mem, &audio_text_mem_size);
+	if(ret) {
+       return ret;
+	} else {
+		pr_info("Get audio text phy mem:0x%p, size:%ld\n", audio_text_mem, audio_text_mem_size);
+	}
+	hibernate_register_nosave_region(__phys_to_pfn(audio_text_mem), __phys_to_pfn(audio_text_mem + audio_text_mem_size));
+	hibernation_set_allmode_ops(&xuantie_hibernation_audio_ops);
+#endif
+	ret = get_audio_log_mem(dev, &rpdev->log_phy, &rpdev->log_size);
+	if (ret) {
+		return ret;
+	}
+	rpdev->log_mem = ioremap(rpdev->log_phy, rpdev->log_size);
+	if (!IS_ERR(rpdev->log_mem)) {
+		pr_info("virtual_log_mem=0x%p, phy base=0x%pa\n",
+			rpdev->log_mem, &rpdev->log_phy);
+	} else {
+		rpdev->log_mem = NULL;
+		dev_err(dev, "%s:get audio log region fail\n", __func__);
+		return -1;
+	}
+
+	sprintf(dir_name, "audio_proc");
+	rpdev->proc_dir = proc_mkdir(dir_name, NULL);
+	if (NULL != rpdev->proc_dir) {
+		rpdev->log_ctrl = th1520_create_panic_log_proc(rpdev->log_phy,
+							       rpdev->proc_dir,
+							       rpdev->log_mem,
+							       rpdev->log_size);
+	} else {
+		dev_err(dev, "create %s fail\n", dir_name);
+		return ret;
+	}
+
+	platform_set_drvdata(pdev, rpdev);
+
+	return ret;
+}
+
 
 static SIMPLE_DEV_PM_OPS(th1520_rpmsg_pm_ops, th1520_rpmsg_suspend,
 			 th1520_rpmsg_resume);
