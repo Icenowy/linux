@@ -1613,7 +1613,7 @@ static unsigned long copy_data_pages(struct memory_bitmap *copy_bm,
 	unsigned long copied_pages = 0;
 	struct zone *zone;
 	unsigned long pfn, copy_pfn;
-
+	unsigned long pfn_pre = 0;
 	for_each_populated_zone(zone) {
 		unsigned long max_zone_pfn;
 
@@ -1630,6 +1630,15 @@ static unsigned long copy_data_pages(struct memory_bitmap *copy_bm,
 		pfn = memory_bm_next_pfn(orig_bm);
 		if (unlikely(pfn == BM_END_OF_MAP))
 			break;
+		/* show debug info,detail show copied pfn */
+		if( (pfn_pre+1) != pfn)
+		{
+			if(pfn_pre != 0)
+				pm_pr_dbg(" end:[%lx]\n",pfn_pre);
+			pm_pr_dbg(" start:[%lx] %s \n",pfn,
+					kernel_page_present(pfn_to_page(pfn))? "present":"not-present");
+		}
+		pfn_pre = pfn;
 		if (copy_data_page(copy_pfn, pfn)) {
 			memory_bm_set_bit(zero_bm, pfn);
 			/* Use this copy_pfn for a page that is not full of zeros */
