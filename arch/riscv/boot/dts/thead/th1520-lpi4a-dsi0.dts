@@ -47,8 +47,8 @@
 		reg = <0>;
 		backlight = <&lcd0_backlight>;
 		reset-gpio = <&ioexp3 7 0>; /* active low */
-		vccio-supply = <&reg_vdd18_lcd0>;
-		vdd-supply = <&reg_vdd33_lcd0>;
+		hsvcc-supply = <&reg_vdd18_lcd0>;
+		vspn3v3-supply = <&reg_vdd33_lcd0>;
 
 		port {
 			panel0_in: endpoint {
