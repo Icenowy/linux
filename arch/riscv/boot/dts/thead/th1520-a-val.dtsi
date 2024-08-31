@@ -50,24 +50,78 @@
 		stdout-path = "serial0:115200n8";
 	};
 
+	reg_lcd0_vdd18: regulator-lcd0-vdd18 {
+		compatible = "regulator-fixed";
+		regulator-name = "lcd0_en";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		gpio = <&pcal6408ahk_a 2 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
 	reg_tp0_pwr: regulator-tp0-pwr {
 		compatible = "regulator-fixed";
-		regulator-name = "tp0-pwr";
+		regulator-name = "tp0_pwr";
 		regulator-min-microvolt = <2800000>;
 		regulator-max-microvolt = <2800000>;
-		// gpio = <&ioexp3 4 GPIO_ACTIVE_HIGH>;	to be FIXED !!!
+		gpio = <&pcal6408ahk_a 3 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 		regulator-always-on;
 	};
 
-	reg_hub_5v: regulator-hub-5v {
+	reg_lcd0_5v7: regulator-lcd0-vspn57 {
 		compatible = "regulator-fixed";
-		regulator-name = "HUB_5V";
-		regulator-min-microvolt = <5000000>;
-		regulator-max-microvolt = <5000000>;
-		// gpio = <&ioexp3 3 GPIO_ACTIVE_HIGH>;	to be FIXED !!!
+		regulator-name = "lcd0_bias_en";
+		regulator-min-microvolt = <5700000>;
+		regulator-max-microvolt = <5700000>;
+		gpio = <&pcal6408ahk_a 4 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	reg_lcd1_1v8: regulator-lcd1-vdd18 {
+		compatible = "regulator-fixed";
+		regulator-name = "lcd1_en";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		gpio = <&pcal6408ahk_a 5 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	reg_tp1_pwr: regulator-tp1-pwr {
+		compatible = "regulator-fixed";
+		regulator-name = "tp1_pwr";
+		regulator-min-microvolt = <2800000>;
+		regulator-max-microvolt = <2800000>;
+		gpio = <&pcal6408ahk_a 6 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 		regulator-always-on;
+	};
+
+	reg_lcd1_5v7: regulator-lcd1-vspn57 {
+		compatible = "regulator-fixed";
+		regulator-name = "lcd1_bias_en";
+		regulator-min-microvolt = <5700000>;
+		regulator-max-microvolt = <5700000>;
+		gpio = <&pcal6408ahk_a 7 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	reg_aud_adc_3v3: regulator-aud-adc-3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "aud_adc_3v3_en";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&pcal6408ahk_b 1 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	reg_aud_dac_3v3: regulator-aud-dac-3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "aud_dac_3v3_en";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&pcal6408ahk_b 2 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
 	};
 
 	reg_vcc5v_usb: regulator-vcc5v-usb {
@@ -75,92 +129,9 @@
 		regulator-name = "VCC5V_USB";
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
-		gpio = <&gpio1 22 GPIO_ACTIVE_HIGH>;
+		gpio = <&gpio0 27 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 		regulator-always-on;
-	};
-
-	reg_vdd33_lcd0: regulator-vdd33-lcd0 {
-		compatible = "regulator-fixed";
-		regulator-name = "lcd0_vdd33";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-		// gpio = <&ioexp3 5 GPIO_ACTIVE_HIGH>;	to be FIXED !!!
-		enable-active-high;
-	};
-
-	reg_vdd18_lcd0: regulator-vdd18-lcd0 {
-		compatible = "regulator-fixed";
-		regulator-name = "lcd0_vdd18";
-		regulator-min-microvolt = <1800000>;
-		regulator-max-microvolt = <1800000>;
-		// gpio = <&ioexp3 6 GPIO_ACTIVE_HIGH>;	to be FIXED !!!
-		enable-active-high;
-	};
-
-	reg_vdd_3v3: regulator-vdd-3v3 {
-		compatible = "regulator-fixed";
-		regulator-name = "vdd_3v3";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-		gpio = <&gpio1 24 GPIO_ACTIVE_HIGH>;
-		enable-active-high;
-		regulator-boot-on;
-		regulator-always-on;
-	};
-
-	reg_vref_1v8: regulator-adc-verf {
-		compatible = "regulator-fixed";
-		regulator-name = "vref-1v8";
-		regulator-min-microvolt = <1800000>;
-		regulator-max-microvolt = <1800000>;
-		regulator-alaways-on;
-		vin-supply = <&reg_vdd_3v3>;
-	};
-
-	reg_aud_3v3: regulator-aud-3v3 {
-		compatible = "regulator-fixed";
-		regulator-name = "aud_3v3";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-		enable-active-high;
-		regulator-always-on;
-	};
-
-	reg_aud_1v8: regulator-aud-1v8 {
-		compatible = "regulator-fixed";
-		regulator-name = "aud_1v8";
-		regulator-min-microvolt = <1800000>;
-		regulator-max-microvolt = <1800000>;
-		enable-active-high;
-		regulator-always-on;
-	};
-
-	reg_cam0_dvdd12: regulator-cam0-dvdd12 {
-		compatible = "regulator-fixed";
-		regulator-name = "dvdd12_cam0";
-		regulator-min-microvolt = <1200000>;
-		regulator-max-microvolt = <1200000>;
-		// gpio = <&ioexp1 0 GPIO_ACTIVE_HIGH>;	to be FIXED !!!
-		enable-active-high;
-	};
-
-	reg_cam0_avdd28: regulator-cam0-avdd28 {
-		compatible = "regulator-fixed";
-		regulator-name = "avdd28_cam0";
-		regulator-min-microvolt = <2800000>;
-		regulator-max-microvolt = <2800000>;
-		// gpio = <&ioexp1 1 GPIO_ACTIVE_HIGH>;	to be FIXED !!!
-		enable-active-high;
-	};
-
-	reg_cam0_dovdd18: regulator-cam0-dovdd18 {
-		compatible = "regulator-fixed";
-		regulator-name = "dovdd18_cam0";
-		regulator-min-microvolt = <2800000>;
-		regulator-max-microvolt = <2800000>;
-		// gpio = <&ioexp1 2 GPIO_ACTIVE_HIGH>;	to be FIXED !!!
-		enable-active-high;
 	};
 
 	mbox_910t_client2: mbox_910t_client2 {
@@ -293,7 +264,7 @@
 			interrupts = <8 IRQ_TYPE_LEVEL_LOW>;
 			irq-gpios = <&gpio1 8 0>;
 			reset-gpios = <&gpio1 7 0>;
-			// AVDD28-supply = <&reg_tp_pwr_en>;	to be FIXED !!!
+			AVDD28-supply = <&reg_tp0_pwr>;
 			status = "disbale";
 	};
 };
@@ -313,7 +284,7 @@
 		interrupts = <12 IRQ_TYPE_LEVEL_LOW>;
 		irq-gpios = <&gpio1 12 0>;
 		reset-gpios = <&gpio1 11 0>;
-		// AVDD28-supply = <&reg_tp1_pwr_en>;	to be FIXED !!!
+		AVDD28-supply = <&reg_tp1_pwr>;
 		status = "disbale";
 	};
 };
@@ -864,7 +835,6 @@
 		compatible = "usb2109,2817";
 		reg = <1>;
 		peer-hub = <&hub_3_0>;
-		vdd-supply = <&reg_hub_5v>;
 		vbus-supply = <&reg_vcc5v_usb>;
 	};
 
@@ -1351,7 +1321,7 @@
 	soc_vdd18_emmc_reg: soc_vdd18_emmc {
 		compatible = "thead,th1520-aon-pmic";
 		regulator-name = "soc_dvdd18_emmc";
-		regulator-type = "gpio";
+		regulator-type = "common";
 		regulator-boot-on;
 		regulator-always-on;
 	};
@@ -1375,10 +1345,77 @@
 	soc_avdd28_scan_en_reg: soc_avdd28_scan_en {
 		compatible = "thead,th1520-aon-pmic";
 		regulator-name = "soc_avdd28_scan_en";
-		regulator-type = "common";
-		regulator-min-microvolt = <900000>;
-		regulator-max-microvolt = <3600000>;
+		regulator-type = "gpio";
 	};
+
+    	soc_vext_2v8_reg: soc_vext_2v8 {
+	    	compatible = "thead,th1520-aon-pmic";
+	    	regulator-name = "soc_vext_2v8";
+	    	regulator-type = "common";
+	    	regulator-boot-on;
+		regulator-always-on;
+	};
+
+	soc_avdd28_rgb_reg: soc_avdd28_rgb {
+		compatible = "thead,th1520-aon-pmic";
+		regulator-name = "soc_avdd28_rgb";
+		regulator-type = "common";
+		regulator-min-microvolt = <2200000>;
+		regulator-max-microvolt = <3475000>;
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	soc_dovdd18_rgb_reg: soc_dovdd18_rgb {
+		compatible = "thead,th1520-aon-pmic";
+		regulator-name = "soc_dovdd18_rgb";
+		regulator-type = "common";
+		regulator-min-microvolt = <1200000>;
+		regulator-max-microvolt = <3600000>;
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	soc_dvdd12_rgb_reg: soc_dvdd12_rgb {
+		compatible = "thead,th1520-aon-pmic";
+		regulator-name = "soc_dvdd12_rgb";
+		regulator-type = "common";
+		regulator-min-microvolt = <400000>;
+		regulator-max-microvolt = <1675000>;
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	soc_avdd25_ir_reg: soc_avdd25_ir {
+		compatible = "thead,th1520-aon-pmic";
+		regulator-name = "soc_avdd25_ir";
+		regulator-type = "common";
+		regulator-min-microvolt = <2200000>;
+		regulator-max-microvolt = <3475000>;
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	soc_dovdd18_ir_reg: soc_dovdd18_ir {
+		compatible = "thead,th1520-aon-pmic";
+		regulator-name = "soc_dovdd18_ir";
+		regulator-type = "common";
+		regulator-min-microvolt = <1200000>;
+		regulator-max-microvolt = <3600000>;
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	soc_dvdd12_ir_reg: soc_dvdd12_ir {
+		compatible = "thead,th1520-aon-pmic";
+		regulator-name = "soc_dvdd12_ir";
+		regulator-type = "common";
+		regulator-min-microvolt = <400000>;
+		regulator-max-microvolt = <1675000>;
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
 };
 
 &dmac0 {
