@@ -686,10 +686,12 @@ static void hdmi_set_clk_regenerator(struct dw_hdmi *hdmi,
 		cts = 0;
 	}
 
+	hdmi->audio_enable = true;
 	spin_lock_irq(&hdmi->audio_lock);
 	hdmi->audio_n = n;
 	hdmi->audio_cts = cts;
 	hdmi_set_cts_n(hdmi, cts, hdmi->audio_enable ? n : 0);
+	hdmi_writeb(hdmi, 0x4, HDMI_AUD_INPUTCLKFS);
 	spin_unlock_irq(&hdmi->audio_lock);
 }
 
@@ -2225,6 +2227,7 @@ static void dw_hdmi_enable_video_path(struct dw_hdmi *hdmi)
 	hdmi_writeb(hdmi, 0x16, HDMI_FC_CH1PREAM);
 	hdmi_writeb(hdmi, 0x21, HDMI_FC_CH2PREAM);
 
+#if 0
 	/* Enable pixel clock and tmds data path */
 	hdmi->mc_clkdis |= HDMI_MC_CLKDIS_HDCPCLK_DISABLE |
 			   HDMI_MC_CLKDIS_CSCCLK_DISABLE |
@@ -2251,6 +2254,7 @@ static void dw_hdmi_enable_video_path(struct dw_hdmi *hdmi)
 		hdmi_writeb(hdmi, HDMI_MC_FLOWCTRL_FEED_THROUGH_OFF_CSC_BYPASS,
 			    HDMI_MC_FLOWCTRL);
 	}
+#endif
 }
 
 /* Workaround to clear the overflow condition */
@@ -3472,7 +3476,7 @@ struct dw_hdmi *dw_hdmi_probe(struct platform_device *pdev,
 	hdmi->disabled = true;
 	hdmi->rxsense = true;
 	hdmi->phy_mask = (u8)~(HDMI_PHY_HPD | HDMI_PHY_RX_SENSE);
-	hdmi->mc_clkdis = 0x7f;
+	hdmi->mc_clkdis = 0x0;
 	hdmi->last_connector_result = connector_status_disconnected;
 
 	mutex_init(&hdmi->mutex);
