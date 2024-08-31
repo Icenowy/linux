@@ -2047,7 +2047,8 @@
 &hdmi_tx {
 	status = "okay";
 	pinctrl-names = "default";
-	pinctrl-0 = <&hdmi_pins>;
+	pinctrl-0 = <&hdmi_pins>,
+				<&ext_vcc5v_en_pins>;
 
 	port@0 {
 		/* input */
