@@ -92,6 +92,14 @@
 		default-brightness-level = <7>;
 	};
 
+	reg_vref_1v8: regulator-adc-verf {
+		compatible = "regulator-fixed";
+		regulator-name = "vref-1v8";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		status = "okay";
+	};
+
 	reg_lcd0_vdd18: regulator-lcd0-vdd18 {
 		compatible = "regulator-fixed";
 		regulator-name = "lcd0_en";
@@ -2439,6 +2447,8 @@
 };
 
 &adc {
+	vref-supply = <&reg_vref_1v8>;
+	#io-channel-cells = <1>;
 	status = "okay";
 };
 
