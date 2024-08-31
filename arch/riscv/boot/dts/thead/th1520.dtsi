@@ -21,6 +21,10 @@
 	#address-cells = <2>;
 	#size-cells = <2>;
 
+	system_monitor: system-monitor {
+		compatible = "th1520,system-monitor";
+	};
+
 	cpus: cpus {
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -44,6 +48,8 @@
 			mmu-type = "riscv,sv39";
 			#cooling-cells = <2>;
 			dynamic-power-coefficient = <500>;
+			video-4k-minfreq = <1848000000>;
+			qos-mid-minfreq = <750000000>;
 
 			clock-latency = <61036>;
 			clocks = <&clk C910_CCLK>,
@@ -1866,6 +1872,8 @@
 
 		vdec_opp_table: opp_table_vdec {
 			compatible = "operating-points-v2";
+			video-4k-minfreq = <594000000>;
+			qos-mid-minfreq = <297000000>;
 
 			opp00 {
 				opp-hz = /bits/ 64 <158400000>;
@@ -1903,6 +1911,8 @@
 
 		venc_opp_table: opp_table_venc {
 			compatible = "operating-points-v2";
+			qos-mid-minfreq = <250000000>;
+
 			opp00 {
 				opp-hz = /bits/ 64 <200000000>;
 			};
@@ -1945,6 +1955,9 @@
 
 		g2d_opp_table:g2d-opp-table {
 			compatible = "operating-points-v2";
+			video-4k-minfreq = <396000000>;
+			qos-mid-minfreq = <198000000>;
+
 			opp-49500000 {
       			opp-hz = /bits/ 64 <49500000>;
     		};
@@ -2223,6 +2236,7 @@
 
 		dsp_opp_table: dsp_opp_table {
 			compatible = "operating-points-v2";
+			qos-mid-minfreq = <500000000>;
 
 			opp-125000000 {
 				opp-hz = /bits/ 64 <125000000>;
@@ -2271,6 +2285,7 @@
 
 		npu_opp_table: opp-table {
 			compatible = "operating-points-v2";
+			qos-mid-minfreq = <594000000>;
 
 			opp-1000000000 {
 				opp-hz = /bits/ 64 <1000000000>;

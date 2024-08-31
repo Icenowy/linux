@@ -8,4 +8,10 @@ config TH1520_REBOOTMODE
 	help
 	 This driver supports check rebootmode feature in TH1520 FM platform
 
+config TH1520_SYSTEM_MONITOR
+	bool "Xuantie th1520 system monitor"
+	default y
+	help
+	 This driver supports system monitor feature in Th1520 FM platform
+
 endmenu

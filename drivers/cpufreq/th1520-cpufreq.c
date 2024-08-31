@@ -19,6 +19,11 @@
 #include <linux/suspend.h>
 #include <linux/clk-provider.h>
 #include <linux/smp.h>
+#ifdef CONFIG_TH1520_SYSTEM_MONITOR
+#include <soc/xuantie/th1520_system_monitor.h>
+
+struct monitor_dev_info *mdev_info = NULL;
+#endif
 
 static DEFINE_MUTEX(cpufreq_lock);
 
@@ -379,6 +384,12 @@ static struct notifier_block panic_cpufreq_notifier = {
 	.notifier_call = panic_cpufreq_notifier_call,
 };
 
+#ifdef CONFIG_TH1520_SYSTEM_MONITOR
+static struct monitor_dev_profile cpu_status_monitor = {
+	.type = MONITOR_TPYE_CPU,
+};
+#endif
+
 static int th1520_cpufreq_probe(struct platform_device *pdev)
 {
 	struct device_node *np;
@@ -507,6 +518,13 @@ soc_opp_out:
 
 	register_reboot_notifier(&cpufreq_reboot_notifier);
 
+#ifdef CONFIG_TH1520_SYSTEM_MONITOR
+	mdev_info = th1520_system_monitor_register(cpu_dev, &cpu_status_monitor);
+	if (IS_ERR(mdev_info)) {
+		mdev_info = NULL;
+		dev_err(cpu_dev, "failed to register system monitor\n");
+	}
+#endif
 	dev_info(cpu_dev, "finish to register cpufreq driver\n");
 
 	return 0;
@@ -536,6 +554,10 @@ static int th1520_cpufreq_remove(struct platform_device *pdev)
 	regulator_put(dvdd_cpu_reg);
 	regulator_put(dvddm_cpu_reg);
 
+#ifdef CONFIG_TH1520_SYSTEM_MONITOR
+	if (mdev_info)
+		th1520_system_monitor_unregister(mdev_info);
+#endif
 	clk_bulk_put(num_clks, clks);
 
 	return 0;
