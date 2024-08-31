@@ -21,6 +21,7 @@
 #include <linux/delay.h>
 #include <linux/media-bus-format.h>
 
+#include <drm/drm_atomic_helper.h>
 #include <drm/drm_bridge.h>
 #include <drm/drm_encoder.h>
 #include <drm/drm_modes.h>
@@ -794,7 +795,8 @@ static void bridge_mode_set(struct drm_bridge *bridge,
 	drm_mode_destroy(bridge->dev, new_mode);
 }
 
-static void bridge_enable(struct drm_bridge *bridge)
+static void bridge_atomic_enable(struct drm_bridge *bridge,
+                struct drm_bridge_state *old_bridge_state)
 {
 	struct dw_mipi_dsi_primary *primary = bridge_to_primary(bridge);
 	struct dw_mipi_dsi *dsi = &primary->dsi;
@@ -815,7 +817,8 @@ static void dw_mipi_dsi_disable(struct dw_mipi_dsi *dsi)
 	pm_runtime_put(dsi->dev);
 }
 
-static void bridge_post_disable(struct drm_bridge *bridge)
+static void bridge_atomic_post_disable(struct drm_bridge *bridge,
+                    struct drm_bridge_state *old_bridge_state)
 {
 	struct dw_mipi_dsi_primary *primary = bridge_to_primary(bridge);
 
@@ -833,8 +836,7 @@ static void bridge_post_disable(struct drm_bridge *bridge)
 	 * This needs to be fixed in the drm_bridge framework and the API
 	 * needs to be updated to manage our own call chains...
 	 */
-	if (primary->panel_bridge->funcs->post_disable)
-		primary->panel_bridge->funcs->post_disable(primary->panel_bridge);
+	primary->panel_bridge->funcs->atomic_post_disable(primary->panel_bridge, old_bridge_state);
 
 	if (primary->secondary_dsi)
 		dw_mipi_dsi_disable(primary->secondary_dsi);
@@ -914,10 +916,13 @@ static bool bridge_mode_fixup(struct drm_bridge *bridge,
 static const struct drm_bridge_funcs dw_mipi_dsi_bridge_funcs = {
 	.mode_valid	= bridge_mode_valid,
 	.mode_set   = bridge_mode_set,
-	.enable     = bridge_enable,
-	.post_disable   = bridge_post_disable,
 	.attach     = bridge_attach,
 	.mode_fixup = bridge_mode_fixup,
+	.atomic_duplicate_state = drm_atomic_helper_bridge_duplicate_state,
+	.atomic_destroy_state = drm_atomic_helper_bridge_destroy_state,
+	.atomic_reset = drm_atomic_helper_bridge_reset,
+	.atomic_enable = bridge_atomic_enable,
+	.atomic_post_disable = bridge_atomic_post_disable,
 };
 
 static int dsi_attach_primary(struct dw_mipi_dsi *secondary, struct device *dev)
