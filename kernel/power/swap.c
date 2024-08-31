@@ -332,6 +332,11 @@ static int mark_swapfiles(struct swap_map_handle *handle, unsigned int flags)
 			swsusp_header->crc32 = handle->crc32;
 		error = hib_submit_io(REQ_OP_WRITE | REQ_SYNC,
 				      swsusp_resume_block, swsusp_header, NULL);
+		if(!error)
+		{
+			error = blkdev_issue_flush(hib_resume_bdev);
+			pr_info("issue flush ert %d\n",error);
+		}
 	} else {
 		pr_err("Swap header not found!\n");
 		error = -ENODEV;
