@@ -184,5 +184,5 @@ void arch_uprobe_copy_ixol(struct page *page, unsigned long vaddr,
 	 * architecture needs to do something different it can define
 	 * its own version of the function.
 	 */
-	flush_dcache_page(page);
+	flush_icache_range(kaddr, kaddr + len);
 }
