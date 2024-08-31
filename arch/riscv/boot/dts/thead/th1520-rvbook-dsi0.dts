@@ -6,9 +6,6 @@
 #include "th1520-rvbook.dtsi"
 
 / {
-	model = "T-HEAD Light Lichee Pi 4A configuration for 8GB DDR board";
-	compatible = "thead,light-val", "thead,light-lpi4a", "thead,light";
-
 	memory@0 {
 		device_type = "memory";
 		reg = <0x0 0x200000 0x1 0xffe00000>;
