@@ -624,6 +624,150 @@
 			status = "disabled";
 		};
 
+		tdm_slot1: tdm1@ffcb012000 {
+			#sound-dai-cells = <0>;
+			compatible = "xuantie,th1520-tdm";
+			reg = <0xff 0xcb012000 0x0 0x1000>;
+			audio-cpr-regmap = <&audio_cpr>;
+			pinctrl-names = "default";
+			th1520,tdm_slots = <8>;
+			th1520,tdm_slot_num = <1>;
+			interrupts = <178 IRQ_TYPE_LEVEL_HIGH>;
+			dmas = <&dmac2 28>;
+			dma-names = "rx";
+			#dma-cells = <1>;
+			clocks = <&audiosys_clk_gate TH1520_CLKGEN_AUDIO_TDM>;
+			clock-names = "pclk";
+			resets = <&audiosys_rst TH1520_RESET_AUD_TDM>;
+			status = "disabled";
+		};
+
+		tdm_slot2: tdm2@ffcb012000 {
+			#sound-dai-cells = <0>;
+			compatible = "xuantie,th1520-tdm";
+			reg = <0xff 0xcb012000 0x0 0x1000>;
+			audio-cpr-regmap = <&audio_cpr>;
+			pinctrl-names = "default";
+			th1520,tdm_slots = <8>;
+			th1520,tdm_slot_num = <2>;
+			interrupts = <178 IRQ_TYPE_LEVEL_HIGH>;
+			dmas = <&dmac2 29>;
+			dma-names = "rx";
+			#dma-cells = <1>;
+			clocks = <&audiosys_clk_gate TH1520_CLKGEN_AUDIO_TDM>;
+			clock-names = "pclk";
+			resets = <&audiosys_rst TH1520_RESET_AUD_TDM>;
+			status = "disabled";
+		};
+
+		tdm_slot3: tdm3@ffcb012000 {
+			#sound-dai-cells = <0>;
+			compatible = "xuantie,th1520-tdm";
+			reg = <0xff 0xcb012000 0x0 0x1000>;
+			audio-cpr-regmap = <&audio_cpr>;
+			pinctrl-names = "default";
+			th1520,tdm_slots = <8>;
+			th1520,tdm_slot_num = <3>;
+			interrupts = <178 IRQ_TYPE_LEVEL_HIGH>;
+			dmas = <&dmac2 30>;
+			dma-names = "rx";
+			#dma-cells = <1>;
+			clocks = <&audiosys_clk_gate TH1520_CLKGEN_AUDIO_TDM>;
+			clock-names = "pclk";
+			resets = <&audiosys_rst TH1520_RESET_AUD_TDM>;
+			status = "disabled";
+		};
+
+		tdm_slot4: tdm4@ffcb012000 {
+			#sound-dai-cells = <0>;
+			compatible = "xuantie,th1520-tdm";
+			reg = <0xff 0xcb012000 0x0 0x1000>;
+			audio-cpr-regmap = <&audio_cpr>;
+			pinctrl-names = "default";
+			th1520,tdm_slots = <8>;
+			th1520,tdm_slot_num = <4>;
+			interrupts = <178 IRQ_TYPE_LEVEL_HIGH>;
+			dmas = <&dmac2 31>;
+			dma-names = "rx";
+			#dma-cells = <1>;
+			clocks = <&audiosys_clk_gate TH1520_CLKGEN_AUDIO_TDM>;
+			clock-names = "pclk";
+			resets = <&audiosys_rst TH1520_RESET_AUD_TDM>;
+			status = "disabled";
+		};
+
+		tdm_slot5: tdm5@ffcb012000 {
+			#sound-dai-cells = <0>;
+			compatible = "xuantie,th1520-tdm";
+			reg = <0xff 0xcb012000 0x0 0x1000>;
+			audio-cpr-regmap = <&audio_cpr>;
+			pinctrl-names = "default";
+			th1520,tdm_slots = <8>;
+			th1520,tdm_slot_num = <5>;
+			interrupts = <178 IRQ_TYPE_LEVEL_HIGH>;
+			dmas = <&dmac2 32>;
+			dma-names = "rx";
+			#dma-cells = <1>;
+			clocks = <&audiosys_clk_gate TH1520_CLKGEN_AUDIO_TDM>;
+			clock-names = "pclk";
+			resets = <&audiosys_rst TH1520_RESET_AUD_TDM>;
+			status = "disabled";
+		};
+
+		tdm_slot6: tdm6@ffcb012000 {
+			#sound-dai-cells = <0>;
+			compatible = "xuantie,th1520-tdm";
+			reg = <0xff 0xcb012000 0x0 0x1000>;
+			audio-cpr-regmap = <&audio_cpr>;
+			pinctrl-names = "default";
+			th1520,tdm_slots = <8>;
+			th1520,tdm_slot_num = <6>;
+			interrupts = <178 IRQ_TYPE_LEVEL_HIGH>;
+			dmas = <&dmac2 33>;
+			dma-names = "rx";
+			#dma-cells = <1>;
+			clocks = <&audiosys_clk_gate TH1520_CLKGEN_AUDIO_TDM>;
+			clock-names = "pclk";
+			resets = <&audiosys_rst TH1520_RESET_AUD_TDM>;
+			status = "disabled";
+		};
+
+		tdm_slot7: tdm7@ffcb012000 {
+			#sound-dai-cells = <0>;
+			compatible = "xuantie,th1520-tdm";
+			reg = <0xff 0xcb012000 0x0 0x1000>;
+			audio-cpr-regmap = <&audio_cpr>;
+			pinctrl-names = "default";
+			th1520,tdm_slots = <8>;
+			th1520,tdm_slot_num = <7>;
+			interrupts = <178 IRQ_TYPE_LEVEL_HIGH>;
+			dmas = <&dmac2 34>;
+			dma-names = "rx";
+			#dma-cells = <1>;
+			clocks = <&audiosys_clk_gate TH1520_CLKGEN_AUDIO_TDM>;
+			clock-names = "pclk";
+			resets = <&audiosys_rst TH1520_RESET_AUD_TDM>;
+			status = "disabled";
+		};
+
+		tdm_slot8: tdm8@ffcb012000 {
+			#sound-dai-cells = <0>;
+			compatible = "xuantie,th1520-tdm";
+			reg = <0xff 0xcb012000 0x0 0x1000>;
+			audio-cpr-regmap = <&audio_cpr>;
+			pinctrl-names = "default";
+			th1520,tdm_slots = <8>;
+			th1520,tdm_slot_num = <8>;
+			interrupts = <178 IRQ_TYPE_LEVEL_HIGH>;
+			dmas = <&dmac2 35>;
+			dma-names = "rx";
+			#dma-cells = <1>;
+			clocks = <&audiosys_clk_gate TH1520_CLKGEN_AUDIO_TDM>;
+			clock-names = "pclk";
+			resets = <&audiosys_rst TH1520_RESET_AUD_TDM>;
+			status = "disabled";
+		};
+
 		plic: interrupt-controller@ffd8000000 {
 			compatible = "thead,th1520-plic", "thead,c900-plic";
 			reg = <0xff 0xd8000000 0x0 0x01000000>;

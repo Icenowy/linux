@@ -1,0 +1,86 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/xuantie,th1520-tdm.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TH1520 TDM Controller
+
+description:
+  The TH1520 TDM Controller is a Time Division Multiplexed
+  audio interface in TH1520 SoCs, allowing up to 8 channels
+  of audio over a serial interface.
+
+maintainers:
+  - nanli.yd <nanli.yd@alibaba-inc.com>
+
+properties:
+  compatible:
+    enum:
+      - xuantie,th1520-tdm
+
+  reg:
+    maxItems: 1
+
+  interrupts:
+    maxItems: 1
+
+  dmas:
+    maxItems: 1
+
+  dma-names:
+    maxItems: 1
+    items:
+      enum:
+        - rx
+
+  clocks:
+    minItems: 1
+    items:
+      - description: tdm_pclk
+
+  clock-names:
+    minItems: 1
+    items:
+      - const: pclk
+
+  resets:
+    maxItems: 1
+    description: reset tdm
+
+  reset-names:
+    maxItems: 1
+
+  audio-cpr-regmap:
+    description:
+      The phandle of the syscon node for the CPR register.
+
+  "#sound-dai-cells":
+    const: 0
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - dmas
+  - dma-names
+  - clocks
+  - clock-names
+  - resets
+  - reset-names
+  - "#sound-dai-cells"
+
+examples:
+  - |
+    tdm: audio_tdm@ffcb012000 {
+        compatible = "xuantie,th1520-tdm";
+        reg = <0xff 0xcb012000 0x0 0x1000>;
+        audio-cpr-regmap = <&audio_cpr>;
+        interrupts = <178, IRQ_TYPE_LEVEL_HIGH>;
+        dmas = <&dmac2 28>;
+        dma-names = "rx";
+        clocks = <&audiosys_clk_gate TH1520_CLKGEN_AUDIO_TDM>;
+        clock-names = "pclk";
+        resets = <&audiosys_rst TH1520_RESET_AUD_TDM>;
+        #sound-dai-cells = <0>;
+    };

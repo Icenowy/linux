@@ -33,3 +33,12 @@ config SND_SOC_XUANTIE_TH1520_HDMI_PCM
         help
           Say Y or M if you want to add support for HDMI PCM to the XuanTie
           TH1520 interface
+
+config SND_SOC_XUANTIE_TH1520_TDM
+        tristate "XuanTie TH1520 audio tdm feature Support"
+	depends on SND_SOC_XUANTIE
+	select SND_SOC_GENERIC_DMAENGINE_PCM
+	default n
+        help
+          Say Y or M if you want to add support for codecs attached to the
+          XuanTie TH1520 interface
