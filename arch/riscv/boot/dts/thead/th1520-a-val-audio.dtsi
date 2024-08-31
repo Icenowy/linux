@@ -332,3 +332,47 @@
 			status = "disabled";
 		};
 };
+
+&i2s0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2s0_pa_pins>,
+				<&i2s0_pins>;
+};
+
+&i2s1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2s1_pa_pins>,
+				<&i2s1_pins>;
+};
+
+&i2s_8ch_sd0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2s_8ch_bus_pa_pins>,
+				<&i2s_8ch_sd0_pa_pins>,
+				<&i2s_8ch_bus_pins>,
+				<&i2s_8ch_sd0_pins>;
+};
+
+&i2s_8ch_sd1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2s_8ch_bus_pa_pins>,
+				<&i2s_8ch_sd1_pa_pins>,
+				<&i2s_8ch_bus_pins>,
+				<&i2s_8ch_sd1_pins>;
+};
+
+&i2s_8ch_sd2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2s_8ch_bus_pa_pins>,
+				<&i2s_8ch_sd2_pa_pins>,
+				<&i2s_8ch_bus_pins>,
+				<&i2s_8ch_sd2_pins>;
+};
+
+&i2s_8ch_sd3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2s_8ch_bus_pa_pins>,
+				<&i2s_8ch_sd3_pa_pins>,
+				<&i2s_8ch_bus_pins>,
+				<&i2s_8ch_sd3_pins>;
+};

@@ -2161,6 +2161,15 @@
 			slew-rate = <0>;
 		};
 	};
+	i2s1_pa_pins: i2s1-pa-0 {
+		i2s-pa-pins {
+			pins = "AUDIO_PA14", "AUDIO_PA15", "AUDIO_PA17";
+			function = "audio";
+			bias-disable;
+			drive-strength = <0>;
+			slew-rate = <0>;
+		};
+	};
 	i2s_8ch_bus_pa_pins: i2s-8ch-bus-pa-0 {
 		i2s-pa-pins {
 			pins = "AUDIO_PA2", "AUDIO_PA3", "AUDIO_PA8";
@@ -2225,6 +2234,16 @@
 			function = "aud_i2c1";
 			bias-disable;
 			drive-strength = <7>;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+	};
+	i2s0_pins: i2s0-0 {
+		i2s-pins {
+			pins = "PA9_FUNC", "PA10_FUNC", "PA11_FUNC", "PA12_FUNC";
+			function = "aud_i2s0";
+			bias-disable;
+			drive-strength = <13>;
 			input-schmitt-disable;
 			slew-rate = <0>;
 		};

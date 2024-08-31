@@ -26,8 +26,6 @@
 
 &i2s0 {
 	status = "okay";
-	pinctrl-names = "default";
-	pinctrl-0 = <&i2s0_pa_pins>;
 };
 
 &i2s_8ch_sd2 {

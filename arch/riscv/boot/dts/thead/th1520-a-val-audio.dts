@@ -5,19 +5,12 @@
 
 #include "th1520-a-val.dtsi"
 
-/ {
-	model = "XuanTie TH1520 FM Audio VAL board";
-	compatible = "xuantie,th1520-val-audio", "xuantie,th1520";
-};
-
 &th1520_sound {
 	status = "okay";
 };
 
 &i2s0 {
 	status = "okay";
-	pinctrl-names = "default";
-	pinctrl-0 = <&i2s0_pa_pins>;
 };
 
 &i2s_8ch_sd2 {
