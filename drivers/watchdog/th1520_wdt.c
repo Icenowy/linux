@@ -360,9 +360,46 @@ static int th1520_wdt_probe(struct platform_device *pdev)
 	return 0;
 }
 
+static int th1520_wdt_suspend(struct device *dev)
+{
+	struct platform_device *pdev = to_platform_device(dev);
+	struct th1520_wdt_device *wdt_dev = platform_get_drvdata(pdev);
+	struct th1520_aon_ipc *ipc = wdt_dev->ipc_handle;
+	struct th1520_aon_rpc_ack_common ack_msg = {0};
+	int ret;
+
+	th1520_wdt_msg_hdr_fill(&wdt_dev->msg.hdr, TH1520_AON_WDG_FUNC_STOP);
+
+	ret = th1520_aon_call_rpc(ipc, &wdt_dev->msg, &ack_msg, true);
+	if (ret)
+		dev_err(dev, "th1520_wdt_suspend call aon wdt stop fail, ret:%d\n", ret);
+
+	return 0;
+}
+
+static int th1520_wdt_resume(struct device *dev)
+{
+	struct platform_device *pdev = to_platform_device(dev);
+	struct th1520_wdt_device *wdt_dev = platform_get_drvdata(pdev);
+	struct th1520_aon_ipc *ipc = wdt_dev->ipc_handle;
+	struct th1520_aon_rpc_ack_common ack_msg = {0};
+	int ret;
+
+	th1520_wdt_msg_hdr_fill(&wdt_dev->msg.hdr, TH1520_AON_WDG_FUNC_START);
+
+	ret = th1520_aon_call_rpc(ipc, &wdt_dev->msg, &ack_msg, true);
+	if (ret)
+		dev_err(dev, "th1520_wdt_resume call aon wdt start fail, ret:%d\n", ret);
+
+	return 0;
+}
+
+static DEFINE_SIMPLE_DEV_PM_OPS(th1520_wdt_pm_ops, th1520_wdt_suspend, th1520_wdt_resume);
+
 static struct platform_driver th1520_wdt_driver = {
 	.driver = {
 		.name = DRV_NAME,
+		.pm	= pm_sleep_ptr(&th1520_wdt_pm_ops),
 	},
 	.probe = th1520_wdt_probe,
 };
