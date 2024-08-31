@@ -17,7 +17,7 @@
 #include <linux/i2c.h>
 #include <linux/regmap.h>
 #include <linux/types.h>
-
+#include <linux/dmaengine.h>
 #define DW_IC_DEFAULT_FUNCTIONALITY		(I2C_FUNC_I2C | \
 						 I2C_FUNC_SMBUS_BYTE | \
 						 I2C_FUNC_SMBUS_BYTE_DATA | \
@@ -247,6 +247,18 @@ struct reset_control;
  * values than the one computed based only on the input clock frequency.
  * Leave them to be %0 if not used.
  */
+ struct i2c_dw_dma {
+    struct dma_chan *dma_chan;
+    struct dma_async_tx_descriptor *desc;
+    dma_cookie_t cookie;
+    dma_addr_t dma_addr; //phy addr
+    u32 *buf;            //Store the virtual address of the data to be transferred by dma
+    u32 buf_size;
+    u32 transfer_len;    //dma transfer data num
+	//volatile int dma_complete;
+    struct completion dma_complete;
+};
+
 struct dw_i2c_dev {
 	struct device		*dev;
 	struct regmap		*map;
@@ -270,6 +282,7 @@ struct dw_i2c_dev {
 	u8			*rx_buf;
 	int			msg_err;
 	unsigned int		status;
+	unsigned int		tx_status;
 	unsigned int		abort_source;
 	int			irq;
 	u32			flags;
@@ -298,6 +311,11 @@ struct dw_i2c_dev {
 	int			(*set_sda_hold_time)(struct dw_i2c_dev *dev);
 	int			mode;
 	struct i2c_bus_recovery_info rinfo;
+	bool			suspended;
+    struct i2c_dw_dma dma;
+    u32 laststat;
+    u32 laststatus;
+    int dw_i2c_enable_dma;
 };
 
 #define ACCESS_INTR_MASK			BIT(0)

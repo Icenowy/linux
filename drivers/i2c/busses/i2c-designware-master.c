@@ -23,6 +23,7 @@
 #include <linux/reset.h>
 
 #include "i2c-designware-core.h"
+#include "i2c-designware-master_dma.h"
 
 #define AMD_TIMEOUT_MIN_US	25
 #define AMD_TIMEOUT_MAX_US	250
@@ -250,7 +251,12 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
 
 	/* Clear and enable interrupts */
 	regmap_read(dev->map, DW_IC_CLR_INTR, &dummy);
-	regmap_write(dev->map, DW_IC_INTR_MASK, DW_IC_INTR_MASTER_MASK);
+	if (dev->dw_i2c_enable_dma) {
+		i2c_dw_xfer_dma_init(dev);
+		regmap_write(dev->map, DW_IC_INTR_MASK,  (DW_IC_INTR_MASTER_MASK & (~DW_IC_INTR_TX_EMPTY))|DW_IC_INTR_RX_OVER);
+	} else {
+		regmap_write(dev->map, DW_IC_INTR_MASK, DW_IC_INTR_MASTER_MASK|DW_IC_INTR_RX_OVER);
+	}
 }
 
 /*
@@ -699,6 +705,7 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
 	dev->msg_read_idx = 0;
 	dev->msg_err = 0;
 	dev->status = 0;
+	dev->tx_status = 0;
 	dev->abort_source = 0;
 	dev->rx_outstanding = 0;
 
@@ -713,6 +720,16 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
 	/* Start the transfers */
 	i2c_dw_xfer_init(dev);
 
+	/* Wait for tx to complete */
+    if (dev->dw_i2c_enable_dma) {
+        if(i2c_dw_dma_tx_transfer(dev, adap->timeout) != 0) {
+			dev_err(dev->dev, "i2c dw dma transfer error\n");
+			i2c_recover_bus(&dev->adapter);
+			i2c_dw_init_master(dev);
+			ret = -ETIMEDOUT;
+			goto done;
+        }
+    }
 	/* Wait for tx to complete */
 	if (!wait_for_completion_timeout(&dev->cmd_complete, adap->timeout)) {
 		dev_err(dev->dev, "controller timed out\n");
@@ -760,13 +777,21 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
 		goto done;
 	}
 
-	if (dev->status)
-		dev_err(dev->dev,
-			"transfer terminated early - interrupt latency too high?\n");
-
+	if (dev->status || dev->tx_status) {
+		dev_err(dev->dev, "transfer terminated early - interrupt latency too high? sta 0x%x,tx_status 0x%x\n",dev->status,dev->tx_status);
+		dev_err(dev->dev, "laststa 0x%x, laststatus 0x%x,rx_outstanding %d\n", dev->laststat, dev->laststatus, dev->rx_outstanding);
+		if(dev->laststat&DW_IC_INTR_RX_OVER)
+		{
+			ret = -EAGAIN;
+			goto done;
+		}
+	}
 	ret = -EIO;
 
 done:
+	if (dev->dw_i2c_enable_dma) {
+		i2c_dw_xfer_dma_deinit(dev);
+	}
 	i2c_dw_release_lock(dev);
 
 done_nolock:
@@ -848,7 +873,7 @@ static u32 i2c_dw_read_clear_intrbits(struct dw_i2c_dev *dev)
 static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
 {
 	struct dw_i2c_dev *dev = dev_id;
-	unsigned int stat, enabled;
+	unsigned int stat, status,enabled;
 
 	regmap_read(dev->map, DW_IC_ENABLE, &enabled);
 	regmap_read(dev->map, DW_IC_RAW_INTR_STAT, &stat);
@@ -881,11 +906,19 @@ static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
 		 * Anytime TX_ABRT is set, the contents of the tx/rx
 		 * buffers are flushed. Make sure to skip them.
 		 */
+		if (!dev->dw_i2c_enable_dma) {
+			regmap_write(dev->map, DW_IC_INTR_MASK, 0);
+		}
+		goto tx_aborted;
+	}
+	if(stat & DW_IC_INTR_RX_OVER)
+	{
+		/* Anytime RX_OVER is set, Make sure to skip them.*/
 		regmap_write(dev->map, DW_IC_INTR_MASK, 0);
 		goto tx_aborted;
 	}
 
-	if (stat & DW_IC_INTR_RX_FULL)
+	if ((stat & DW_IC_INTR_RX_FULL) || (dev->rx_outstanding >0))
 		i2c_dw_read(dev);
 
 	if (stat & DW_IC_INTR_TX_EMPTY)
@@ -898,9 +931,16 @@ static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
 	 */
 
 tx_aborted:
-	if (((stat & (DW_IC_INTR_TX_ABRT | DW_IC_INTR_STOP_DET)) || dev->msg_err) &&
-	     (dev->rx_outstanding == 0))
+	regmap_read(dev->map, DW_IC_STATUS, &status);
+
+	if ((stat & (DW_IC_INTR_TX_ABRT|DW_IC_INTR_RX_OVER))|| dev->msg_err ||
+			((status & DW_IC_STATUS_TFE) &&
+			 (!(status & DW_IC_STATUS_RFNE)) &&
+			 (!(status & DW_IC_STATUS_MASTER_ACTIVITY)))) {
+		dev->laststat = stat;
+		dev->laststatus = status;
 		complete(&dev->cmd_complete);
+	}
 	else if (unlikely(dev->flags & ACCESS_INTR_MASK)) {
 		/* Workaround to trigger pending interrupt */
 		regmap_read(dev->map, DW_IC_INTR_MASK, &stat);
@@ -997,9 +1037,27 @@ int i2c_dw_probe_master(struct dw_i2c_dev *dev)
 	struct i2c_adapter *adap = &dev->adapter;
 	unsigned long irq_flags;
 	unsigned int ic_con;
+	struct device_node *np;
 	int ret;
+	const char *i2c_mode;
+
+	//default used interrupt mode
+	dev->dw_i2c_enable_dma = 0;
+
+	np = dev->dev->of_node;
+	ret = of_property_read_string(np, "i2c_mode", &i2c_mode);
+	if (ret == 0) {
+		if (strcmp(i2c_mode, "dma") == 0) {
+			dev->dw_i2c_enable_dma = 1;
+			dev_info(dev->dev,"i2c use dma mode\n");
+		}
+	}
 
 	init_completion(&dev->cmd_complete);
+    if (dev->dw_i2c_enable_dma) {
+		init_completion(&dev->dma.dma_complete);
+    }
+
 
 	dev->init = i2c_dw_init_master;
 

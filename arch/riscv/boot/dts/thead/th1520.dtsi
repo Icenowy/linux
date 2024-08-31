@@ -490,9 +490,21 @@
 			reg = <0xff 0xcb01a000 0x0 0x1000>;
 			clocks = <&apb_clk>;
 			interrupts = <182 IRQ_TYPE_LEVEL_HIGH>;
+			clock-frequency = <100000>;
+			i2c_mode = "dma";
+			dmas = <&dmac2 21>, <&dmac2 20>;
+			dma-names = "tx", "rx";
+			#dma-cells = <1>;
+			ss_hcnt = /bits/ 16 <0x82>;
+			ss_lcnt = /bits/ 16 <0x78>;
+			fs_hcnt = /bits/ 16 <0x37>;
+			fs_lcnt = /bits/ 16 <0x42>;
+			fp_hcnt = /bits/ 16 <0x14>;
+			fp_lcnt = /bits/ 16 <0x1a>;
+			hs_hcnt = /bits/ 16 <0x5>;
+			hs_lcnt = /bits/ 16 <0x15>;
 			#address-cells = <1>;
 			#size-cells = <0>;
-			status = "disabled";
 		};
 
 		audio_i2c1: i2c@ffcb01b000 {
@@ -500,9 +512,22 @@
 			reg = <0xff 0xcb01b000 0x0 0x1000>;
 			clocks = <&apb_clk>;
 			interrupts = <183 IRQ_TYPE_LEVEL_HIGH>;
+			clock-frequency = <100000>;
+			i2c_mode = "dma";
+			dmas = <&dmac2 23>, <&dmac2 22>;
+			dma-names = "tx", "rx";
+			#dma-cells = <1>;
+			ss_hcnt = /bits/ 16 <0x82>;
+			ss_lcnt = /bits/ 16 <0x78>;
+			fs_hcnt = /bits/ 16 <0x37>;
+			fs_lcnt = /bits/ 16 <0x42>;
+			fp_hcnt = /bits/ 16 <0x14>;
+			fp_lcnt = /bits/ 16 <0x1a>;
+			hs_hcnt = /bits/ 16 <0x5>;
+			hs_lcnt = /bits/ 16 <0x15>;
+			status = "disabled";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			status = "disabled";
 		};
 
 		ap_i2s: ap-i2s@ffe7034000 {
@@ -968,6 +993,10 @@
 			clocks = <&clk CLKGEN_I2C0_PCLK>;
 			clock-names = "pclk";
 			clock-frequency = <100000>;
+			i2c_mode = "dma";
+			dmas = <&dmac0 12>, <&dmac0 13>;
+			dma-names = "tx", "rx";
+			#dma-cells = <1>;
 			ss_hcnt = /bits/ 16 <0x104>;
 			ss_lcnt = /bits/ 16 <0xec>;
 			fs_hcnt = /bits/ 16 <0x37>;
@@ -978,47 +1007,101 @@
 			hs_lcnt = /bits/ 16 <0x11>;
 			#address-cells = <1>;
 			#size-cells = <0>;
-			status = "disabled";
 		};
 
 		i2c1: i2c@ffe7f24000 {
 			compatible = "snps,designware-i2c";
 			reg = <0xff 0xe7f24000 0x0 0x1000>;
-			clocks = <&clk CLKGEN_I2C1_PCLK>;
 			interrupts = <45 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk CLKGEN_I2C1_PCLK>;
+			clock-names = "pclk";
+			clock-frequency = <100000>;
+			i2c_mode = "dma";
+			dmas = <&dmac0 14>, <&dmac0 15>;
+			dma-names = "tx", "rx";
+			#dma-cells = <1>;
+			ss_hcnt = /bits/ 16 <0x104>;
+			ss_lcnt = /bits/ 16 <0xec>;
+			fs_hcnt = /bits/ 16 <0x37>;
+			fs_lcnt = /bits/ 16 <0x42>;
+			fp_hcnt = /bits/ 16 <0x14>;
+			fp_lcnt = /bits/ 16 <0x1a>;
+			hs_hcnt = /bits/ 16 <0x9>;
+			hs_lcnt = /bits/ 16 <0x11>;
 			#address-cells = <1>;
 			#size-cells = <0>;
-			status = "disabled";
 		};
 
 		i2c2: i2c@ffec00c000 {
 			compatible = "snps,designware-i2c";
 			reg = <0xff 0xec00c000 0x0 0x1000>;
-			clocks = <&clk CLKGEN_I2C2_PCLK>;
 			interrupts = <46 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk CLKGEN_I2C2_PCLK>;
+			clock-names = "pclk";
+			clock-frequency = <100000>;
+			i2c_mode = "dma";
+			dmas = <&dmac0 16>, <&dmac0 17>;
+			dma-names = "tx", "rx";
+			#dma-cells = <1>;
+			ss_hcnt = /bits/ 16 <0x104>;
+			ss_lcnt = /bits/ 16 <0xec>;
+			fs_hcnt = /bits/ 16 <0x37>;
+			fs_lcnt = /bits/ 16 <0x42>;
+			fp_hcnt = /bits/ 16 <0x14>;
+			fp_lcnt = /bits/ 16 <0x1a>;
+			hs_hcnt = /bits/ 16 <0x9>;
+			hs_lcnt = /bits/ 16 <0x11>;
+			status = "disabled";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			status = "disabled";
 		};
 
 		i2c3: i2c@ffec014000 {
 			compatible = "snps,designware-i2c";
 			reg = <0xff 0xec014000 0x0 0x1000>;
-			clocks = <&clk CLKGEN_I2C3_PCLK>;
 			interrupts = <47 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk CLKGEN_I2C3_PCLK>;
+			clock-names = "pclk";
+			clock-frequency = <100000>;
+			i2c_mode = "dma";
+			dmas = <&dmac0 18>, <&dmac0 19>;
+			dma-names = "tx", "rx";
+			#dma-cells = <1>;
+			ss_hcnt = /bits/ 16 <0x104>;
+			ss_lcnt = /bits/ 16 <0xec>;
+			fs_hcnt = /bits/ 16 <0x37>;
+			fs_lcnt = /bits/ 16 <0x42>;
+			fp_hcnt = /bits/ 16 <0x14>;
+			fp_lcnt = /bits/ 16 <0x1a>;
+			hs_hcnt = /bits/ 16 <0x9>;
+			hs_lcnt = /bits/ 16 <0x11>;
+			status = "disabled";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			status = "disabled";
 		};
 
 		i2c4: i2c@ffe7f28000 {
 			compatible = "snps,designware-i2c";
 			reg = <0xff 0xe7f28000 0x0 0x1000>;
-			clocks = <&clk CLKGEN_I2C4_PCLK>;
 			interrupts = <48 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk CLKGEN_I2C4_PCLK>;
+			clock-names = "pclk";
+			clock-frequency = <100000>;
+			i2c_mode = "dma";
+			dmas = <&dmac0 20>, <&dmac0 21>;
+			dma-names = "tx", "rx";
+			#dma-cells = <1>;
+			ss_hcnt = /bits/ 16 <0x104>;
+			ss_lcnt = /bits/ 16 <0xec>;
+			fs_hcnt = /bits/ 16 <0x37>;
+			fs_lcnt = /bits/ 16 <0x42>;
+			fp_hcnt = /bits/ 16 <0x14>;
+			fp_lcnt = /bits/ 16 <0x1a>;
+			hs_hcnt = /bits/ 16 <0x9>;
+			hs_lcnt = /bits/ 16 <0x11>;
+			status = "disabled";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			status = "disabled";
 		};
 
 		audio_mbox: audio_mbox@0xffefc48000 {
