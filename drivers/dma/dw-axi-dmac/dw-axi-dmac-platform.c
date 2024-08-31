@@ -1189,6 +1189,8 @@ static int dma_chan_pause(struct dma_chan *dchan)
 	unsigned long flags;
 	unsigned int timeout = 20; /* timeout iterations */
 	u32 val;
+	int ret;
+	u32 chan_active = BIT(chan->id) << DMAC_CHAN_EN_SHIFT;
 
 	spin_lock_irqsave(&chan->vc.lock, flags);
 
@@ -1226,6 +1228,12 @@ static int dma_chan_pause(struct dma_chan *dchan)
 	chan->ch_cfg_l = axi_chan_ioread32(chan, CH_CFG_L);
 	chan->ch_cfg_h = axi_chan_ioread32(chan, CH_CFG_H);
 	chan->ch_llp = axi_chan_ioread32(chan, CH_LLP);
+
+	axi_chan_disable(chan);
+	ret = readl_poll_timeout_atomic(chan->chip->regs + DMAC_CHEN, val,
+					!(val & chan_active), 1000, 100000);
+	if (ret == -ETIMEDOUT)
+		printk("%s %s failed to stop\n", __func__, axi_chan_name(chan));
 
 	return timeout ? 0 : -EAGAIN;
 }
