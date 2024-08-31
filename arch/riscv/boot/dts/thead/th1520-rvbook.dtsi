@@ -336,12 +336,11 @@
  		status = "okay";
  	};
 
-	wcn_bt: wireless-bluetooth {
-		compatible = "bluetooth-platdata";
-		pinctrl-names = "default", "rts_gpio";
-		BT,power_gpio    = <&gpio0 22 GPIO_ACTIVE_HIGH>;
-		status = "okay";
-	};
+ 	wcn_bt: wireless-bluetooth {
+ 		compatible = "bluetooth-platdata";
+		BT,power-gpios = <&gpio0 22 GPIO_ACTIVE_HIGH>;
+ 		status = "okay";
+ 	};
 
 	gpio-keys {
 		compatible = "gpio-keys";
@@ -856,6 +855,7 @@
 &uart4 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart4_pins>;
+	status = "okay";
 };
 
 &qspi1 {
