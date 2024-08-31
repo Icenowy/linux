@@ -144,24 +144,52 @@ dmaengine_pcm_set_runtime_hwparams(struct snd_soc_component *component,
 
 	return snd_soc_set_runtime_hwparams(substream, &hw);
 }
+static int dmaengine_pcm_request_single_chan_of(struct dmaengine_pcm *pcm,
+	struct device *dev, const struct snd_dmaengine_pcm_config *config, unsigned int dir);
 
 static int dmaengine_pcm_open(struct snd_soc_component *component,
 			      struct snd_pcm_substream *substream)
 {
 	struct dmaengine_pcm *pcm = soc_component_to_pcm(component);
-	struct dma_chan *chan = pcm->chan[substream->stream];
+	struct device *dev = component->dev;
+	const struct snd_dmaengine_pcm_config *config = pcm->config;
 	int ret;
+	size_t prealloc_buffer_size;
+	size_t max_buffer_size;
+	unsigned int i;
+
+	ret = dmaengine_pcm_request_single_chan_of(pcm, dev, config, substream->stream);
+	if (ret)
+		return ret;
+
+	if (config && config->prealloc_buffer_size) {
+		prealloc_buffer_size = config->prealloc_buffer_size;
+		max_buffer_size = config->pcm_hardware->buffer_bytes_max;
+	} else {
+		prealloc_buffer_size = 512 * 1024;
+		max_buffer_size = SIZE_MAX;
+	}
+
+	snd_pcm_set_managed_buffer(substream,
+			SNDRV_DMA_TYPE_DEV_IRAM,
+			dmaengine_dma_dev(pcm, substream),
+			prealloc_buffer_size,
+			max_buffer_size);
 
 	ret = dmaengine_pcm_set_runtime_hwparams(component, substream);
 	if (ret)
 		return ret;
 
-	return snd_dmaengine_pcm_open(substream, chan);
+	return snd_dmaengine_pcm_open(substream, pcm->chan[substream->stream]);
 }
 
+static void dmaengine_pcm_release_single_chan(struct dmaengine_pcm *pcm, unsigned int dir);
 static int dmaengine_pcm_close(struct snd_soc_component *component,
 			       struct snd_pcm_substream *substream)
 {
+	struct dmaengine_pcm *pcm = soc_component_to_pcm(component);
+
+	dmaengine_pcm_release_single_chan(pcm, substream->stream);
 	return snd_dmaengine_pcm_close(substream);
 }
 
@@ -241,29 +269,29 @@ static int dmaengine_pcm_new(struct snd_soc_component *component,
 		if (!substream)
 			continue;
 
-		if (!pcm->chan[i] && config->chan_names[i])
-			pcm->chan[i] = dma_request_slave_channel(dev,
-				config->chan_names[i]);
+		//if (!pcm->chan[i] && config && config->chan_names[i]) {
+		//	pcm->chan[i] = dma_request_slave_channel(dev,
+		//		config->chan_names[i]);
+		//}
+		//if (!pcm->chan[i] && (pcm->flags & SND_DMAENGINE_PCM_FLAG_COMPAT)) {
+		//	pcm->chan[i] = dmaengine_pcm_compat_request_channel(
+		//		component, rtd, substream);
+		//}
 
-		if (!pcm->chan[i] && (pcm->flags & SND_DMAENGINE_PCM_FLAG_COMPAT)) {
-			pcm->chan[i] = dmaengine_pcm_compat_request_channel(
-				component, rtd, substream);
-		}
+		//if (!pcm->chan[i]) {
+		//	dev_err(component->dev,
+		//		"Missing dma channel for stream: %d\n", i);
+		//	return -EINVAL;
+		//}
 
-		if (!pcm->chan[i]) {
-			dev_err(component->dev,
-				"Missing dma channel for stream: %d\n", i);
-			return -EINVAL;
-		}
+		//snd_pcm_set_managed_buffer(substream,
+		//		SNDRV_DMA_TYPE_DEV_IRAM,
+		//		dev,
+		//		prealloc_buffer_size,
+		//		max_buffer_size);
 
-		snd_pcm_set_managed_buffer(substream,
-				SNDRV_DMA_TYPE_DEV_IRAM,
-				dmaengine_dma_dev(pcm, substream),
-				prealloc_buffer_size,
-				max_buffer_size);
-
-		if (!dmaengine_pcm_can_report_residue(dev, pcm->chan[i]))
-			pcm->flags |= SND_DMAENGINE_PCM_FLAG_NO_RESIDUE;
+		//if (!dmaengine_pcm_can_report_residue(dev, pcm->chan[i]))
+		//	pcm->flags |= SND_DMAENGINE_PCM_FLAG_NO_RESIDUE;
 
 		if (rtd->pcm->streams[i].pcm->name[0] == '\0') {
 			strscpy_pad(rtd->pcm->streams[i].pcm->name,
@@ -354,6 +382,48 @@ static const char * const dmaengine_pcm_dma_channel_names[] = {
 	[SNDRV_PCM_STREAM_CAPTURE] = "rx",
 };
 
+static int dmaengine_pcm_request_single_chan_of(struct dmaengine_pcm *pcm,
+	struct device *dev, const struct snd_dmaengine_pcm_config *config, unsigned int dir)
+{
+	const char *name;
+	struct dma_chan *chan;
+
+	if ((pcm->flags & SND_DMAENGINE_PCM_FLAG_NO_DT) || (!dev->of_node &&
+	    !(config && config->dma_dev && config->dma_dev->of_node)))
+		return 0;
+
+	if (config && config->dma_dev) {
+		/*
+		 * If this warning is seen, it probably means that your Linux
+		 * device structure does not match your HW device structure.
+		 * It would be best to refactor the Linux device structure to
+		 * correctly match the HW structure.
+		 */
+		dev_warn(dev, "DMA channels sourced from device %s",
+			 dev_name(config->dma_dev));
+		dev = config->dma_dev;
+	}
+
+	name = dmaengine_pcm_dma_channel_names[dir];
+	if (config && config->chan_names[dir])
+		name = config->chan_names[dir];
+	chan = dma_request_chan(dev, name);
+	if (IS_ERR(chan)) {
+		/*
+			* Only report probe deferral errors, channels
+			* might not be present for devices that
+			* support only TX or only RX.
+			*/
+		if (PTR_ERR(chan) == -EPROBE_DEFER)
+			return -EPROBE_DEFER;
+		pcm->chan[dir] = NULL;
+	} else {
+		pcm->chan[dir] = chan;
+	}
+
+	return 0;
+}
+
 static int dmaengine_pcm_request_chan_of(struct dmaengine_pcm *pcm,
 	struct device *dev, const struct snd_dmaengine_pcm_config *config)
 {
@@ -407,6 +477,14 @@ static int dmaengine_pcm_request_chan_of(struct dmaengine_pcm *pcm,
 	return 0;
 }
 
+static void dmaengine_pcm_release_single_chan(struct dmaengine_pcm *pcm, unsigned int dir)
+{
+	if (!pcm->chan[dir])
+		return;
+	dma_release_channel(pcm->chan[dir]);
+	return;
+}
+
 static void dmaengine_pcm_release_chan(struct dmaengine_pcm *pcm)
 {
 	unsigned int i;
@@ -449,9 +527,9 @@ int snd_dmaengine_pcm_register(struct device *dev,
 	pcm->config = config;
 	pcm->flags = flags;
 
-	ret = dmaengine_pcm_request_chan_of(pcm, dev, config);
-	if (ret)
-		goto err_free_dma;
+	//ret = dmaengine_pcm_request_chan_of(pcm, dev, config);
+	//if (ret)
+	//	goto err_free_dma;
 
 	if (config->process)
 		driver = &dmaengine_pcm_component_process;
@@ -469,7 +547,7 @@ int snd_dmaengine_pcm_register(struct device *dev,
 	return 0;
 
 err_free_dma:
-	dmaengine_pcm_release_chan(pcm);
+	//dmaengine_pcm_release_chan(pcm);
 	kfree(pcm);
 	return ret;
 }
@@ -494,7 +572,7 @@ void snd_dmaengine_pcm_unregister(struct device *dev)
 	pcm = soc_component_to_pcm(component);
 
 	snd_soc_unregister_component_by_driver(dev, component->driver);
-	dmaengine_pcm_release_chan(pcm);
+	//dmaengine_pcm_release_chan(pcm);
 	kfree(pcm);
 }
 EXPORT_SYMBOL_GPL(snd_dmaengine_pcm_unregister);
