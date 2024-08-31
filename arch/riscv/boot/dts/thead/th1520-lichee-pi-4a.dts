@@ -679,14 +679,6 @@
 	status = "okay";
 };
 
-&aogpio {
-	sel-usb-hub-hog {
-		gpio-hog;
-		gpios = <4 GPIO_ACTIVE_HIGH>;
-		output-high;
-	};
-};
-
 &gmac0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&gmac0_pins>;
@@ -1074,6 +1066,7 @@
 
 &usb {
 	status = "okay";
+	hubswitch-gpio = <&aogpio 4 0>;
 };
 
 &usb_dwc3 {

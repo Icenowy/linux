@@ -10,6 +10,7 @@
  */
 
 #include <linux/io.h>
+#include <linux/gpio.h>
 #include <linux/clk.h>
 #include <linux/kernel.h>
 #include <linux/of_platform.h>
@@ -149,10 +150,14 @@ static int dwc3_xuantie_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, xuantie);
 	xuantie->dev = &pdev->dev;
 
+	xuantie->hubswitch = devm_gpiod_get(dev, "hubswitch", (usb_role == USB_AS_DEVICE) ? GPIOD_OUT_LOW : GPIOD_OUT_HIGH);
+	if (IS_ERR(xuantie->hubswitch))
+		dev_err(dev, "no need to get hubswitch GPIO\n");
+	dev_info(dev, "hubswitch usb_role = %d\n", usb_role);
+
 	xuantie->misc_sysreg = syscon_regmap_lookup_by_phandle(np, "usb3-misc-regmap");
 	if (IS_ERR(xuantie->misc_sysreg)) {
 		dev_err(dev, "failed to get regmap - %ld\n", PTR_ERR(xuantie->misc_sysreg));
-
 
 		return PTR_ERR(xuantie->misc_sysreg);
 	}
