@@ -247,6 +247,7 @@
             reg = <0x0 0x1E000000 0 0x10000>;
 			compatible = "th1520,th1520-rpmsg";
 			log-memory-region = <&audio_log_mem>;
+			audio-text-memory-region = <&audio_text_mem>;
 			status = "okay";
 		};
 	};
