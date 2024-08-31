@@ -35,6 +35,11 @@ crash_setup_regs(struct pt_regs *newregs,
 		riscv_crash_save_regs(newregs);
 }
 
+#if defined(CONFIG_KEXEC) && defined(CONFIG_HIBERNATION)
+extern bool crash_is_nosave(unsigned long pfn);
+#else
+static inline bool crash_is_nosave(unsigned long pfn) {return false; }
+#endif
 
 #define ARCH_HAS_KIMAGE_ARCH
 

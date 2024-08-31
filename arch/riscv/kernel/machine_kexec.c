@@ -229,3 +229,45 @@ machine_kexec(struct kimage *image)
 		     this_hart_id, kernel_map.va_pa_offset);
 	unreachable();
 }
+
+#ifdef CONFIG_HIBERNATION
+/*
+ * crash_is_nosave
+ *
+ * Return true only if a page is part of reserved memory for crash dump kernel,
+ * but does not hold any data of loaded kernel image.
+ *
+ * Note that all the pages in crash dump kernel memory have been initially
+ * marked as Reserved as memory was allocated via memblock_reserve().
+ *
+ * In hibernation, the pages which are Reserved and yet "nosave" are excluded
+ * from the hibernation iamge. crash_is_nosave() does thich check for crash
+ * dump kernel and will reduce the total size of hibernation image.
+ */
+
+bool crash_is_nosave(unsigned long pfn)
+{
+	int i;
+	phys_addr_t addr;
+
+	if (!crashk_res.end)
+		return false;
+
+	/* in reserved memory? */
+	addr = __pfn_to_phys(pfn);
+	if ((addr < crashk_res.start) || (crashk_res.end < addr))
+		return false;
+
+	if (!kexec_crash_image)
+		return true;
+
+	/* not part of loaded kernel image? */
+	for (i = 0; i < kexec_crash_image->nr_segments; i++)
+		if (addr >= kexec_crash_image->segment[i].mem &&
+				addr < (kexec_crash_image->segment[i].mem +
+					kexec_crash_image->segment[i].memsz))
+			return false;
+
+	return true;
+}
+#endif

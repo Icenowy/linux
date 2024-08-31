@@ -797,16 +797,6 @@ int hibernate(void)
 		error = -EBUSY;
 		goto Unlock;
 	}
-	#if 1 //test code,remove later
-	//hibernate_register_nosave_region(0x0f800000>>PAGE_SHIFT, 0x19b00000>>PAGE_SHIFT); //right
-	//hibernate_register_nosave_region(0x1a000000>>PAGE_SHIFT, 0x1dffffff>>PAGE_SHIFT);
-	hibernate_register_nosave_region(__phys_to_pfn(0x22000000), __phys_to_pfn(0x32000000));
-	hibernate_register_nosave_region(0x32000000>>PAGE_SHIFT, 0x32000000>>PAGE_SHIFT); //test,not a valid region
-	//hibernate_register_nosave_region(0x32000000>>PAGE_SHIFT, 0x38400000>>PAGE_SHIFT);
-	hibernate_register_nosave_region(0xd8c00000>>PAGE_SHIFT, 0xE4000000>>PAGE_SHIFT);
-	hibernate_register_nosave_region(0x20000000>>PAGE_SHIFT, 0x20800000>>PAGE_SHIFT);
-	hibernate_remove_nosave_region(0x20000000>>PAGE_SHIFT, 0x20800000>>PAGE_SHIFT);	//test remove a region
-	#endif
 
 	pr_info("hibernation entry\n");
 	pm_prepare_console();
