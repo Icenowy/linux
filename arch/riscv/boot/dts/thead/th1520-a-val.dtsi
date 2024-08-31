@@ -1477,6 +1477,10 @@
 			  "GPIO10";
 };
 
+&gpu {
+	status = "okay";
+};
+
 &npu {
 	vha_clk_rate = <1000000000>;
 	status = "okay";

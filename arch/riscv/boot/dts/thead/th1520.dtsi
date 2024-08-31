@@ -2206,6 +2206,21 @@
 			};
 		};
 
+		gpu: gpu@ffef400000 {
+			compatible = "img,gpu";
+			reg = <0xff 0xef400000 0x0 0x100000>;
+			interrupts = <102 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "gpuirq";
+			vosys-regmap = <&vosys_reg>;
+			power-domains = <&pd TH1520_AON_GPU_PD>;
+			clocks = <&vosys_clk_gate TH1520_CLKGEN_GPU_CORE_CLK>,
+					<&vosys_clk_gate TH1520_CLKGEN_GPU_CFG_ACLK>;
+			clock-names = "cclk", "aclk";
+			gpu_clk_rate = <18000000>;
+			dma-mask = <0xf 0xffffffff>;
+			status = "disabled";
+		};
+
 		iso7816: iso7816-card@fff7f30000 {
 			compatible = "xuantie,th1520-iso7816-card";
 			reg = <0xff 0xf7f30000 0x0 0x4000>;
