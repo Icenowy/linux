@@ -50,6 +50,8 @@
 			dynamic-power-coefficient = <500>;
 			video-4k-minfreq = <1848000000>;
 			qos-mid-minfreq = <750000000>;
+			#cooling-cells = <2>;
+			dynamic-power-coefficient = <500>;
 
 			clock-latency = <61036>;
 			clocks = <&clk C910_CCLK>,
@@ -423,6 +425,20 @@
 					trip = <&dev_target>;
 					cooling-device =
 						<&npu THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
+						contribution = <1024>;
+				};
+
+				dsp0_devfreq {
+					trip = <&dev_target>;
+					cooling-device =
+						<&xtensa_dsp0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
+						contribution = <1024>;
+				};
+
+				dsp1_devfreq {
+					trip = <&dev_target>;
+					cooling-device =
+						<&xtensa_dsp1 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
 						contribution = <1024>;
 				};
 			};
