@@ -79,8 +79,6 @@
 			d-cache-sets = <512>;
 			next-level-cache = <&l2_cache>;
 			mmu-type = "riscv,sv39";
-			#cooling-cells = <2>;
-			dynamic-power-coefficient = <500>;
 			video-4k-minfreq = <1848000000>;
 			qos-mid-minfreq = <750000000>;
 			#cooling-cells = <2>;
@@ -1901,55 +1899,6 @@
 			clock-names = "tclk";
 			resets = <&rst TH1520_RESET_WDT1>;
 			status = "okay";
-		};
-
-		npu: vha@fffc800000 {
-			compatible = "img,ax3386-nna";
-			reg = <0xff 0xfc800000 0x0 0x100000>;
-			interrupts = <113 IRQ_TYPE_LEVEL_HIGH>;
-			interrupt-names = "npuirq";
-			#cooling-cells = <2>;
-			dynamic-power-coefficient = <1600>;
-			power-domains = <&pd TH1520_AON_NPU_PD>;
-			clocks = <&clk CLKGEN_TOP_APB_SX_PCLK>,
-				<&clk CLKGEN_TOP_AXI4S_ACLK>,
-				<&clk NPU_CCLK>,
-				<&clk GMAC_PLL_FOUTPOSTDIV>,
-				<&clk NPU_CCLK_OUT_DIV>;
-			clock-names = "pclk", "aclk", "cclk",
-				"gmac_pll_foutpostdiv",
-				"npu_cclk_out_div";
-			operating-points-v2 = <&npu_opp_table>;
-			vha_clk_rate = <1000000000>;
-			ldo_vha-supply = <&npu>;
-			dma-mask = <0xff 0xffffffff>;
-			resets = <&rst TH1520_RESET_NPU>;
-			status = "disabled";
-		};
-
-		npu_opp_table: opp-table {
-			compatible = "operating-points-v2";
-
-			opp-1000000000 {
-				opp-hz = /bits/ 64 <1000000000>;
-				opp-microvolt = <800000>;
-			};
-			opp-792000000 {
-				opp-hz = /bits/ 64 <792000000>;
-				opp-microvolt = <800000>;
-			};
-			opp-594000000 {
-				opp-hz = /bits/ 64 <594000000>;
-				opp-microvolt = <800000>;
-			};
-			opp-475200000 {
-				opp-hz = /bits/ 64 <475200000>;
-				opp-microvolt = <800000>;
-			};
-			opp-396000000 {
-				opp-hz = /bits/ 64 <396000000>;
-				opp-microvolt = <800000>;
-			};
 		};
 
 		regdump: th1520-regdump {
