@@ -213,6 +213,7 @@ int snd_pcm_update_state(struct snd_pcm_substream *substream,
 		runtime->avail_max = avail;
 	if (runtime->state == SNDRV_PCM_STATE_DRAINING) {
 		if (avail >= runtime->buffer_size) {
+			memset(substream->dma_buffer.area, 0, substream->dma_buffer.bytes);
 			snd_pcm_drain_done(substream);
 			return -EPIPE;
 		}
