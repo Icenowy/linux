@@ -239,6 +239,19 @@
 		};
 	};
 
+	wcn_wifi: wireless-wlan {
+		compatible = "wlan-platdata";
+		clock-names = "clk_wifi";
+		ref-clock-frequency = <24000000>;
+		keep_wifi_power_on;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_wifi_wake>;
+		wifi_chip_type = "rtl8723ds";
+		WIFI,poweren-gpios = <&ioexp2 4 0>;
+		support_power_ctrl;
+		status = "okay";
+	};
+
 	wcn_bt: wireless-bluetooth {
 		compatible = "bluetooth-platdata";
 		pinctrl-names = "default";
@@ -615,6 +628,18 @@
 		};
 	};
 
+	pinctrl_wifi_wake: wifi_grp {
+		wifi-pins {
+			pins = "GPIO0_27";
+			function = "gpio";
+			bias-disable;
+			drive-strength = <7>;
+			input-enable;
+			input-schmitt-enable;
+			slew-rate = <0>;
+		};
+	};
+
 	pinctrl_bt_wake: bt_grp {
 		bt-pins {
 			pins = "GPIO0_28";
@@ -755,6 +780,7 @@
 &sdio1 {
 		max-frequency = <100000000>;
 		bus-width = <4>;
+		pull_up;
 		no-sd;
 		no-mmc;
 		non-removable;
@@ -763,6 +789,7 @@
 		wprtn_ignore;
 		cap-sd-highspeed;
 		wakeup-source;
+		keep-power-in-suspend;
 		status = "okay";
 };
 
