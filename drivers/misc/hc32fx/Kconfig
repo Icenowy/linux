@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+config MCU_HC32FX
+	tristate "enable hc32fx mcu"
+	depends on I2C
+	help
+		enable hc32fx mcu

@@ -1,0 +1,9 @@
+
+
+config ROCKCHIP_LT8911EXB
+	tristate "techvision LT8911EXB driver on ROCKCHIP platform"
+	default y
+	help
+	  rockchip LT8911EXB module. MIPI to EDP
+
+
