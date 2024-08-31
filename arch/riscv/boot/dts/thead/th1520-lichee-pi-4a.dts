@@ -36,6 +36,9 @@
 		i2s0 = &i2s0;
 		i2s1 = &i2s1;
 		i2s2 = &i2s2;
+		vivcam3 = &vvcam_sensor3;
+		viv_video2 =  &video2;
+		viv_video3 =  &video3;
 	};
 
 	chosen {
@@ -309,6 +312,210 @@
 			sustainable-power = <3000>;
 		};
 	};
+
+	soc {
+		compatible = "simple-bus";
+		interrupt-parent = <&plic>;
+		#address-cells = <2>;
+		#size-cells = <2>;
+		dma-noncoherent;
+		ranges;
+
+
+		vvcam_sensor3: vvcam_sensor@3 {//cam3 csi0 modified
+			sensor_name = "OV5693";
+			compatible = "xuantie,th1520-vvcam-sensor";
+			sensor_pdn = <&gpio1 28 0>; //powerdown pin / shutdown pin
+			sensor_rst = <&ioexp2 1 0>;
+			sensor_pdn_delay_us = <4000>; //powerdown pin / shutdown pin activated till I2C ready
+			sensor_regulators = "DOVDD18", "DVDD12", "AVDD28";
+			sensor_regulator_timing_us = <70 50 20>;
+			DOVDD18-supply = <&reg_cam0_dovdd18>;
+			DVDD12-supply = <&reg_cam0_dvdd12>;
+			AVDD28-supply = <&reg_cam0_avdd28>;
+			i2c_reg_width = /bits/ 8 <2>;
+			i2c_data_width = /bits/ 8 <1>;
+			i2c_addr = /bits/ 8 <0x36>;
+			i2c_bus = /bits/ 8 <0>;
+			status = "okay";
+		};
+
+		video2: cam_dev@300 {
+			compatible = "xuantie,th1520-video";
+			vi_mem_pool_region = <0>;	// vi_mem: framebuffer, region[0]
+			status = "okay";
+			channel0 {
+				channel_id = <0>;
+				status = "okay";
+				sensor1 {
+					subdev_name = "vivcam";
+					idx = <3>;
+					csi_idx = <0>;
+					mode_idx = <1>;
+					path_type = "SENSOR_2592x1944_LINER";
+				};
+				dma {
+					subdev_name = "vipre";
+					idx = <0>;
+					path_type = "VIPRE_CSI0_ISP1";
+				};
+				isp {
+					subdev_name = "isp";
+					idx = <1>;
+					path_type = "ISP_MI_PATH_MP";
+					output {
+						max_width = <2600>;
+						max_height = <2000>;
+						bit_per_pixel = <12>;
+						frame_count = <3>;
+					};
+				};
+			};
+			channel1 {
+				sensor1 {
+					subdev_name = "vivcam";
+					idx = <3>;
+					csi_idx = <0>;
+					mode_idx = <1>;
+					path_type = "SENSOR_2592x1944_LINER";
+				};
+				isp {
+					subdev_name = "isp";
+					idx = <1>;
+					path_type = "ISP_MI_PATH_SP";
+					output {
+						max_width = <2600>;
+						max_height = <2000>;
+						bit_per_pixel = <12>;
+						frame_count = <3>;
+					};
+				};
+			};
+			channel2 {
+				sensor1 {
+					subdev_name = "vivcam";
+					idx = <3>;
+					csi_idx = <0>;
+					mode_idx = <1>;
+					path_type = "SENSOR_2592x1944_LINER";
+				};
+				isp {
+					subdev_name = "isp";
+					idx = <1>;
+					path_type = "ISP_MI_PATH_SP2_BP";
+					output {
+						max_width = <2600>;
+						max_height = <2000>;
+						bit_per_pixel = <12>;
+						frame_count = <3>;
+					};
+				};
+			};
+		};
+
+		video3: cam_dev@400{
+			compatible = "xuantie,th1520-video";
+			vi_mem_pool_region = <0>;	// vi_mem: framebuffer, region[0]
+			status = "okay";
+			channel0 {
+				sensor1 {
+					subdev_name = "vivcam";
+					idx = <3>;
+					csi_idx = <0>;
+					mode_idx = <1>;
+					path_type = "SENSOR_2592x1944_LINER";
+				};
+				dma {
+					subdev_name = "vipre";
+					idx = <0>;
+					path_type = "VIPRE_CSI0_ISP1";
+
+				};
+				isp {
+					subdev_name = "isp";
+					idx = <1>;
+					path_type = "ISP_MI_PATH_MP";
+					output {
+						max_width = <2600>;
+						max_height = <2000>;
+						bit_per_pixel = <12>;
+						frame_count = <3>;
+					};
+				};
+				dw {
+					subdev_name = "dw";
+					idx = <0>;
+					path_type = "DW_DWE_VSE0";
+					dw_dst_depth = <2>;
+				};
+			};
+			channel1 {
+				sensor1 {
+					subdev_name = "vivcam";
+					idx = <3>;
+					csi_idx = <0>;
+					mode_idx = <1>;
+					path_type = "SENSOR_2592x1944_LINER";
+				};
+				dma {
+					subdev_name = "vipre";
+					idx = <0>;
+					path_type = "VIPRE_CSI0_ISP1";
+
+				};
+				isp {
+					subdev_name = "isp";
+					idx = <1>;
+					path_type = "ISP_MI_PATH_MP";
+					output {
+						max_width = <2600>;
+						max_height = <2000>;
+						bit_per_pixel = <12>;
+						frame_count = <3>;
+					};
+				};
+				dw {
+					subdev_name = "dw";
+					idx = <0>;
+					path_type = "DW_DWE_VSE1";
+					dw_dst_depth = <2>;
+				};
+			};
+			channel2 {
+				sensor1 {
+					subdev_name = "vivcam";
+					idx = <3>;
+					csi_idx = <0>;
+					mode_idx = <1>;
+					path_type = "SENSOR_2592x1944_LINER";
+				};
+				dma {
+					subdev_name = "vipre";
+					idx = <0>;
+					path_type = "VIPRE_CSI0_ISP1";
+
+				};
+				isp {
+					subdev_name = "isp";
+					idx = <1>;
+					path_type = "ISP_MI_PATH_MP";
+					output {
+						max_width = <2600>;
+						max_height = <2000>;
+						bit_per_pixel = <12>;
+						frame_count = <3>;
+					};
+				};
+				dw {
+					subdev_name = "dw";
+					idx = <0>;
+					path_type = "DW_DWE_VSE2";
+					dw_dst_depth = <2>;
+				};
+			};
+		};
+	};
+
 };
 
 &aon_suspend_ctrl {
@@ -802,21 +1009,48 @@
 	#address-cells = <2>;
 	#size-cells = <2>;
 	ranges;
-    audio_text_mem: memory@32000000 {
+
+	/* global autoconfigured region for contiguous allocations */
+	cmamem: linux,cma {
+		compatible = "shared-dma-pool";
+		reusable;
+		size = <0 0x20000000>; // 512MB on lpi4a (SOM)
+		alloc-ranges = <0 0xd8000000 0 0x20000000>; // [0x0D800_0000 ~ 0x0F800_0000]			linux,cma-default;
+		linux,cma-default;
+	};
+	dsp0_mem: memory@20000000 {             /**0x2000_0000~0x2040_0000 4M**/
+		reg = <0x0 0x20000000 0x0 0x00280000   /* DSP FW code&data section 2.5M*/
+			0x0 0x20280000 0x0 0x00001000   /* DSP communication area 4K*/
+			0x0 0x20281000 0x0 0x00007000  /* Panic/log page 28K */
+			0x0 0x20288000 0x0 0x00178000>;  /* DSP shared memory 1.5M-32K*/
+		};
+	dsp1_mem: memory@20400000 {             /**0x2040_0000~0x2080_0000 4M**/
+		reg = <0x0 0x20400000 0x0 0x00280000  /* DSP FW code&data section */
+			0x0 0x20680000 0x0 0x00001000 /* DSP communication area */
+			0x0 0x20681000 0x0 0x00007000    /* Panic/log page*/
+			0x0 0x20688000 0x0 0x00178000>;  /* DSP shared memory */
+		};
+	vi_mem: framebuffer@10000000 {
+		reg = <0x0 0x10000000 0x0 0x6700000>;	/* vi_mem_pool_region[0]  44 MB (default) */
+			//0x0 0x12C00000 0x0 0x01D00000	/* vi_mem_pool_region[1]  29 MB */
+			//0x0 0x14900000 0x0 0x01E00000>;	/* vi_mem_pool_region[2]  30 MB */
+		};
+
+	audio_text_mem: memory@32000000 {
 		reg = <0x0 0x32000000 0x0 0xE00000>;
 		//no-map;
-    };
-    audio_data_mem: memory@32E00000 {
+	};
+	audio_data_mem: memory@32E00000 {
 		reg = <0x0 0x32E00000 0x0 0x600000>;
 		//no-map;
-    };
+	};
 	audio_log_mem: memory@33400000 {
         reg = <0x0 0x33400000 0x0 0x200000>;
 	};
 	//Note: with "no-map" reserv mem not saved in hibernation
-    audio_mem: memory@32000000 {
+	audio_mem: memory@32000000 {
 		reg = <0x0 0x32000000 0x0 0x6400000>;
-    };
+	};
 	rpmsgmem: memory@1E000000 {
 		reg = <0x0 0x1E000000 0x0 0x10000>;
 	};
@@ -943,4 +1177,70 @@
 
 &dpu_enc0 {
 	status = "okay";
+};
+
+&isp0 {
+	status = "okay";
+};
+
+&isp1 {
+	status = "okay";
+};
+
+&isp_ry0 {
+	status = "okay";
+};
+
+&dewarp {
+	status = "okay";
+};
+
+&dec400_isp0 {
+	status = "okay";
+};
+
+&dec400_isp1 {
+	status = "okay";
+};
+
+&dec400_isp2 {
+	status = "okay";
+};
+
+&bm_visys {
+	status = "okay";
+};
+
+&bm_csi0 {
+	status = "okay";
+};
+
+&bm_csi1 {
+	status = "okay";
+};
+
+&bm_csi2 {
+	status = "okay";
+};
+
+&vidmem {
+	status = "okay";
+	memory-region = <&vi_mem>;
+};
+
+&vi_pre {
+	status = "okay";
+};
+&xtensa_dsp {
+	status = "okay";
+};
+
+&xtensa_dsp0 {
+	status = "okay";
+	memory-region = <&dsp0_mem>;
+};
+
+&xtensa_dsp1 {
+	status = "okay";
+	memory-region = <&dsp1_mem>;
 };

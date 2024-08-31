@@ -941,8 +941,18 @@
 		i2c0: i2c@ffe7f20000 {
 			compatible = "snps,designware-i2c";
 			reg = <0xff 0xe7f20000 0x0 0x1000>;
-			clocks = <&clk CLKGEN_I2C0_PCLK>;
 			interrupts = <44 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk CLKGEN_I2C0_PCLK>;
+			clock-names = "pclk";
+			clock-frequency = <100000>;
+			ss_hcnt = /bits/ 16 <0x104>;
+			ss_lcnt = /bits/ 16 <0xec>;
+			fs_hcnt = /bits/ 16 <0x37>;
+			fs_lcnt = /bits/ 16 <0x42>;
+			fp_hcnt = /bits/ 16 <0x14>;
+			fp_lcnt = /bits/ 16 <0x1a>;
+			hs_hcnt = /bits/ 16 <0x9>;
+			hs_lcnt = /bits/ 16 <0x11>;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			status = "disabled";
@@ -1816,6 +1826,272 @@
 			compatible = "xuantie,th1520-vidmem";
 			reg = <0xff 0xecc08000 0x0 0x1000>;
 			status = "okay";
+		};
+
+		bm_visys: bm_visys@ffe4040000 {
+			compatible = "xuantie,th1520-bm-visys";
+			reg = <0xff 0xe4040000 0x0 0x1000>;
+			status = "disabled";
+		};
+
+		bm_csi0: csi@ffe4000000{ //CSI2
+			compatible = "xuantie,th1520-bm-csi";
+			reg = < 0xff 0xe4000000 0x0 0x10000>;
+			interrupt-parent = <&plic>;
+			interrupts = <128 IRQ_TYPE_LEVEL_HIGH>;
+			dphyglueiftester = <0x180>;
+			sysreg_mipi_csi_ctrl = <0x140>;
+			clocks = <&visys_clk_gate TH1520_CLKGEN_MIPI_CSI0_PCLK>,
+					<&visys_clk_gate TH1520_CLKGEN_MIPI_CSI0_PIXCLK>,
+					<&visys_clk_gate TH1520_CLKGEN_MIPI_CSI0_CFG_CLK>;
+			clock-names = "pclk", "pixclk", "cfg_clk";
+			phy_name = "CSI_4LANE";
+			status = "disabled";
+		};
+
+		csia_reg: visys-reg@ffe4020000 {
+			compatible = "xuantie,th1520-visys-reg", "syscon";
+			reg = < 0xff 0xe4020000 0x0 0x10000>;
+			status = "okay";
+		};
+
+		csib_reg: visys-reg@ffe4010000{
+			compatible = "xuantie,th1520-visys-reg", "syscon";
+			reg = < 0xff 0xe4010000 0x0 0x10000>;
+			status = "okay";
+		};
+
+		bm_csi1: csi@ffe4010000{ //CSI2X2_B
+			compatible = "xuantie,th1520-bm-csi";
+			reg = < 0xff 0xe4010000 0x0 0x10000>;
+			interrupt-parent = <&plic>;
+			interrupts = <126 IRQ_TYPE_LEVEL_HIGH>; // 110 + 16 int_mipi_csi2x2_int0
+			dphyglueiftester = <0x182>; // for FPGA PHY only. ASIC not needed.
+			sysreg_mipi_csi_ctrl = <0x148>;
+			visys-regmap = <&visys_reg>;
+			csia-regmap = <&csia_reg>;
+			clocks = <&visys_clk_gate TH1520_CLKGEN_MIPI_CSI1_PCLK>,
+					<&visys_clk_gate TH1520_CLKGEN_MIPI_CSI1_PIXCLK>,
+					<&visys_clk_gate TH1520_CLKGEN_MIPI_CSI1_CFG_CLK>;
+			clock-names = "pclk", "pixclk", "cfg_clk";
+			phy_name = "CSI_B";
+			status = "disabled";
+		};
+
+		bm_csi2: csi@ffe4020000{ //CSI2X2_A
+			compatible = "xuantie,th1520-bm-csi";
+			reg = < 0xff 0xe4020000 0x0 0x10000>;
+			interrupt-parent = <&plic>;
+			interrupts = <127 IRQ_TYPE_LEVEL_HIGH>;
+			dphyglueiftester = <0x184>;
+			sysreg_mipi_csi_ctrl = <0x144>;
+			sysreg_mipi_csi_fifo_ctrl = <0x14c>;
+			csib-regmap = <&csib_reg>;
+			clocks = <&visys_clk_gate TH1520_CLKGEN_MIPI_CSI2_PCLK>,
+					<&visys_clk_gate TH1520_CLKGEN_MIPI_CSI2_PIXCLK>,
+					<&visys_clk_gate TH1520_CLKGEN_MIPI_CSI2_CFG_CLK>,
+					<&visys_clk_gate TH1520_CLKGEN_MIPI_CSI1_PCLK>,
+					<&visys_clk_gate TH1520_CLKGEN_MIPI_CSI1_PIXCLK>,
+					<&visys_clk_gate TH1520_CLKGEN_MIPI_CSI1_CFG_CLK>;
+			clock-names = "pclk", "pixclk", "cfg_clk", "pclk1", "pixclk1", "cfg_clk1";
+			phy_name = "CSI_A";
+			status = "disabled";
+		};
+
+		isp0: isp@ffe4100000 {
+			compatible = "xuantie,th1520-isp";
+			reg = <0xff 0xe4100000 0x0 0x10000>;
+			interrupt-parent = <&plic>;
+			interrupts = <117 IRQ_TYPE_LEVEL_HIGH>,<118 IRQ_TYPE_LEVEL_HIGH>;
+			clocks =  <&visys_clk_gate TH1520_CLKGEN_ISP0_ACLK>,
+					<&visys_clk_gate TH1520_CLKGEN_ISP0_HCLK>,
+					<&visys_clk_gate TH1520_CLKGEN_ISP0_PIXELCLK>,
+					<&visys_clk_gate TH1520_CLKGEN_ISP0_CLK>;
+			clock-names = "aclk", "hclk", "isp0_pclk", "cclk";
+			status = "disabled";
+		};
+
+		isp1: isp@ffe4110000 {
+			compatible = "xuantie,th1520-isp";
+			reg = <0xff 0xe4110000 0x0 0x10000>;
+			interrupt-parent = <&plic>;
+			interrupts = <120 IRQ_TYPE_LEVEL_HIGH>,<121 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&visys_clk_gate TH1520_CLKGEN_ISP0_ACLK>,
+					<&visys_clk_gate TH1520_CLKGEN_ISP0_HCLK>,
+					<&visys_clk_gate TH1520_CLKGEN_ISP0_PIXELCLK>,
+					<&visys_clk_gate TH1520_CLKGEN_ISP1_CLK>,
+					<&visys_clk_gate TH1520_CLKGEN_ISP1_PIXELCLK>;
+			clock-names = "aclk", "hclk", "isp0_pclk", "cclk", "isp1_pclk";
+			status = "disabled";
+		};
+
+		isp_ry0: isp_ry@ffe4120000 {
+			compatible = "xuantie,th1520-isp_ry";
+			reg = <0xff 0xe4120000 0x0 0x10000>;
+			interrupt-parent = <&plic>;
+			interrupts = <123 IRQ_TYPE_LEVEL_HIGH>,<124 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&visys_clk_gate TH1520_CLKGEN_ISP_RY_ACLK>,
+					<&visys_clk_gate TH1520_CLKGEN_ISP_RY_HCLK>,
+					<&visys_clk_gate TH1520_CLKGEN_ISP_RY_CCLK>;
+			clock-names = "aclk", "hclk", "cclk";
+			status = "disabled";
+		};
+
+		dewarp: dewarp@ffe4130000 {
+			compatible = "xuantie,th1520-dewarp";
+			reg = <0xff 0xe4130000 0x0 0x10000>;
+			interrupt-parent = <&plic>;
+			interrupts = <98 IRQ_TYPE_LEVEL_HIGH>,<99 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&visys_clk_gate TH1520_CLKGEN_DW200_ACLK>,
+					<&visys_clk_gate TH1520_CLKGEN_DW200_HCLK>,
+					<&visys_clk_gate TH1520_CLKGEN_DW200_CLK_VSE>,
+					<&visys_clk_gate TH1520_CLKGEN_DW200_CLK_DWE>;
+			clock-names = "aclk", "hclk", "vseclk", "dweclk";
+			status = "disabled";
+		};
+
+		dec400_isp0: dec400@ffe4060000 {
+			compatible = "xuantie,th1520-dec400";
+			reg = <0xff 0xe4060000 0x0 0x8000>;
+			status = "disabled";
+		};
+
+		dec400_isp1: dec400@ffe4068000 {
+			compatible = "xuantie,th1520-dec400";
+			reg = <0xff 0xe4068000 0x0 0x8000>;
+			status = "disabled";
+		};
+
+		dec400_isp2: dec400@ffe4070000 {
+			compatible = "xuantie,th1520-dec400";
+			reg = <0xff 0xe4070000 0x0 0x8000>;
+			status = "disabled";
+		};
+
+
+		vi_pre: vi_pre@ffe4030000 {
+			compatible = "xuantie,th1520-vi_pre";
+			reg = <0xff 0xe4030000 0x0 0x1000>;
+			interrupt-parent = <&plic>;
+			interrupts = <134 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&visys_clk_gate TH1520_CLKGEN_VIPRE_ACLK>,
+					<&visys_clk_gate TH1520_CLKGEN_VIPRE_PCLK>,
+					<&visys_clk_gate TH1520_CLKGEN_VIPRE_PIXELCLK>;
+			clock-names ="aclk", "pclk", "pixclk";
+			status = "disabled";
+		};
+
+		xtensa_dsp: dsp@01{
+			compatible = "xuantie,dsp-hw-common";
+			reg = <0xff 0xef040000 0x0 0x001000 >;   /*DSP_SYSREG(0x0000-0xFFF) */
+			status = "disabled";
+		};
+
+		xtensa_dsp0: dsp@0 {
+			compatible = "cdns,xrp-hw-simple";
+			reg = <0xff 0xe4040190 0x0 0x000010   /* host irq DSP->CPU INT Register  */
+					0xff 0xe40401e0 0x0 0x000010   /* device irq CPU->DSP INT Register  */
+					0xff 0xef048000 0x0 0x008000  /* DSP shared memory */
+					0xff 0xe0180000 0x0 0x040000>; /* DSP TCM*/
+			dsp = <0>;
+			dspsys-rst-bit = <8>;           /*bit# in DSP_SYSREG*/
+			dspsys-bus-offset = <0x90>;   /*in DSP_SYSREG*/
+			device-irq = <0x4 1 24>; /*0xff 0xe40401e4 offset to clear DSP I]RQ, bit#, IRQ# */
+			device-irq-host-offset = <0x8>;  /*0xff 0xe40401e8 offset to trigger DSP IRQ*/
+			device-irq-mode = <1>; /*level trigger*/
+			host-irq = <0x4 1>; /*0xff 0xe4040194 offset to clear, bit# */
+			host-irq-mode = <1>;   /*level trigger */
+			host-irq-offset = <0x8>;  /* 0xff 0xe4040198 offset to trigger ,device side*/
+			interrupt-parent = <&plic>;
+			interrupts = <156 IRQ_TYPE_LEVEL_HIGH>;
+			#cooling-cells = <2>;
+			firmware-name = "xrp0.elf";
+			clocks = <&dspsys_clk_gate CLKGEN_DSP0_PCLK>,
+			<&dspsys_clk_gate CLKGEN_DSP0_CCLK>;
+			clock-names = "pclk", "cclk";
+			status = "disabled";
+			operating-points-v2 = <&dsp_opp_table>;
+			dynamic-power-coefficient = <1000>;
+			#address-cells = <2>;
+			#size-cells = <1>;
+			ranges = <0x00 0x00000000 0x00 0x00000000 0xe0180000
+					0x00 0xe01c0000 0x00 0xe01c0000 0x19E40000
+					0x00 0xfa000000 0xff 0xe0000000 0x00180000
+					0x00 0xe0180000 0xff 0xe0180000 0x00040000
+					0x00 0xffc00000 0xff 0xe4000000 0x00200000 >;  /* VISYS_R */
+			dsp@0 {
+				ranges = <0x00 0x00000000 0x00 0x00000000 0xe0180000
+						0x00 0xe01c0000 0x00 0xe01c0000 0x19E40000
+						0x00 0xfa000000 0xff 0xe0000000 0x00180000
+						0x00 0xe0180000 0xff 0xe0180000 0x00040000
+						0x00 0xffc00000 0xff 0xe4000000 0x00200000 >;  /* VISYS_R */
+			};
+		};
+
+		xtensa_dsp1: dsp@1 {
+			compatible = "cdns,xrp-hw-simple";
+			reg = <0xff 0xe40401a0 0x0 0x000010   /* host irq DSP->CPU INT Register  */
+				0xff 0xe40401d0 0x0 0x000010   /* device irq CPU->DSP INT Register  */
+				0xff 0xef050000 0x0 0x008000  /* DSP shared memory */
+				0xff 0xe01C0000 0x0 0x040000>;/* DSP TCM*/
+			dsp = <1>;
+			dspsys-rst-bit = <8>;           /*bit# in DSP_SYSREG*/
+			dspsys-bus-offset = <0x90>;   /*in DSP_SYSREG*/
+			device-irq = <0x4 1 24>; /*0xff 0xe40401e4 offset to clear DSP I]RQ, bit#, IRQ# */
+			device-irq-host-offset = <0x8>;  /*0xff 0xe40401e8 offset to trigger DSP IRQ*/
+			device-irq-mode = <1>; /*level trigger*/
+			host-irq = <0x4 1>; /*0xff 0xe4040194 offset to clear, bit# */
+			host-irq-mode = <1>;   /*level trigger */
+			host-irq-offset = <0x8>;  /* 0xff 0xe4040198 offset to trigger ,device side*/
+			interrupt-parent = <&plic>;
+			interrupts = <157 IRQ_TYPE_LEVEL_HIGH>;
+			firmware-name = "xrp1.elf";
+			#cooling-cells = <2>;
+			clocks = <&dspsys_clk_gate CLKGEN_DSP1_PCLK>,
+			<&dspsys_clk_gate CLKGEN_DSP1_CCLK>;
+			clock-names = "pclk", "cclk";
+			status = "disabled";
+			operating-points-v2 = <&dsp_opp_table>;
+			dynamic-power-coefficient = <1000>;
+			#address-cells = <2>;
+			#size-cells = <1>;
+			ranges = <0x00 0x00000000 0x00 0x00000000 0xe0180000
+					0x00 0xe01c0000 0x00 0xe01c0000 0x19E40000
+					0x00 0xfa000000 0xff 0xe0000000 0x00180000
+					0x00 0xe0180000 0xff 0xe01C0000 0x00040000
+					0x00 0xffc00000 0xff 0xe4000000 0x00200000 >;  /* VISYS_R */
+			dsp@0 {
+				ranges = <0x00 0x00000000 0x00 0x00000000 0xe0180000
+						0x00 0xe01c0000 0x00 0xe01c0000 0x19E40000
+						0x00 0xfa000000 0xff 0xe0000000 0x00180000
+						0x00 0xe0180000 0xff 0xe01C0000 0x00040000
+						0x00 0xffc00000 0xff 0xe4000000 0x00200000 >;  /* VISYS_R */
+			};
+		};
+
+
+		dsp_opp_table: dsp_opp_table {
+			compatible = "operating-points-v2";
+
+			opp-125000000 {
+				opp-hz = /bits/ 64 <125000000>;
+				opp-microvolt = <800000>;
+			};
+
+			opp-250000000 {
+				opp-hz = /bits/ 64 <250000000>;
+				opp-microvolt = <800000>;
+			};
+
+			opp-500000000 {
+				opp-hz = /bits/ 64 <500000000>;
+				opp-microvolt = <800000>;
+			};
+			opp-1000000000 {
+				opp-hz = /bits/ 64 <1000000000>;
+				opp-microvolt = <800000>;
+				opp-suspend;
+			};
 		};
 	};
 };
