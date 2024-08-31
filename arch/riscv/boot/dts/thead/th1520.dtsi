@@ -828,6 +828,29 @@
 			interrupt-controller;
 		};
 
+		secsys_reg: secsys-reg@ffff200000 {
+			compatible = "syscon";
+			reg = <0xff 0xff200000 0x0 0x10000>;
+		};
+
+		nvmem_controller: efuse@ffff210000 {
+			compatible = "xuantie,th1520-efuse", "syscon";
+			reg = <0xff 0xff210000 0x0 0x10000>;
+			xuantie,secsys = <&secsys_reg>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+			clocks = <&miscsys_clk_gate CLKGEN_MISCSYS_EFUSE_PCLK>;
+			clock-names = "pclk";
+
+			gmac0_mac_address: mac-address@176 {
+				reg = <0xb0 6>;
+			};
+
+			gmac1_mac_address: mac-address@184 {
+				reg = <0xb8 6>;
+			};
+		};
+
 		gmac0: ethernet@ffe7070000 {
 			compatible = "xuantie,th1520-dwmac";
 			reg = <0xff 0xe7070000 0x0 0x2000>;

@@ -1,0 +1,18 @@
+= XuanTie TH1520-EFUSE device tree bindings =
+
+This binding is intended to represent TH1520-EFUSE which is found in XuanTie
+SoCs
+
+Required properties:
+- compatible:	should be
+		"xuantie,th1520-efuse": for th1520 fullmask
+- reg:	should contain registers location and length
+- xuantie,secsys: the syscon phandle to read and write sec system registers
+
+Example:
+
+	nvmem_controller: efuse@ffff210000 {
+		compatible = "xuantie,th1520-efuse";
+		reg = <0xff 0xff210000 0x0 0x10000>;
+		xuantie,secsys = <&secsys_reg>;
+	};
