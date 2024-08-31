@@ -1822,6 +1822,36 @@
 			status = "okay";
 		};
 
+		g2d_opp_table:g2d-opp-table {
+			compatible = "operating-points-v2";
+			opp-49500000 {
+      			opp-hz = /bits/ 64 <49500000>;
+    		};
+			opp-99000000 {
+      			opp-hz = /bits/ 64 <99000000>;
+    		};
+			opp-198000000 {
+      			opp-hz = /bits/ 64 <198000000>;
+    		};
+			opp-396000000 {
+      			opp-hz = /bits/ 64 <396000000>;
+    		};
+		};
+
+		g2d: gc620@ffecc80000 {
+			compatible = "xuantie,th1520-gc620";
+			reg = <0xff 0xecc80000 0x0 0x40000>;
+			interrupt-parent = <&plic>;
+			interrupts = <101 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "irq_2d";
+			clocks = <&vpsys_clk_gate TH1520_VPSYS_G2D_PCLK>,
+				 <&vpsys_clk_gate TH1520_VPSYS_G2D_ACLK>,
+				 <&vpsys_clk_gate TH1520_VPSYS_G2D_CCLK>;
+			clock-names = "pclk", "aclk", "cclk";
+			operating-points-v2 = <&g2d_opp_table>;
+			status = "okay";
+		};
+
 		vidmem: vidmem@ffecc08000 {
 			compatible = "xuantie,th1520-vidmem";
 			reg = <0xff 0xecc08000 0x0 0x1000>;
