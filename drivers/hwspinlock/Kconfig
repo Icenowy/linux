@@ -63,4 +63,12 @@ config HSEM_U8500
 
 	  If unsure, say N.
 
+config HWSPINLOCK_TH1520
+	tristate "Th1520 Hardware Spinlock device"
+	depends on HWSPINLOCK
+	help
+	  Say y here to support the Th1520 Hardware Spinlock device.
+
+	  If unsure, say N.
+
 endif # HWSPINLOCK

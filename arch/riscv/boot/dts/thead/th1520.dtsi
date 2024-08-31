@@ -2227,5 +2227,11 @@
 			clock-names = "120si_clk","120sii_clk","120siii_clk","hclk";
 			status = "disabled";
 		};
+
+		hwspinlock: hwspinlock@ffefc10000 {
+			compatible = "th1520,hwspinlock";
+			reg = <0xff 0xefc10000 0x0 0x10000>;
+			status = "disabled";
+		};
 	};
 };
