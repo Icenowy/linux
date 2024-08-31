@@ -4,3 +4,7 @@
  */
 
 #include "th1520-a-val.dts"
+
+&eip_28 {
+	status = "disabled";
+};

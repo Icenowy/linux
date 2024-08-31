@@ -1255,3 +1255,7 @@
 		opp-suspend;
 	};
 };
+
+&eip_28 {
+	status = "okay";
+};

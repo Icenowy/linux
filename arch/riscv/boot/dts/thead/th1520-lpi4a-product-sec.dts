@@ -4,3 +4,7 @@
  */
 
 #include "th1520-lpi4a-product.dts"
+
+&eip_28 {
+	status = "disabled";
+};

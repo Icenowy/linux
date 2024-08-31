@@ -2212,5 +2212,20 @@
 			interrupts = <69 IRQ_TYPE_LEVEL_HIGH>;
 			status = "disabled";
 		};
+
+		eip_28: eip-28@ffff300000 {
+			compatible = "xlnx,sunrise-fpga-1.0", "safexcel-eip-28";
+			reg = <0xff 0xff300000 0x0 0x40000>;
+			interrupts = <144 IRQ_TYPE_LEVEL_HIGH>,
+						<145 IRQ_TYPE_LEVEL_HIGH>,
+						<146 IRQ_TYPE_LEVEL_HIGH>,
+						<147 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&miscsys_clk_gate CLKGEN_MISCSYS_EIP120SI_CLK>,
+					<&miscsys_clk_gate CLKGEN_MISCSYS_EIP120SII_CLK>,
+					<&miscsys_clk_gate CLKGEN_MISCSYS_EIP120SIII_CLK>,
+					<&miscsys_clk_gate CLKGEN_MISCSYS_EIP150B_HCLK>;
+			clock-names = "120si_clk","120sii_clk","120siii_clk","hclk";
+			status = "disabled";
+		};
 	};
 };
