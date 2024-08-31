@@ -937,9 +937,21 @@ static void __init unix98_pty_init(void)
 #else
 static inline void unix98_pty_init(void) { }
 #endif
+static bool nopty = false;
+
+/* noclkdebug bootargs: for option not init ftrace*/
+static int __init nopty_setup(char *str)
+{
+	nopty = true;
+	return 1;
+}
+
+__setup("nopty", nopty_setup);
 
 static int __init pty_init(void)
 {
+	if(nopty)
+		return 0;
 	legacy_pty_init();
 	unix98_pty_init();
 	return 0;

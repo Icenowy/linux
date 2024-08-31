@@ -3741,6 +3741,16 @@ static void clk_debug_unregister(struct clk_core *core)
 	core->dentry = NULL;
 	mutex_unlock(&clk_debug_lock);
 }
+static bool noclk_debug_init = false;
+
+/* noclkdebug bootargs: for option not init ftrace*/
+static int __init noclk_debug_setup(char *str)
+{
+	noclk_debug_init = true;
+	return 1;
+}
+
+__setup("noclkdebug", noclk_debug_setup);
 
 /**
  * clk_debug_init - lazily populate the debugfs clk directory
@@ -3755,6 +3765,8 @@ static int __init clk_debug_init(void)
 {
 	struct clk_core *core;
 
+	if(noclk_debug_init)
+		return 0;
 #ifdef CLOCK_ALLOW_WRITE_DEBUGFS
 	pr_warn("\n");
 	pr_warn("********************************************************************\n");
