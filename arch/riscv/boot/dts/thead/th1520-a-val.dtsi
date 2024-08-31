@@ -787,7 +787,7 @@
 &padctrl_audiosys {
 	aud_i2c0_pins: aud-i2c0-0 {
 		i2c-pins {
-			pins = "AUD_PA6_FUNC", "AUD_PA7_FUNC";
+			pins = "PA6_FUNC", "PA7_FUNC";
 			function = "aud_i2c0";
 			bias-disable;
 			drive-strength = <7>;
@@ -797,7 +797,7 @@
 	};
 	aud_i2c1_pins: aud-i2c1-0 {
 		i2c-pins {
-			pins = "AUD_PA13_FUNC", "AUD_PA16_FUNC";
+			pins = "PA13_FUNC", "PA16_FUNC";
 			function = "aud_i2c1";
 			bias-disable;
 			drive-strength = <7>;
@@ -807,7 +807,7 @@
 	};
 	i2s1_pins: i2s1-0 {
 		i2s-pins {
-			pins = "AUD_PA14_FUNC", "AUD_PA15_FUNC", "AUD_PA17_FUNC";
+			pins = "PA14_FUNC", "PA15_FUNC", "PA17_FUNC";
 			function = "aud_i2s1";
 			bias-disable;
 			drive-strength = <13>;
@@ -817,7 +817,7 @@
 	};
 	i2s_8ch_bus_pins: i2s-8ch-bus-0 {
 		i2s-pins {
-			pins = "AUD_PA2_FUNC", "AUD_PA3_FUNC", "AUD_PA8_FUNC";
+			pins = "PA2_FUNC", "PA3_FUNC", "PA8_FUNC";
 			function = "aud_i2s_8ch";
 			bias-disable;
 			drive-strength = <13>;
@@ -827,7 +827,7 @@
 	};
 	i2s_8ch_sd0_pins: i2s-8ch-sd0-0 {
 		i2s-pins {
-			pins = "AUD_PA4_FUNC";
+			pins = "PA4_FUNC";
 			function = "aud_i2s_8ch";
 			bias-disable;
 			drive-strength = <13>;
@@ -837,7 +837,7 @@
 	};
 	i2s_8ch_sd1_pins: i2s-8ch-sd1-0 {
 		i2s-pins {
-			pins = "AUD_PA5_FUNC";
+			pins = "PA5_FUNC";
 			function = "aud_i2s_8ch";
 			bias-disable;
 			drive-strength = <13>;
@@ -847,7 +847,7 @@
 	};
 	i2s_8ch_sd2_pins: i2s-8ch-sd2-0 {
 		i2s-pins {
-			pins = "AUD_PA0_FUNC";
+			pins = "PA0_FUNC";
 			function = "aud_i2s_8ch";
 			bias-disable;
 			drive-strength = <13>;
@@ -857,7 +857,7 @@
 	};
 	i2s_8ch_sd3_pins: i2s-8ch-sd3-0 {
 		i2s-pins {
-			pins = "AUD_PA1_FUNC";
+			pins = "PA1_FUNC";
 			function = "aud_i2s_8ch";
 			bias-disable;
 			drive-strength = <13>;
@@ -867,7 +867,7 @@
 	};
 	tdm_pins: tdm-0 {
 		clk-pins {
-			pins = "AUD_PA27_FUNC", "AUD_PA28_FUNC";
+			pins = "PA27_FUNC", "PA28_FUNC";
 			function = "aud_tdm";
 			bias-disable;
 			drive-strength = <12>;
@@ -875,7 +875,7 @@
 			slew-rate = <0>;
 		};
 		data-pins {
-			pins = "AUD_PA29_FUNC";
+			pins = "PA29_FUNC";
 			function = "aud_tdm";
 			bias-disable;
 			drive-strength = <0>;
@@ -885,7 +885,7 @@
 	};
 	spdif0_pins: spdif0-0 {
 		rx-pins {
-			pins = "AUD_PA21_FUNC";
+			pins = "PA21_FUNC";
 			function = "aud_spdif";
 			bias-disable;
 			drive-strength = <12>;
@@ -893,7 +893,7 @@
 			slew-rate = <0>;
 		};
 		tx-pins {
-			pins = "AUD_PA22_FUNC";
+			pins = "PA22_FUNC";
 			function = "aud_spdif";
 			bias-disable;
 			drive-strength = <0>;
@@ -903,7 +903,7 @@
 	};
 	spdif1_pins: spdif1-0 {
 		tx-pins {
-			pins = "AUD_PA23_FUNC";
+			pins = "PA23_FUNC";
 			function = "aud_spdif";
 			bias-disable;
 			drive-strength = <12>;
@@ -911,7 +911,7 @@
 			slew-rate = <0>;
 		};
 		rx-pins {
-			pins = "AUD_PA24_FUNC";
+			pins = "PA24_FUNC";
 			function = "aud_spdif";
 			bias-disable;
 			drive-strength = <0>;
