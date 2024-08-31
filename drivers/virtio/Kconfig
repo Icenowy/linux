@@ -173,4 +173,12 @@ config VIRTIO_DMA_SHARED_BUFFER
 	 This option adds a flavor of dma buffers that are backed by
 	 virtio resources.
 
+config VIRTIO_VDMABUF
+	bool "Enables Vdmabuf driver in guest os"
+	default y
+	depends on VIRTIO
+	help
+	 This driver provides a way to share the dmabufs created in
+	 the Guest with the Host.
+
 endif # VIRTIO_MENU
