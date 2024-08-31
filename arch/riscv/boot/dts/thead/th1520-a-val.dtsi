@@ -2518,8 +2518,8 @@
 	cmamem: linux,cma {
 		compatible = "shared-dma-pool";
 		reusable;
-		size = <0 0x20000000>; // 512MB on lpi4a (SOM)
-		alloc-ranges = <0 0x1a000000 0 0x4000000>; // [0x0D800_0000 ~ 0x0F800_0000]			linux,cma-default;
+		size = <0 0x14000000>; // 512MB on lpi4a (SOM)
+		alloc-ranges = <00 0xe4000000 0 0x14000000>;
 		linux,cma-default;
 	};
 	dsp0_mem: memory@20000000 {             /**0x2000_0000~0x2040_0000 4M**/
