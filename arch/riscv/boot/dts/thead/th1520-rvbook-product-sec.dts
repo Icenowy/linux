@@ -9,5 +9,9 @@
 
 
 &eip_28 {
-        status = "disabled";
+	status = "disabled";
+};
+
+&th1520_iopmp {
+	status = "disabled";
 };

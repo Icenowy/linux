@@ -21,4 +21,10 @@ config TH1520_REGDUMP
 	help
 	 This driver supports sysdump feature in TH1520 FM platform
 
+config TH1520_IOPMP
+	tristate "Thead th1520 iopmp support"
+	default y
+	help
+	  This driver supports TH1520 IOPMP built-in for security system
+
 endmenu

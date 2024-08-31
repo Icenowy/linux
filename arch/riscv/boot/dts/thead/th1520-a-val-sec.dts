@@ -8,3 +8,7 @@
 &eip_28 {
 	status = "disabled";
 };
+
+&th1520_iopmp {
+	status = "disabled";
+};
