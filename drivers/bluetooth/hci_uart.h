@@ -186,6 +186,11 @@ int h5_init(void);
 int h5_deinit(void);
 #endif
 
+#ifdef CONFIG_BT_HCIUART_RTL3WIRE
+int h5_init(void);
+int h5_deinit(void);
+#endif
+
 #ifdef CONFIG_BT_HCIUART_INTEL
 int intel_init(void);
 int intel_deinit(void);

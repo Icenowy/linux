@@ -37,6 +37,12 @@
 
 #define VERSION "2.3"
 
+#define BTCOEX
+
+#ifdef BTCOEX
+#include "rtk_coex.h"
+#endif
+
 static const struct hci_uart_proto *hup[HCI_UART_MAX_PROTO];
 
 int hci_uart_register_proto(const struct hci_uart_proto *p)
@@ -864,6 +870,9 @@ static int __init hci_uart_init(void)
 #ifdef CONFIG_BT_HCIUART_3WIRE
 	h5_init();
 #endif
+#ifdef CONFIG_BT_HCIUART_RTL3WIRE
+	h5_init();
+#endif
 #ifdef CONFIG_BT_HCIUART_INTEL
 	intel_init();
 #endif
@@ -878,6 +887,9 @@ static int __init hci_uart_init(void)
 #endif
 #ifdef CONFIG_BT_HCIUART_MRVL
 	mrvl_init();
+#endif
+#ifdef BTCOEX
+	rtk_btcoex_init();
 #endif
 
 	return 0;
@@ -898,6 +910,9 @@ static void __exit hci_uart_exit(void)
 	ath_deinit();
 #endif
 #ifdef CONFIG_BT_HCIUART_3WIRE
+	h5_deinit();
+#endif
+#ifdef CONFIG_BT_HCIUART_RTL3WIRE
 	h5_deinit();
 #endif
 #ifdef CONFIG_BT_HCIUART_INTEL
