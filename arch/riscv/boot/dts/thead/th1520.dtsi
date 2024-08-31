@@ -1326,8 +1326,9 @@
 			compatible = "xuantie,th1520-dwcmshc";
 			reg = <0xff 0xe7080000 0x0 0x10000>;
 			interrupts = <62 IRQ_TYPE_LEVEL_HIGH>;
-			clocks = <&sdhci_clk>;
-			clock-names = "core";
+			clocks = <&clk CLKGEN_EMMC_SDIO_REF_CLK>,
+					 <&miscsys_clk_gate CLKGEN_MISCSYS_EMMC_CLK>;
+			clock-names = "core", "bus";
 			status = "disabled";
 		};
 
@@ -1335,8 +1336,9 @@
 			compatible = "xuantie,th1520-dwcmshc";
 			reg = <0xff 0xe7090000 0x0 0x10000>;
 			interrupts = <64 IRQ_TYPE_LEVEL_HIGH>;
-			clocks = <&sdhci_clk>;
-			clock-names = "core";
+			clocks = <&clk CLKGEN_EMMC_SDIO_REF_CLK>,
+					 <&miscsys_clk_gate CLKGEN_MISCSYS_EMMC_CLK>;
+			clock-names = "core", "bus";
 			status = "disabled";
 		};
 
@@ -1344,8 +1346,9 @@
 			compatible = "xuantie,th1520-dwcmshc";
 			reg = <0xff 0xe70a0000 0x0 0x10000>;
 			interrupts = <71 IRQ_TYPE_LEVEL_HIGH>;
-			clocks = <&sdhci_clk>;
-			clock-names = "core";
+			clocks = <&clk CLKGEN_EMMC_SDIO_REF_CLK>,
+					 <&miscsys_clk_gate CLKGEN_MISCSYS_EMMC_CLK>;
+			clock-names = "core", "bus";
 			status = "disabled";
 		};
 
