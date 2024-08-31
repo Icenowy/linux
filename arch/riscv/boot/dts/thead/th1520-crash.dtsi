@@ -372,6 +372,7 @@
 	pinctrl-0 = <&sdio0_pins>;
 	bus-width = <4>;
 	max-frequency = <198000000>;
+	no-sdio;
 	status = "okay";
 };
 

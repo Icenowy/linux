@@ -3182,6 +3182,7 @@
        bus-width = <4>;
        max-frequency = <198000000>;
        wprtn_ignore;
+       no-sdio;
        status = "okay";
 };
 

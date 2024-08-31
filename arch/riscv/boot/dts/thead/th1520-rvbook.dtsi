@@ -955,6 +955,7 @@
 	bus-width = <4>;
 	pull_up;
 	wprtn_ignore;
+	no-sdio;
 	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&sdio0_pins>;
