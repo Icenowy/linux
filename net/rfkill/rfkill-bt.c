@@ -34,6 +34,8 @@
 #include <linux/errno.h>
 #include <dt-bindings/gpio/gpio.h>
 #include <uapi/linux/rfkill.h>
+#include <linux/pinctrl/consumer.h>
+#include "../../drivers/gpio/gpiolib-of.h"
 #ifdef CONFIG_OF
 #include <linux/of.h>
 #include <linux/of_device.h>
@@ -60,6 +62,16 @@ enum {
     IOMUX_FNORMAL=0,
     IOMUX_FGPIO,
     IOMUX_FMUX,
+};
+
+enum of_gpio_flags {
+	OF_GPIO_ACTIVE_LOW = 0x1,
+	OF_GPIO_SINGLE_ENDED = 0x2,
+	OF_GPIO_OPEN_DRAIN = 0x4,
+	OF_GPIO_TRANSITORY = 0x8,
+	OF_GPIO_PULL_UP = 0x10,
+	OF_GPIO_PULL_DOWN = 0x20,
+	OF_GPIO_PULL_DISABLE = 0x40,
 };
 
 struct rfkill_rk_data {
@@ -470,8 +482,9 @@ static int bluetooth_platdata_parse_dt(struct device *dev,
                   struct rfkill_rk_platform_data *data)
 {
     struct device_node *node = dev->of_node;
+    struct gpio_desc *desc;
     int gpio;
-    enum of_gpio_flags flags;
+    unsigned long flags;
 
     if (!node)
         return -ENODEV;
@@ -485,11 +498,14 @@ static int bluetooth_platdata_parse_dt(struct device *dev,
         data->power_toggle = false;
     }
 
-    gpio = of_get_named_gpio_flags(node, "uart_rts_gpios", 0, &flags);
+    gpio = -EINVAL;
+    desc = of_find_gpio(node, "uart_rts", 0, &flags);
+    if (!IS_ERR(desc))
+        gpio = desc_to_gpio(desc);
     if (gpio_is_valid(gpio)) {
         data->rts_gpio.io = gpio;
         data->rts_gpio.enable = (flags == GPIO_ACTIVE_HIGH)? 1:0;
-        LOG("%s: get property: uart_rts_gpios = %d.\n", __func__, gpio);
+        LOG("%s: get property: uart_rts-gpios = %d.\n", __func__, gpio);
         data->pinctrl = devm_pinctrl_get(dev);
         if (!IS_ERR(data->pinctrl)) {
             data->rts_gpio.default_state = pinctrl_lookup_state(data->pinctrl, "default");
@@ -505,35 +521,45 @@ static int bluetooth_platdata_parse_dt(struct device *dev,
         LOG("%s: uart_rts_gpios is no-in-use.\n", __func__);
     }
 
-    gpio = of_get_named_gpio_flags(node, "BT,power_gpio", 0, &flags);
-    LOG("%s: BT,power_gpio = %d\n", __func__, gpio);
-
-    if (gpio == -EPROBE_DEFER) {
-        return gpio;
-    }
-
+    gpio = -EINVAL;
+    desc = of_find_gpio(node, "BT,power", 0, &flags);
+    if (!IS_ERR(desc))
+        gpio = desc_to_gpio(desc);
+    LOG("%s: BT,power-gpios = %d\n", __func__, gpio);
     if (gpio_is_valid(gpio)){
         data->poweron_gpio.io = gpio;
         data->poweron_gpio.enable = (flags == GPIO_ACTIVE_HIGH)? 1:0;
-        LOG("%s: get property: BT,power_gpio = %d.\n", __func__, gpio);
+        LOG("%s: get property: BT,power-gpios = %d.\n", __func__, gpio);
     } else data->poweron_gpio.io = -1;
-    gpio = of_get_named_gpio_flags(node, "BT,reset_gpio", 0, &flags);
+
+    gpio = -EINVAL;
+    desc = of_find_gpio(node, "BT,reset", 0, &flags);
+    if (!IS_ERR(desc))
+        gpio = desc_to_gpio(desc);
     if (gpio_is_valid(gpio)){
         data->reset_gpio.io = gpio;
         data->reset_gpio.enable = (flags == GPIO_ACTIVE_HIGH)? 1:0;
-        LOG("%s: get property: BT,reset_gpio = %d.\n", __func__, gpio);
+        LOG("%s: get property: BT,reset-gpios = %d.\n", __func__, gpio);
     } else data->reset_gpio.io = -1;
-    gpio = of_get_named_gpio_flags(node, "BT,wake_gpio", 0, &flags);
+
+    gpio = -EINVAL;
+    desc = of_find_gpio(node, "BT,wake", 0, &flags);
+    if (!IS_ERR(desc))
+        gpio = desc_to_gpio(desc);
     if (gpio_is_valid(gpio)){
         data->wake_gpio.io = gpio;
         data->wake_gpio.enable = (flags == GPIO_ACTIVE_HIGH)? 1:0;
-        LOG("%s: get property: BT,wake_gpio = %d.\n", __func__, gpio);
+        LOG("%s: get property: BT,wake-gpios = %d.\n", __func__, gpio);
     } else data->wake_gpio.io = -1;
-    gpio = of_get_named_gpio_flags(node, "BT,wake_host_irq", 0, &flags);
+
+    gpio = -EINVAL;
+    desc = of_find_gpio(node, "BT,wake_host_irq", 0, &flags);
+    if (!IS_ERR(desc))
+        gpio = desc_to_gpio(desc);
     if (gpio_is_valid(gpio)) {
         data->wake_host_irq.gpio.io = gpio;
         data->wake_host_irq.gpio.enable = flags;
-        LOG("%s: get property: BT,wake_host_irq = %d.\n", __func__, gpio);
+        LOG("%s: get property: BT,wake_host_irq-gpios = %d.\n", __func__, gpio);
     } else data->wake_host_irq.gpio.io = -1;
 
 	data->ext_clk = devm_clk_get(dev, "ext_clock");

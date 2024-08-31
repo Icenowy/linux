@@ -634,8 +634,8 @@
 			function = "gpio";
 			bias-disable;
 			drive-strength = <7>;
-			input-enable;
-			input-schmitt-enable;
+			input-disable;
+			input-schmitt-disable;
 			slew-rate = <0>;
 		};
 	};
@@ -646,8 +646,8 @@
 			function = "gpio";
 			bias-disable;
 			drive-strength = <7>;
-			input-enable;
-			input-schmitt-enable;
+			input-disable;
+			input-schmitt-disable;
 			slew-rate = <0>;
 		};
 	};
