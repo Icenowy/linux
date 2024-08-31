@@ -40,8 +40,10 @@ struct pwm_bl_data {
 
 static void pwm_backlight_power_on(struct pwm_bl_data *pb)
 {
+	struct pwm_state state;
 	int err;
 
+	pwm_get_state(pb->pwm, &state);
 	if (pb->enabled)
 		return;
 
@@ -50,6 +52,9 @@ static void pwm_backlight_power_on(struct pwm_bl_data *pb)
 		if (err < 0)
 			dev_err(pb->dev, "failed to enable power supply\n");
 	}
+
+	state.enabled = true;
+	pwm_apply_might_sleep(pb->pwm, &state);
 
 	if (pb->post_pwm_on_delay)
 		msleep(pb->post_pwm_on_delay);
@@ -61,6 +66,9 @@ static void pwm_backlight_power_on(struct pwm_bl_data *pb)
 
 static void pwm_backlight_power_off(struct pwm_bl_data *pb)
 {
+	struct pwm_state state;
+
+	pwm_get_state(pb->pwm, &state);
 	if (!pb->enabled)
 		return;
 
@@ -68,6 +76,10 @@ static void pwm_backlight_power_off(struct pwm_bl_data *pb)
 
 	if (pb->pwm_off_delay)
 		msleep(pb->pwm_off_delay);
+
+	state.enabled = false;
+	state.duty_cycle = 0;
+	pwm_apply_might_sleep(pb->pwm, &state);
 
 	if (pb->power_supply)
 		regulator_disable(pb->power_supply);
@@ -102,25 +114,10 @@ static int pwm_backlight_update_status(struct backlight_device *bl)
 	if (brightness > 0) {
 		pwm_get_state(pb->pwm, &state);
 		state.duty_cycle = compute_duty_cycle(pb, brightness, &state);
-		state.enabled = true;
 		pwm_apply_might_sleep(pb->pwm, &state);
-
 		pwm_backlight_power_on(pb);
 	} else {
 		pwm_backlight_power_off(pb);
-
-		pwm_get_state(pb->pwm, &state);
-		state.duty_cycle = 0;
-		/*
-		 * We cannot assume a disabled PWM to drive its output to the
-		 * inactive state. If we have an enable GPIO and/or a regulator
-		 * we assume that this isn't relevant and we can disable the PWM
-		 * to save power. If however there is neither an enable GPIO nor
-		 * a regulator keep the PWM on be sure to get a constant
-		 * inactive output.
-		 */
-		state.enabled = !pb->power_supply && !pb->enable_gpio;
-		pwm_apply_might_sleep(pb->pwm, &state);
 	}
 
 	if (pb->notify_after)
