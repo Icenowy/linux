@@ -634,9 +634,9 @@ static u32 dw_mipi_dsi_get_hcomponent_lbcc(struct dw_mipi_dsi *dsi,
 								const struct drm_display_mode *mode,
 								u32 hcomponent)
 {
-	u32 frac, lbcc;
+	u64 frac, lbcc;
 
-	lbcc = hcomponent * dsi->lane_link_rate / 8;
+	lbcc = (u64)hcomponent * (u64)dsi->lane_link_rate / 8;
 
 	frac = lbcc % mode->clock;
 	lbcc = lbcc / mode->clock;
@@ -1131,6 +1131,8 @@ static int dsi_remove(struct platform_device *pdev)
 static int dsi_runtime_suspend(struct device *dev)
 {
 	struct dw_mipi_dsi *dsi = dev_get_drvdata(dev);
+
+	msleep(5);
 
 	clk_disable_unprepare(dsi->pixclk);
 	clk_disable_unprepare(dsi->pclk);
