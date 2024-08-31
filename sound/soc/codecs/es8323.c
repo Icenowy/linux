@@ -977,7 +977,7 @@ static struct snd_soc_dai_driver es8323_dai = {
 		    .formats = es8323_FORMATS,
 		    },
 	.ops = &es8323_ops,
-	.symmetric_rates = 1,
+	.symmetric_rate = 1,
 };
 
 static int es8323_suspend(struct snd_soc_component *component)
@@ -1183,8 +1183,7 @@ static void pa_delay_worker(struct work_struct *work)
 	#endif
 }
 
-static int es8323_i2c_probe(struct i2c_client *i2c,
-			    const struct i2c_device_id *id)
+static int es8323_i2c_probe(struct i2c_client *i2c)
 {
 	struct es8323_priv *es8323;
 	struct miscdevice *miscdev;
@@ -1252,11 +1251,11 @@ err_:
 	return ret;
 }
 
-static int es8323_i2c_remove(struct i2c_client *client)
+static void es8323_i2c_remove(struct i2c_client *client)
 {
 	snd_soc_unregister_component(&client->dev);
 	sysfs_remove_group(&client->dev.kobj, &es8323_attr_group);
-	return 0;
+	return;
 }
 
 static const struct i2c_device_id es8323_i2c_id[] = {

@@ -25,33 +25,29 @@
 		gpio1 = &gpio1;
 		gpio2 = &gpio2;
 		gpio3 = &gpio3;
-		gpio4 = &gpio4;
-		gpio5 = &aogpio;
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
+		i2c2 = &i2c2;
+		i2c3 = &i2c3;
+		i2c4 = &i2c4;
+		audio_i2c0 = &audio_i2c0;
+		audio_i2c1 = &audio_i2c1;
 		serial0 = &uart0;
 		serial1 = &uart1;
 		serial2 = &uart2;
 		serial3 = &uart3;
 		serial4 = &uart4;
 		serial5 = &uart5;
-		i2c0 = &i2c0;
-		i2c1 = &i2c1;
-		i2c2 = &i2c2;
-		i2c3 = &i2c3;
-		i2c4 = &i2c4;
-		i2c5 = &audio_i2c0;
-		i2c6 = &audio_i2c1;
-		ap_i2s = &ap_i2s;
-		i2s0 = &i2s0;
-		i2s1 = &i2s1;
-		i2s2 = &i2s2;
+
+		flash_led0 = &vvcam_flash_led0;
+		vivcam2 = &vvcam_sensor2;
+		vivcam3 = &vvcam_sensor3;
 	};
 
 	rk_headset: rk-headset {
 		status = "okay";
 		compatible = "rockchip_headset";
 		headset_gpio = <&gpio4 0 GPIO_ACTIVE_LOW>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&headset_det_pins>;
 		// io-channels = <&adc 1>;
 	};
 
@@ -95,7 +91,7 @@
 
 	lcd0_backlight: pwm-backlight@0 {
 		compatible = "pwm-backlight";
-		pwms = <&pwm 0 5000000>;
+		pwms = <&pwm 0 5000000 0>;
 		brightness-levels = <0 4 8 16 32 64 128 255>;
 		default-brightness-level = <7>;
 	};
@@ -288,6 +284,7 @@
 		regulator-name = "vref-1v8";
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
+		vin-supply = <&reg_vdd_3v3>;
 		status = "okay";
 	};
 
@@ -307,8 +304,6 @@
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
 		gpio = <&gpio1 2 GPIO_ACTIVE_HIGH>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&ext_vcc5v_en_pins>;
 		enable-active-high;
 		regulator-boot-on;
 		regulator-always-on;
@@ -320,8 +315,6 @@
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		gpio = <&gpio1 6 GPIO_ACTIVE_HIGH>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&typec0_host_en_pins>;
 		enable-active-high;
 	};
 
@@ -331,8 +324,6 @@
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		gpio = <&gpio1 4 GPIO_ACTIVE_HIGH>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&typec1_host_en_pins>;
 		enable-active-high;
 	};
 
@@ -342,8 +333,6 @@
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
 		gpio = <&gpio3 14 GPIO_ACTIVE_HIGH>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&hdmi_en_pins>;
 		enable-active-high;
 		regulator-boot-on;
 		regulator-always-on;
@@ -355,21 +344,8 @@
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		gpio = <&aogpio 15 GPIO_ACTIVE_LOW>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&fp_int_pins>;
 		// enable-active-high;
 		regulator-always-on;
-	};
-
-	reg_WCN_PW_EN: regulator-WCN-PW-EN {
-		compatible = "regulator-fixed";
-		regulator-name = "wcn-pw-en";
-		gpio = <&gpio0 28 GPIO_ACTIVE_HIGH>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&wifi_wake_pins>;
-		enable-active-high;
-		regulator-always-on;
-		regulator-boot-on;
 	};
 
 	wcn_wifi: wireless-wlan {
@@ -394,7 +370,7 @@
 	gpio-keys {
 		compatible = "gpio-keys";
 		pinctrl-names = "default";
-		pinctrl-0 = <&volume_pins &powerkey_pins>;
+		pinctrl-0 = <&volume_pins>;
 		key-pw{
 			label = "power Key";
 			wakeup-source;
@@ -427,18 +403,9 @@
 		regulator-name = "vdd_3v3";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
-		gpio = <&gpio0 30 1>;
+		gpio = <&gpio1 24 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
-		regulator-always-on;
-	};
-
-	reg_vdd5v_se: regulator-vdd5v-se {
-		compatible = "regulator-fixed";
-		regulator-name = "vdd5v_se_en";
-		regulator-min-microvolt = <5000000>;
-		regulator-max-microvolt = <5000000>;
-		gpio = <&gpio2 14 1>;
-		enable-active-high;
+		regulator-boot-on;
 		regulator-always-on;
 	};
 
@@ -455,8 +422,6 @@
 	reg_vbus: regulator-vbus-en {
 		compatible = "regulator-fixed";
 		regulator-name = "vbus_en";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
 		gpio = <&gpio0 27 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 		regulator-always-on;
@@ -471,30 +436,6 @@
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		gpio = <&gpio2 23 GPIO_ACTIVE_HIGH>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&camera_pwr_pins>;
-	};
-
-	reg_vcc1v8_lontium: regulator-vcc1v8-lontium {
-		compatible = "regulator-fixed";
-		enable-active-high;
-		regulator-min-microvolt = <1800000>;
-		regulator-max-microvolt = <1800000>;
-		gpio = <&gpio3 17 GPIO_ACTIVE_HIGH>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&lontium_pwren_pins>;
-		regulator-name = "vcc1v8-lontium";
-	};
-
-	reg_vcc3v3_edp: regulator-vcc3v3-edp {
-		compatible = "regulator-fixed";
-		enable-active-high;
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-		gpio = <&gpio2 18 GPIO_ACTIVE_HIGH>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&edp_pwren_pins>;
-		regulator-name = "vcc3v3-edp";
 	};
 
 	thermal-zones {
@@ -542,11 +483,62 @@
 		};
 	};
 
+	soc {
+		compatible = "simple-bus";
+		interrupt-parent = <&plic>;
+		#address-cells = <2>;
+		#size-cells = <2>;
+		dma-noncoherent;
+		ranges;
+
+		vvcam_flash_led0: vvcam_flash_led@0{
+			flash_led_name = "aw36413_aw36515";
+			compatible = "xuantie,th1520-vvcam-flash_led";
+			floodlight_i2c_bus = /bits/ 8 <2>;
+			floodlight_en_pin = <&gpio1 25 GPIO_ACTIVE_HIGH>;
+			//projection_i2c_bus = /bits/ 8 <2>;
+			flash_led_touch_pin = <&gpio1 27 GPIO_ACTIVE_HIGH>; //flash led touch pin
+			status = "okay";
+		};
+
+		vvcam_sensor2: vvcam_sensor@2 {
+			sensor_name = "GC5035";
+			compatible = "xuantie,th1520-vvcam-sensor";
+			sensor_regulators = "DOVDD18_SCAN", "DVDD12_SCAN", "AVDD28_SCAN";
+			sensor_regulator_timing_us = <100 50 0>;
+			sensor_pdn = <&gpio1 30 GPIO_ACTIVE_HIGH>; //powerdown pin / shutdown pin
+			sensor_rst = <&gpio1 29 GPIO_ACTIVE_HIGH>;
+			sensor_pdn_delay_us = <60>; //powerdown pin / shutdown pin actived till I2C ready
+			DOVDD18_SCAN-supply = <&soc_dovdd18_scan_reg>;
+			DVDD12_SCAN-supply = <&soc_dvdd12_scan_reg>;
+			AVDD28_SCAN-supply = <&soc_avdd28_scan_en_reg>;
+			i2c_addr = /bits/ 8 <0x37>;
+			i2c_bus = /bits/ 8 <4>;
+			i2c_reg_width = /bits/ 8 <1>;
+			i2c_data_width = /bits/ 8 <1>;
+			status = "okay";
+		};
+
+		vvcam_sensor3: vvcam_sensor@3 {
+			sensor_name = "SC2310";
+			compatible = "xuantie,th1520-vvcam-sensor";
+			sensor_regulators = "DOVDD18_SCAN", "DVDD12_SCAN", "AVDD28_SCAN";
+			sensor_regulator_timing_us = <70 50 20>;
+			sensor_pdn = <&gpio1 30 GPIO_ACTIVE_HIGH>; //powerdown pin / shutdown pin
+			sensor_rst = <&gpio1 29 GPIO_ACTIVE_HIGH>;
+			sensor_pdn_delay_us = <4000>; //powerdown pin / shutdown pin actived till I2C ready
+			DOVDD18_SCAN-supply = <&soc_dovdd18_scan_reg>;
+			DVDD12_SCAN-supply = <&soc_dvdd12_scan_reg>;
+			AVDD28_SCAN-supply = <&soc_avdd28_scan_en_reg>;
+			i2c_bus = /bits/ 8 <4>;
+			i2c_reg_width = /bits/ 8 <2>;
+			i2c_data_width = /bits/ 8 <1>;
+			i2c_addr = /bits/ 8 <0x30>;
+			status = "okay";
+		};
+	};
 };
 
-&usb {
-	status = "okay";
-};
 
 &resmem {
 	#address-cells = <2>;
@@ -659,6 +651,7 @@
 		regulator-min-microvolt = <300000>;
 		regulator-max-microvolt = <1570000>;
 		regulator-type = "dvddm";
+		regulator-dual-rail;
 		regulator-boot-on;
 		regulator-always-on;
 	};
@@ -786,9 +779,16 @@
 	soc_avdd28_scan_en_reg: soc_avdd28_scan_en {
 		compatible = "thead,th1520-aon-pmic";
 		regulator-name = "soc_avdd28_scan_en";
+		regulator-type = "gpio";
+		regulator-always-on;
+	};
+
+	soc_vext_2v8_reg: soc_vext_2v8 {
+		compatible = "thead,th1520-aon-pmic";
+		regulator-name = "soc_vext_2v8";
 		regulator-type = "common";
-		regulator-min-microvolt = <900000>;
-		regulator-max-microvolt = <3600000>;
+		regulator-boot-on;
+		regulator-always-on;
 	};
 };
 
@@ -810,14 +810,12 @@
 		compatible = "everest,es8323";
 		reg = <0x11>;
 		sound-name-prefix = "ES8388";
-                headset-detect = <&rk_headset>;
+		headset-detect = <&rk_headset>;
 		AVDD-supply = <&reg_aud_3v3>;
 		DVDD-supply = <&reg_aud_1v8>;
 		PVDD-supply = <&reg_aud_1v8>;
 		spk-ctl-gpios = <&gpio4 3 GPIO_ACTIVE_HIGH>;
 		hp-ctl-gpios = <&gpio4 2 GPIO_ACTIVE_HIGH>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&pa_en_pins &hp_ctl_pins>;
 	};
 };
 
@@ -1218,7 +1216,7 @@
 
 	lt8911exb_pins: lt8911exb-0 {
 		gpio-pins {
-			pins = "GPIO2_2", "GMAC0_RXD1", "GMAC0_RXD0";
+			pins = "GPIO2_20", "GMAC0_RXD1", "GMAC0_RXD0";
 			function = "gpio";
 			bias-disable;
 			drive-strength = <13>;
@@ -1449,7 +1447,7 @@
 		};
 	};
 
-	wifi_wake_pins: wifi-wake-0 {
+	pinctrl_wifi_wake: wifi_grp {
 		wifi-pins {
 			pins = "GPIO0_28";
 			function = "gpio";
@@ -2100,11 +2098,14 @@
 };
 
 &usb {
-	pinctrl-names = "default";
-	pinctrl-0 = <&usbhub_en_pins &usb_host_en_pins &usb_sw_pins>;
+	status = "okay";
 	hubswitch-gpio = <&gpio1 11 GPIO_ACTIVE_LOW>;
-	vbus-supply = <&reg_vbus>;
-	hub5v-supply = <&reg_usb_hub_vcc5v>;
+};
+
+&usb_dwc3 {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
 };
 
 &cpus {

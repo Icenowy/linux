@@ -844,4 +844,14 @@ config DRM_PANEL_HX8279
 	help
 	  Say Y if you want to enable support for panels based on the
 	  HX8279 controller.
+
+config DRM_PANEL_LT8911
+	tristate "LT8911-based panels"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	help
+		Say Y if you want to enable support for panels based on the
+		lt8911 controller.
+
 endmenu

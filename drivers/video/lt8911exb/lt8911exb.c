@@ -661,7 +661,7 @@ static int lt8911exb_parse_dt(struct lt8911exb *lt8911exb)
 
 	lt8911exb->backlight_pin = of_get_named_gpio_flags(np,
 	                                 "lt8911exb,backlight-gpio",
-	                                 0, NULL);
+	                                 0);
 	if (!gpio_is_valid(lt8911exb->backlight_pin)) {
 		LT8911EXB_DBG("%s: backlight-gpio is invalid\n", __func__);
 		return -EINVAL;
@@ -679,7 +679,7 @@ static int lt8911exb_parse_dt(struct lt8911exb *lt8911exb)
 	LT8911EXB_DBG("%s: succeed to init backlight gpio\n", __func__);
 
 	lt8911exb->irq_pin = of_get_named_gpio_flags(np,
-	                           "lt8911exb,irq-gpio", 0, NULL);
+	                           "lt8911exb,irq-gpio", 0);
 	if (!gpio_is_valid(lt8911exb->irq_pin)) {
 		LT8911EXB_DBG("%s: irq-gpio is invalid\n", __func__);
 		return -EINVAL;
@@ -727,7 +727,7 @@ static int lt8911exb_parse_dt(struct lt8911exb *lt8911exb)
 	}
 
 	lt8911exb->reset_pin = of_get_named_gpio_flags(np,
-		                        "lt8911exb,reset-gpio", 0, NULL);
+		                        "lt8911exb,reset-gpio", 0);
 	if (!gpio_is_valid(lt8911exb->reset_pin)) {
 		LT8911EXB_DBG("%s: reset-gpio is invalid\n", __func__);
 		return -EINVAL;

@@ -17,8 +17,6 @@
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
 		gpio = <&gpio3 17 GPIO_ACTIVE_HIGH>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&lontium_pwren_pins>;
 		regulator-name = "vcc1v8-lontium";
 	};
 
@@ -28,10 +26,8 @@
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		gpio = <&gpio2 18 GPIO_ACTIVE_HIGH>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&edp_pwren_pins>;
 		regulator-name = "vcc3v3-edp";
-	};        
+	};
 };
 
 &cmamem {
@@ -66,8 +62,6 @@
 		lt8911,edp-lane-cnt = <2>;
 		lt8911,mipi-lane-cnt = <4>;
 		lt8911,edp-depth = <8>; /* 6 or 8 */
-		pinctrl-names = "default";
-		pinctrl-0 = <&lt8911exb_pins>;
 		hsvcc-supply = <&reg_vcc1v8_lontium>;
 		vspn3v3-supply = <&reg_vcc3v3_edp>;
 
