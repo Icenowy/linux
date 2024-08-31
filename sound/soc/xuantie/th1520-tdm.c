@@ -271,6 +271,7 @@ static int th1520_tdm_dai_hw_params(struct snd_pcm_substream *substream, struct 
 
 
 static const struct snd_soc_dai_ops th1520_tdm_dai_ops = {
+    .probe = th1520_tdm_dai_probe,
     .startup = th1520_tdm_dai_startup,
     .shutdown = th1520_tdm_dai_shutdown,
     .trigger = th1520_tdm_dai_trigger,

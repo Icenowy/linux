@@ -227,6 +227,7 @@ static int th1520_spdif_dai_hw_params(struct snd_pcm_substream *substream, struc
 }
 
 static const struct snd_soc_dai_ops th1520_spdif_dai_ops = {
+    .probe = th1520_spdif_dai_probe,
     .startup = th1520_spdif_dai_startup,
     .shutdown = th1520_spdif_dai_shutdown,
     .trigger = th1520_spdif_dai_trigger,
@@ -462,7 +463,7 @@ static int th1520_spdif_probe(struct platform_device *pdev)
     priv->dma_params_tx.addr = res->start + SPDIF_TX_FIFO_DR;
     priv->dma_params_rx.addr = res->start + SPDIF_RX_FIFO_DR;
 
-    ret = th1520_pcm_dma_init(pdev, TH1520_TDM_DMABUF_SIZE);
+    ret = th1520_pcm_dma_init(pdev, TH1520_SPDIF_DMABUF_SIZE);
 	if (ret) {
 		dev_err(dev, "th1520_pcm_dma_init error\n");
 		return -EIO;
