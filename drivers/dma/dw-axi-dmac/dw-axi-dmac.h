@@ -80,6 +80,7 @@ struct axi_dma_chip {
 	struct clk		*core_clk;
 	struct clk		*cfgr_clk;
 	struct dw_axi_dma	*dw;
+	spinlock_t		lock;
 };
 
 /* LLI == Linked List Item */
