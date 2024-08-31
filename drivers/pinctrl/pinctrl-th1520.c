@@ -135,7 +135,7 @@ static int th1520_audio_func_sel(struct th1520_pinctrl *thp,
 	return 0;
 }
 
-static struct custom_operations th1520_custom_ops = {
+static const struct custom_operations th1520_custom_ops = {
 	.init = th1520_audio_func_sel,
 };
 
@@ -420,8 +420,8 @@ static const struct pinctrl_pin_desc th1520_group4_pins[] = {
 	TH1520_PAD(17, PA17_FUNC, AUD_I2S1, AUD_VAD_PDM, AUD_VAD,    AUD_I2C1,    ____, ____, 0),
 	TH1520_PAD(18, PA18_FUNC, AUD_I2S2, AUD_TDM,     AUD_VAD,    ____,        ____, ____, 0),
 	TH1520_PAD(19, PA19_FUNC, AUD_I2S2, AUD_TDM,     AUD_VAD,    ____,        ____, ____, 0),
-	TH1520_PAD(20, PA20_FUNC, AUD_I2S2, AUD_TDM,     AUD_I2C1,   ____,        ____, ____, 0),
-	TH1520_PAD(21, PA21_FUNC, AUD_I2S2, AUD_SPDIF0,  AUD_I2C1,   ____,        ____, ____, 0),
+	TH1520_PAD(20, PA20_FUNC, AUD_I2S2, AUD_TDM,     AUD_I2C1,   AUD_I2C1,    ____, ____, 0),
+	TH1520_PAD(21, PA21_FUNC, AUD_I2S2, AUD_SPDIF0,  AUD_I2C1,   AUD_I2C1,    ____, ____, 0),
 	TH1520_PAD(22, PA22_FUNC, AUD_I2S2, AUD_SPDIF0,  ____,       ____,        ____, ____, 0),
 	TH1520_PAD(23, PA23_FUNC, ____,     AUD_SPDIF1,  AUD_SPDIF0, ____,        ____, ____, 0),
 	TH1520_PAD(24, PA24_FUNC, ____,     AUD_SPDIF1,  AUD_SPDIF0, AUD_I2S_8CH, ____, ____, 0),
@@ -1015,10 +1015,10 @@ static int th1520_pinctrl_probe(struct platform_device *pdev)
 }
 
 static const struct of_device_id th1520_pinctrl_of_match[] = {
-	{ .compatible = "thead,th1520-group1-pinctrl", .data = &th1520_group1 },
-	{ .compatible = "thead,th1520-group2-pinctrl", .data = &th1520_group2 },
-	{ .compatible = "thead,th1520-group3-pinctrl", .data = &th1520_group3 },
-	{ .compatible = "thead,th1520-group4-pinctrl", .data = &th1520_group4 },
+	{ .compatible = "xuantie,th1520-group1-pinctrl", .data = &th1520_group1 },
+	{ .compatible = "xuantie,th1520-group2-pinctrl", .data = &th1520_group2 },
+	{ .compatible = "xuantie,th1520-group3-pinctrl", .data = &th1520_group3 },
+	{ .compatible = "xuantie,th1520-group4-pinctrl", .data = &th1520_group4 },
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, th1520_pinctrl_of_match);
