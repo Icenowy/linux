@@ -244,14 +244,11 @@
 
 	wcn_wifi: wireless-wlan {
 		compatible = "wlan-platdata";
-		clock-names = "clk_wifi";
-		ref-clock-frequency = <24000000>;
-		keep_wifi_power_on;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_wifi_wake>;
-		wifi_chip_type = "rtl8723ds";
 		WIFI,poweren-gpios = <&ioexp2 4 0>;
-		support_power_ctrl;
+		power_on_after_init;
+		power_on_when_resume;
 		status = "okay";
 	};
 
