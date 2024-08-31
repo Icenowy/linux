@@ -299,7 +299,6 @@ static int th1520_cpufreq_init(struct cpufreq_policy *policy)
 	policy->cur = clk_get_rate(policy->clk) / 1000;
 	cpufreq_generic_init(policy, freq_table, transition_latency);
 	policy->suspend_freq = max_freq;
-	dev_pm_opp_of_register_em(cpu_dev, policy->cpus);
 
 	return 0;
 }
@@ -325,6 +324,7 @@ static struct cpufreq_driver th1520_cpufreq_driver = {
 	.target_index = th1520_set_target,
 	.get = cpufreq_generic_get,
 	.init = th1520_cpufreq_init,
+	.register_em = cpufreq_register_em_with_opp,
 	.name = "th1520-cpufreq",
 	.attr = cpufreq_generic_attr,
 	.suspend = th1520_cpufreq_suspend,
