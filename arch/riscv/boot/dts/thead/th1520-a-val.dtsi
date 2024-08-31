@@ -548,17 +548,17 @@
 					mode_idx = <3>;
 					path_type = "SENSOR_1296x972_RAW10_LINER";
 				};
-				dma {
-					subdev_name = "vipre";
-					idx = <0>;
-					path_type = "VIPRE_CSI1_ISP0";
-				};
 				sensor1 {
 					subdev_name = "vivcam";
 					idx = <3>; //<3>=vivcam3 : sc2310
 					csi_idx = <1>; //<1>=CSI2X2_B
 					mode_idx = <1>;
 					path_type = "SENSOR_1920X1088_26FPS_RAW12_LINER";
+				};
+				dma {
+					subdev_name = "vipre";
+					idx = <0>;
+					path_type = "VIPRE_CSI1_ISP0";
 				};
 				isp {
 					subdev_name = "isp";
