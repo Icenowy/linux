@@ -34,6 +34,7 @@
 #include "power.h"
 
 #define HIBERNATE_SIG	"S1SUSPEND"
+#define HIBERNATE_SIG2	"S1SUSPEN2" //sign for 2nd time load image
 
 u32 swsusp_hardware_signature;
 
@@ -1485,7 +1486,9 @@ int swsusp_read(unsigned int *flags_p)
 	struct swap_map_handle handle;
 	struct snapshot_handle snapshot;
 	struct swsusp_info *header;
+	int retry = 1;
 
+__retry:
 	memset(&snapshot, 0, sizeof(struct snapshot_handle));
 	error = snapshot_write_next(&snapshot);
 	if (error < (int)PAGE_SIZE)
@@ -1502,12 +1505,34 @@ int swsusp_read(unsigned int *flags_p)
 			load_image_lzo(&handle, &snapshot, header->pages - 1);
 	}
 	swap_reader_finish(&handle);
+	if(retry && (error == -ENODATA)) {
+		retry = 0;
+		pr_info("Image load retry for load error %d.\n",error);
+		goto __retry;
+	}
 end:
 	if (!error)
 		pr_debug("Image successfully loaded\n");
 	else
 		pr_debug("Error %d resuming\n", error);
 	return error;
+}
+
+bool swsusp_can_retry = true;
+int swsusp_mark_sign_retry(void)
+{
+	int error = 0;
+	if (swsusp_can_retry) {
+		memcpy(swsusp_header->sig, HIBERNATE_SIG2, 10);
+		/* Write swap signature now */
+		error = hib_submit_io(REQ_OP_WRITE | REQ_SYNC,
+					swsusp_resume_block,
+					(void *)swsusp_header, NULL);
+		if(error)
+			pr_info("Write swap sign failed %d\n",error);
+		return error;
+	}
+	return -EINVAL;
 }
 
 static void *swsusp_holder;
@@ -1532,7 +1557,12 @@ int swsusp_check(bool exclusive)
 		if (error)
 			goto put;
 
-		if (!memcmp(HIBERNATE_SIG, swsusp_header->sig, 10)) {
+		if (!memcmp(HIBERNATE_SIG, swsusp_header->sig, 10) ||
+			!memcmp(HIBERNATE_SIG2, swsusp_header->sig, 10) ) {
+			if(!memcmp(HIBERNATE_SIG, swsusp_header->sig, 10))
+				swsusp_can_retry = true;
+			else
+				swsusp_can_retry = false;
 			memcpy(swsusp_header->sig, swsusp_header->orig_sig, 10);
 			/* Reset swap signature now */
 			error = hib_submit_io(REQ_OP_WRITE | REQ_SYNC,
