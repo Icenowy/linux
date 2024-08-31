@@ -1175,7 +1175,8 @@
 		padctrl1_apsys: pinctrl@ffe7f3c000 {
 			compatible = "xuantie,th1520-group2-pinctrl";
 			reg = <0xff 0xe7f3c000 0x0 0x1000>;
-			clocks = <&apb_clk>;
+			clocks = <&clk CLKGEN_PADCTRL1_APSYS_PCLK>;
+			clock-names = "pclk";
 		};
 
 		gmac0_apb: syscon@ffec003000 {
@@ -1229,7 +1230,8 @@
 		padctrl0_apsys: pinctrl@ffec007000 {
 			compatible = "xuantie,th1520-group3-pinctrl";
 			reg = <0xff 0xec007000 0x0 0x1000>;
-			clocks = <&apb_clk>;
+			clocks = <&clk CLKGEN_PADCTRL0_APSYS_PCLK>;
+			clock-names = "pclk";
 		};
 
 		pwm: pwm@ffec01c000 {

@@ -17,6 +17,7 @@
 #include <linux/platform_device.h>
 #include <linux/seq_file.h>
 #include <linux/spinlock.h>
+#include <linux/clk.h>
 
 #include <linux/pinctrl/pinconf.h>
 #include <linux/pinctrl/pinconf-generic.h>
@@ -43,10 +44,33 @@
 #define TH1520_PAD_NO_PADCFG	BIT(30)
 #define TH1520_PAD_MUXDATA	GENMASK(29, 0)
 
+#ifdef CONFIG_PM_SLEEP
+#define MAX_CFG_REG_NUMS	32
+#define MAX_MUX_REG_NUMS	8
+#define TH1520_PADCTRL0_CFG_REG_NUMS	28
+#define TH1520_PADCTRL0_MUX_REG_NUMS	7
+#define TH1520_PADCTRL1_CFG_REG_NUMS	32
+#define TH1520_PADCTRL1_MUX_REG_NUMS	8
+#define TH1520_AON_CFG_REG_NUMS		24
+#define TH1520_AON_MUX_REG_NUMS		6
+#define TH1520_AUDIO_CFG_REG_NUMS	16
+#define TH1520_AUDIO_MUX_REG_NUMS	2
+#define TH1520_AUDIO_IO_SEL_IDX		2
+#define TH1520_PM_PAD_CFG(idx)		(thp->base + thp->offset_cfg + idx * 4)
+#define TH1520_PM_PAD_MUX(idx)		(thp->base +  thp->offset_mux + idx * 4)
+#endif
+
 struct th1520_pinctrl;
 
 struct custom_operations {
 	int (*init)(struct th1520_pinctrl *thp, unsigned int pin);
+};
+
+enum th1520_pinctrl_type {
+	TH1520_PADCTRL_0,
+	TH1520_PADCTRL_1,
+	TH1520_PADCTRL_AON,
+	TH1520_PADCTRL_AUDIO,
 };
 
 struct th1520_pad_group {
@@ -57,6 +81,7 @@ struct th1520_pad_group {
 	unsigned int mask_mux;
 	unsigned int offset_cfg;
 	unsigned int mask_cfg;
+	enum th1520_pinctrl_type type;
 	struct custom_operations *custom_ops;
 };
 
@@ -65,12 +90,18 @@ struct th1520_pinctrl {
 	struct mutex mutex;	/* serialize adding functions */
 	raw_spinlock_t lock;	/* serialize register access */
 	void __iomem *base;
+	struct clk	*clk;
 	unsigned int offset_mux;
 	unsigned int mask_mux;
 	unsigned int offset_cfg;
 	unsigned int mask_cfg;
 	struct custom_operations *custom_ops;
+	enum th1520_pinctrl_type type;
 	struct pinctrl_dev *pctl;
+#ifdef CONFIG_PM_SLEEP
+	unsigned int cfg_bak[MAX_CFG_REG_NUMS];
+	unsigned int mux_bak[MAX_MUX_REG_NUMS];
+#endif
 };
 
 static const unsigned int m1  = 0x55555555; // 01010101010101010101010101010101
@@ -441,6 +472,7 @@ static const struct th1520_pad_group th1520_group1 = {
 	.mask_mux = 0xf,
 	.offset_cfg = 0x0,
 	.mask_cfg = 0xffff,
+	.type = TH1520_PADCTRL_AON,
 	.custom_ops = NULL,
 };
 
@@ -452,6 +484,7 @@ static const struct th1520_pad_group th1520_group2 = {
 	.mask_mux = 0xf,
 	.offset_cfg = 0x0,
 	.mask_cfg = 0xffff,
+	.type = TH1520_PADCTRL_1,
 	.custom_ops = NULL,
 };
 
@@ -463,6 +496,7 @@ static const struct th1520_pad_group th1520_group3 = {
 	.mask_mux = 0xf,
 	.offset_cfg = 0x0,
 	.mask_cfg = 0xffff,
+	.type = TH1520_PADCTRL_0,
 	.custom_ops = NULL,
 };
 
@@ -474,6 +508,7 @@ static const struct th1520_pad_group th1520_group4 = {
 	.mask_mux = 0x3,
 	.offset_cfg = 0xc,
 	.mask_cfg = 0xffff,
+	.type = TH1520_PADCTRL_AUDIO,
 	.custom_ops = &th1520_custom_ops,
 };
 
@@ -988,10 +1023,6 @@ static int th1520_pinctrl_probe(struct platform_device *pdev)
 	if (IS_ERR(thp->base))
 		return PTR_ERR(thp->base);
 
-	clk = devm_clk_get_enabled(dev, NULL);
-	if (IS_ERR(clk))
-		return dev_err_probe(dev, PTR_ERR(clk), "error getting clock\n");
-
 	thp->desc.name = group->name;
 	thp->desc.pins = group->pins;
 	thp->desc.npins = group->npins;
@@ -1000,6 +1031,7 @@ static int th1520_pinctrl_probe(struct platform_device *pdev)
 	thp->offset_cfg = group->offset_cfg;
 	thp->mask_cfg = group->mask_cfg;
 	thp->custom_ops = group->custom_ops;
+	thp->type = group->type;
 	thp->desc.pctlops = &th1520_pinctrl_ops;
 	thp->desc.pmxops = &th1520_pinmux_ops;
 	thp->desc.confops = &th1520_pinconf_ops;
@@ -1007,12 +1039,122 @@ static int th1520_pinctrl_probe(struct platform_device *pdev)
 	mutex_init(&thp->mutex);
 	raw_spin_lock_init(&thp->lock);
 
+	if ((thp->type == TH1520_PADCTRL_0) ||
+			(thp->type == TH1520_PADCTRL_1)) {
+		thp->clk = devm_clk_get_enabled(dev, "pclk");
+		if (IS_ERR(thp->clk))
+			return dev_err_probe(dev, PTR_ERR(thp->clk), "error getting clock\n");
+	} else {
+		thp->clk = devm_clk_get_enabled(dev, NULL);
+		if (IS_ERR(thp->clk))
+			return dev_err_probe(dev, PTR_ERR(thp->clk), "error getting clock\n");
+	}
+
+	platform_set_drvdata(pdev, thp);
 	ret = devm_pinctrl_register_and_init(dev, &thp->desc, thp, &thp->pctl);
 	if (ret)
 		return dev_err_probe(dev, ret, "could not register pinctrl driver\n");
 
 	return pinctrl_enable(thp->pctl);
 }
+
+#ifdef CONFIG_PM_SLEEP
+static int th1520_pinctrl_backup_regs(struct th1520_pinctrl *thp, unsigned int cfg_reg_nums,
+					unsigned int mux_reg_nums)
+{
+	int i;
+
+	for (i = 0; i < cfg_reg_nums; i++)
+		thp->cfg_bak[i] = readl(TH1520_PM_PAD_CFG(i));
+	for (i = 0; i < mux_reg_nums; i++)
+		thp->mux_bak[i] = readl(TH1520_PM_PAD_MUX(i));
+
+	return 0;
+}
+
+static int th1520_pinctrl_restore_regs(struct th1520_pinctrl *thp, unsigned int cfg_reg_nums,
+				unsigned int mux_reg_nums)
+{
+	int i;
+
+	for (i = 0; i < cfg_reg_nums; i++)
+		writel(thp->cfg_bak[i], TH1520_PM_PAD_CFG(i));
+	for (i = 0; i < mux_reg_nums; i++)
+		writel(thp->mux_bak[i], TH1520_PM_PAD_MUX(i));
+
+	return 0;
+}
+
+static int th1520_pinctrl_suspend(struct device *dev)
+{
+	dev_info(dev, "th1520 pinctrl suspend\n");
+	struct th1520_pinctrl *thp = dev_get_drvdata(dev);
+	int ret = 0;
+
+	switch(thp->type) {
+		case TH1520_PADCTRL_0:
+			ret = th1520_pinctrl_backup_regs(thp, TH1520_PADCTRL0_CFG_REG_NUMS, TH1520_PADCTRL0_MUX_REG_NUMS);
+			clk_disable_unprepare(thp->clk);
+			break;
+		case TH1520_PADCTRL_1:
+			ret = th1520_pinctrl_backup_regs(thp, TH1520_PADCTRL1_CFG_REG_NUMS, TH1520_PADCTRL1_MUX_REG_NUMS);
+			clk_disable_unprepare(thp->clk);
+			break;
+		case TH1520_PADCTRL_AON:
+			ret = th1520_pinctrl_backup_regs(thp, TH1520_AON_CFG_REG_NUMS, TH1520_AON_MUX_REG_NUMS);
+			break;
+		case TH1520_PADCTRL_AUDIO:
+			ret = th1520_pinctrl_backup_regs(thp, TH1520_AUDIO_CFG_REG_NUMS, TH1520_AUDIO_MUX_REG_NUMS);
+			thp->mux_bak[TH1520_AUDIO_IO_SEL_IDX] = readl(thp->base);
+			break;
+		default:
+			break;
+	}
+
+	return ret;
+}
+
+static int th1520_pinctrl_resume(struct device *dev)
+{
+	dev_info(dev, "th1520 pinctrl resume\n");
+	struct th1520_pinctrl *thp = dev_get_drvdata(dev);
+	int ret = 0;
+
+	switch(thp->type) {
+		case TH1520_PADCTRL_0:
+			ret = clk_prepare_enable(thp->clk);
+			if (ret) {
+				dev_err(dev, "could not enable padctrl clk\n");
+				return -EINVAL;
+			}
+			ret = th1520_pinctrl_restore_regs(thp, TH1520_PADCTRL0_CFG_REG_NUMS, TH1520_PADCTRL0_MUX_REG_NUMS);
+			break;
+		case TH1520_PADCTRL_1:
+			ret = clk_prepare_enable(thp->clk);
+			if (ret) {
+				dev_err(dev, "could not enable padctrl clk\n");
+				return -EINVAL;
+			}
+			ret = th1520_pinctrl_restore_regs(thp, TH1520_PADCTRL1_CFG_REG_NUMS, TH1520_PADCTRL1_MUX_REG_NUMS);
+			break;
+		case TH1520_PADCTRL_AON:
+			ret = th1520_pinctrl_restore_regs(thp, TH1520_AON_CFG_REG_NUMS, TH1520_AON_MUX_REG_NUMS);
+			break;
+		case TH1520_PADCTRL_AUDIO:
+			ret = th1520_pinctrl_restore_regs(thp, TH1520_AUDIO_CFG_REG_NUMS, TH1520_AUDIO_MUX_REG_NUMS);
+			writel(thp->mux_bak[TH1520_AUDIO_IO_SEL_IDX], thp->base);
+			break;
+		default:
+			break;
+	}
+
+	return ret;
+}
+#endif	//CONFIG_PM_SLEEP
+
+static const struct dev_pm_ops th1520_pinctrl_dev_pm_ops = {
+	SET_LATE_SYSTEM_SLEEP_PM_OPS(th1520_pinctrl_suspend, th1520_pinctrl_resume)
+};
 
 static const struct of_device_id th1520_pinctrl_of_match[] = {
 	{ .compatible = "xuantie,th1520-group1-pinctrl", .data = &th1520_group1 },
@@ -1028,6 +1170,7 @@ static struct platform_driver th1520_pinctrl_driver = {
 	.driver = {
 		.name = "pinctrl-th1520",
 		.of_match_table = th1520_pinctrl_of_match,
+		.pm = &th1520_pinctrl_dev_pm_ops,
 	},
 };
 module_platform_driver(th1520_pinctrl_driver);
