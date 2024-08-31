@@ -348,8 +348,6 @@ static int th1520_clocks_probe(struct platform_device *pdev)
 	int ret;
 	const bool *teesys = of_device_get_match_data(dev);
 
-	pr_info("%s !!! start !\n", __func__);
-
 	/* Clock source */
 	clks[CLK_DUMMY] = xuantie_clk_fixed("dummy", 0);
 	clks[OSC_32K] = of_clk_get_by_name(np, "osc_32k");

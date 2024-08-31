@@ -1140,6 +1140,9 @@
 			reg = <0xff 0xe7f34000 0x0 0x1000>;
 			#address-cells = <1>;
 			#size-cells = <0>;
+			clocks = <&clk CLKGEN_GPIO2_PCLK>,
+					<&clk CLKGEN_GPIO2_DBCLK>;
+			clock-names = "bus", "db";
 
 			gpio2: gpio-controller@0 {
 				compatible = "snps,dw-apb-gpio-port";
@@ -1159,6 +1162,9 @@
 			reg = <0xff 0xe7f38000 0x0 0x1000>;
 			#address-cells = <1>;
 			#size-cells = <0>;
+			clocks = <&clk CLKGEN_GPIO3_PCLK>,
+					<&clk CLKGEN_GPIO3_DBCLK>;
+			clock-names = "bus", "db";
 
 			gpio3: gpio-controller@0 {
 				compatible = "snps,dw-apb-gpio-port";
@@ -1195,6 +1201,9 @@
 			reg = <0xff 0xec005000 0x0 0x1000>;
 			#address-cells = <1>;
 			#size-cells = <0>;
+			clocks = <&clk CLKGEN_GPIO0_PCLK>,
+					<&clk CLKGEN_GPIO0_DBCLK>;
+			clock-names = "bus", "db";
 
 			gpio0: gpio-controller@0 {
 				compatible = "snps,dw-apb-gpio-port";
@@ -1214,6 +1223,9 @@
 			reg = <0xff 0xec006000 0x0 0x1000>;
 			#address-cells = <1>;
 			#size-cells = <0>;
+			clocks = <&clk CLKGEN_GPIO1_PCLK>,
+					<&clk CLKGEN_GPIO1_DBCLK>;
+			clock-names = "bus", "db";
 
 			gpio1: gpio-controller@0 {
 				compatible = "snps,dw-apb-gpio-port";
