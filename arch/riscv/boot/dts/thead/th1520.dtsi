@@ -805,6 +805,7 @@
 			reg = <0xff 0xcb018000 0x0 0x1000>;
 			audio-cpr-regmap = <&audio_cpr>;
 			pinctrl-names = "default";
+			th1520,spdif_idx = <0>;
 			interrupts = <179 IRQ_TYPE_LEVEL_HIGH>;
 			dmas = <&dmac2 25>, <&dmac2 24>;
 			dma-names = "tx", "rx";
@@ -821,6 +822,7 @@
 			reg = <0xff 0xcb019000 0x0 0x1000>;
 			audio-cpr-regmap = <&audio_cpr>;
 			pinctrl-names = "default";
+			th1520,spdif_idx = <1>;
 			interrupts = <180 IRQ_TYPE_LEVEL_HIGH>;
 			dmas = <&dmac2 27>, <&dmac2 26>;
 			dma-names = "tx", "rx";

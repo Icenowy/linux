@@ -457,6 +457,7 @@ static int th1520_tdm_probe(struct platform_device *pdev)
     if (iprop) {
         if (be32_to_cpup(iprop) >=1 && be32_to_cpup(iprop) <=8 ) {
             tdm_priv->slot_num = be32_to_cpup(iprop);
+            sprintf(tdm_priv->name, "tdm-%d", tdm_priv->slot_num);
         } else {
             dev_err(dev, "invalid th1520,tdm_slot_num\n");
             return -EINVAL;
@@ -568,7 +569,8 @@ static int th1520_tdm_probe(struct platform_device *pdev)
 		return -EIO;
 	}
 
-    ret = devm_snd_soc_register_component(dev, &th1520_tdm_soc_component,
+	th1520_tdm_soc_dai.name = tdm_priv->name;
+	ret = devm_snd_soc_register_component(dev, &th1520_tdm_soc_component,
                         &th1520_tdm_soc_dai, 1);
 	if (ret < 0) {
 		dev_err(&pdev->dev, "cannot snd component register\n");

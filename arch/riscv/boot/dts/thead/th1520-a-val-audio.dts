@@ -15,9 +15,6 @@
 
 &i2s_8ch_sd2 {
 	status = "okay";
-	pinctrl-names = "default";
-	pinctrl-0 = <&i2s_8ch_bus_pa_pins>,
-				<&i2s_8ch_sd2_pa_pins>;
 };
 
 &es8156_audio_codec {

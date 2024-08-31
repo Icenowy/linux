@@ -206,19 +206,10 @@
 		simple-audio-card,dai-link@1 {          /* I2S - AUDIO SYS CODEC 7210*/
 				reg = <1>;
 				format = "i2s";
-				cpu {
+				cpu-0 {
 						sound-dai = <&i2s_8ch_sd2>;
 				};
-				codec {
-						mclk-fs = <512>;
-						sound-dai = <&es7210_audio_codec_adc0>;
-				};
-		};
-
-		simple-audio-card,dai-link@2 {          /* I2S - AUDIO SYS CODEC 7210*/
-				reg = <2>;
-				format = "i2s";
-				cpu {
+				cpu-1 {
 						sound-dai = <&i2s_8ch_sd3>;
 				};
 				codec {
@@ -227,22 +218,13 @@
 				};
 		};
 
-		simple-audio-card,dai-link@3 {          /* I2S - AUDIO SYS CODEC 7210_1*/
-				reg = <3>;
+		simple-audio-card,dai-link@2 {          /* I2S - AUDIO SYS CODEC 7210_1*/
+				reg = <2>;
 				format = "i2s";
-				cpu {
+				cpu-0 {
 						sound-dai = <&i2s_8ch_sd0>;
 				};
-				codec {
-						mclk-fs = <512>;
-						sound-dai = <&es7210_audio_codec_adc1>;
-				};
-		};
-
-		simple-audio-card,dai-link@4 {          /* I2S - AUDIO SYS CODEC 7210_1*/
-				reg = <4>;
-				format = "i2s";
-				cpu {
+				cpu-1 {
 						sound-dai = <&i2s_8ch_sd1>;
 				};
 				codec {
@@ -259,9 +241,9 @@
 			compatible = "everest,es8156";
 			reg = <0x08>;
 			sound-name-prefix = "ES8156";
-		    	AVDD-supply = <&reg_aud_dac_3v3>;
+			AVDD-supply = <&reg_aud_dac_3v3>;
 		   	DVDD-supply = <&soc_dvdd18_aon_reg>;
-		    	PVDD-supply = <&soc_dvdd18_aon_reg>;
+			PVDD-supply = <&soc_dvdd18_aon_reg>;
 			mclk-sclk-ratio = <4>;
 			status = "disabled";
 		};
@@ -274,9 +256,9 @@
 			channels-max = <2>;
 			mclk-sclk-ratio = <4>;
 			sound-name-prefix = "ES7210_ADC0";
-        		MVDD-supply = <&reg_aud_adc_3v3>;
+			MVDD-supply = <&reg_aud_adc_3v3>;
 			AVDD-supply = <&reg_aud_adc_3v3>;
-		    	DVDD-supply = <&soc_dvdd18_aon_reg>;
+			DVDD-supply = <&soc_dvdd18_aon_reg>;
 			PVDD-supply = <&soc_dvdd18_aon_reg>;
 			status = "disabled";
 		};
@@ -289,9 +271,9 @@
 			channels-max = <2>;
 			mclk-sclk-ratio = <4>;
 			sound-name-prefix = "ES7210_ADC1";
-        		MVDD-supply = <&reg_aud_adc_3v3>;
+			MVDD-supply = <&reg_aud_adc_3v3>;
 			AVDD-supply = <&reg_aud_adc_3v3>;
-		    	DVDD-supply = <&soc_dvdd18_aon_reg>;
+			DVDD-supply = <&soc_dvdd18_aon_reg>;
 			PVDD-supply = <&soc_dvdd18_aon_reg>;
 			status = "disabled";
 		};
@@ -303,9 +285,9 @@
 			work-mode = "ES7210_TDM_1LRCK_DSPB";
 			channels-max = <8>;
 			sound-name-prefix = "ES7210_ADC2";
-        		MVDD-supply = <&reg_aud_adc_3v3>;
+			MVDD-supply = <&reg_aud_adc_3v3>;
 			AVDD-supply = <&reg_aud_adc_3v3>;
-		    	DVDD-supply = <&soc_dvdd18_aon_reg>;
+			DVDD-supply = <&soc_dvdd18_aon_reg>;
 			PVDD-supply = <&soc_dvdd18_aon_reg>;
 			status = "disabled";
 		};
@@ -317,9 +299,9 @@
 			work-mode = "ES7210_TDM_1LRCK_DSPB";
 			channels-max = <8>;
 			sound-name-prefix = "ES7210_ADC3";
-        		MVDD-supply = <&reg_aud_adc_3v3>;
+			MVDD-supply = <&reg_aud_adc_3v3>;
 			AVDD-supply = <&reg_aud_adc_3v3>;
-		    	DVDD-supply = <&soc_dvdd18_aon_reg>;
+			DVDD-supply = <&soc_dvdd18_aon_reg>;
 			PVDD-supply = <&soc_dvdd18_aon_reg>;
 			status = "disabled";
 		};
@@ -347,32 +329,26 @@
 
 &i2s_8ch_sd0 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&i2s_8ch_bus_pa_pins>,
-				<&i2s_8ch_sd0_pa_pins>,
-				<&i2s_8ch_bus_pins>,
+	pinctrl-0 = <&i2s_8ch_sd0_pa_pins>,
 				<&i2s_8ch_sd0_pins>;
 };
 
 &i2s_8ch_sd1 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&i2s_8ch_bus_pa_pins>,
-				<&i2s_8ch_sd1_pa_pins>,
-				<&i2s_8ch_bus_pins>,
+	pinctrl-0 = <&i2s_8ch_sd1_pa_pins>,
 				<&i2s_8ch_sd1_pins>;
 };
 
 &i2s_8ch_sd2 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&i2s_8ch_bus_pa_pins>,
-				<&i2s_8ch_sd2_pa_pins>,
-				<&i2s_8ch_bus_pins>,
-				<&i2s_8ch_sd2_pins>;
+	pinctrl-0 = <&i2s_8ch_sd2_pa_pins>,
+				<&i2s_8ch_sd2_pins>,
+				<&i2s_8ch_bus_pa_pins>,
+				<&i2s_8ch_bus_pins>;
 };
 
 &i2s_8ch_sd3 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&i2s_8ch_bus_pa_pins>,
-				<&i2s_8ch_sd3_pa_pins>,
-				<&i2s_8ch_bus_pins>,
+	pinctrl-0 = <&i2s_8ch_sd3_pa_pins>,
 				<&i2s_8ch_sd3_pins>;
 };

@@ -394,6 +394,14 @@ static int th1520_spdif_probe(struct platform_device *pdev)
         return PTR_ERR(priv->regs);
     }
 
+	iprop = of_get_property(np, "th1520,spdif_idx", NULL);
+	if (iprop) {
+		sprintf(priv->name, "spdif-%d", be32_to_cpup(iprop));
+	} else {
+		dev_err(dev, "invalid th1520,spdif_idx\n");
+		return -EINVAL;
+	}
+
     priv->regmap = devm_regmap_init_mmio(dev, priv->regs,
                                                 &th1520_spdif_regmap_config);
     if (IS_ERR(priv->regmap)) {
@@ -460,7 +468,8 @@ static int th1520_spdif_probe(struct platform_device *pdev)
 		return -EIO;
 	}
 
-    ret = devm_snd_soc_register_component(dev, &th1520_spdif_soc_component,
+    th1520_spdif_soc_dai.name = priv->name;
+	ret = devm_snd_soc_register_component(dev, &th1520_spdif_soc_component,
                         &th1520_spdif_soc_dai, 1);
 	if (ret < 0) {
 		dev_err(&pdev->dev, "cannot snd component register\n");

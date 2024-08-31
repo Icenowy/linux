@@ -97,6 +97,7 @@ struct th1520_tdm_priv {
     struct snd_dmaengine_dai_dma_data dma_params_rx;
     unsigned int cfg_off;
     struct device *dev; 
+    char name[16];
     char mode;
     char slots;
     char slot_num;

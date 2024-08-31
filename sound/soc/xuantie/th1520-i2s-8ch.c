@@ -434,7 +434,6 @@ static const struct snd_soc_dai_ops th1520_hdmi_dai_ops = {
 
 static struct snd_soc_dai_driver th1520_i2s_8ch_soc_dai[] = {
 	{
-		.name			= "th1520-i2s-8ch-dai",
 		.playback	= {
 			.rates		= TH1520_RATES,
 			.formats	= TH1520_FMTS,
@@ -701,6 +700,7 @@ static int th1520_audio_i2s_8ch_probe(struct platform_device *pdev)
 
 	th1520_pcm_probe(pdev, priv, TH1520_I2S_DMABUF_SIZE);
 
+	th1520_i2s_8ch_soc_dai[0].name = priv->name;
 	ret = devm_snd_soc_register_component(&pdev->dev,
 					      &th1520_i2s_8ch_soc_component,
 					      th1520_i2s_8ch_soc_dai,

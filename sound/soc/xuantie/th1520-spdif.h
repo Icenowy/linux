@@ -209,6 +209,7 @@ struct th1520_spdif_priv {
     struct snd_dmaengine_dai_dma_data dma_params_tx;
     struct snd_dmaengine_dai_dma_data dma_params_rx;
     struct device *dev; 
+    char name[16];
     unsigned int irq;
     u32 suspend_tx_en;
     u32 suspend_tx_ctl;
