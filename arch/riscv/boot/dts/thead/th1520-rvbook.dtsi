@@ -1190,7 +1190,7 @@
 			pins = "HDMI_SCL", "HDMI_SDA", "HDMI_CEC";
 			function = "hdmi";
 			bias-disable;
-			drive-strength = <1>;
+			drive-strength = <3>;
 			input-enable;
 			input-schmitt-disable;
 			slew-rate = <0>;
