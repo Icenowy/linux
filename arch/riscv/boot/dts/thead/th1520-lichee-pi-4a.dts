@@ -990,7 +990,7 @@
 		pull_up;
 		no-sd;
 		no-mmc;
-		non-removable;
+		broken-cd;
 		io_fixed_1v8;
 		post-power-on-delay-ms = <50>;
 		wprtn_ignore;
