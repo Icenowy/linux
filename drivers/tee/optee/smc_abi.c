@@ -32,6 +32,7 @@
 #include <linux/kmemleak.h>
 #define CREATE_TRACE_POINTS
 #include "optee_trace.h"
+#include <linux/suspend.h>
 
 /*
  * This file implement the SMC ABI used when communicating with secure world
@@ -1820,6 +1821,48 @@ static const struct of_device_id optee_dt_match[] = {
 };
 MODULE_DEVICE_TABLE(of, optee_dt_match);
 
+extern struct kref sess_refcount;
+#ifdef CONFIG_PM
+#ifdef CONFIG_SUSPEND
+static int __maybe_unused tee_driver_suspend(struct device *dev)
+{
+    int ret = 0;
+	unsigned int ref_count;
+	pr_info("TEE DRIVER SUSPEND HOOK..\r\n");
+	if (pm_suspend_target_state == PM_SUSPEND_MEM) {
+		pr_info("STR mode suspend in\r\n");
+		return 0;
+	} else {
+		ref_count = kref_read(&sess_refcount);
+		if (ref_count > 1) {
+			pr_info("tee_driver_suspend failed[%d] \r\n", ref_count);
+			ret = -1;
+		} else {
+			pr_info("tee_driver_suspend success[%d] \r\n", ref_count);
+			ret = 0;
+		}
+	}
+
+	return ret;
+}
+
+static int __maybe_unused tee_driver_resume(struct device *dev)
+{
+
+	int ret = 0;
+
+	return ret;
+}
+#else
+#define tee_driver_suspend NULL
+#define tee_driver_resume NULL
+#endif
+
+static const struct dev_pm_ops tee_driver_pm_ops = {
+    SET_SYSTEM_SLEEP_PM_OPS(tee_driver_suspend, tee_driver_resume)
+};
+#endif
+
 static struct platform_driver optee_driver = {
 	.probe  = optee_probe,
 	.remove = optee_smc_remove,
@@ -1827,6 +1870,9 @@ static struct platform_driver optee_driver = {
 	.driver = {
 		.name = "optee",
 		.of_match_table = optee_dt_match,
+#ifdef CONFIG_PM
+		.pm = &tee_driver_pm_ops,
+#endif
 	},
 };
 
