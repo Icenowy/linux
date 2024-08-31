@@ -36,20 +36,21 @@
 
 #define XUANTIE_PWM_CHN_BASE(n)		((n) * 0x20)
 #define XUANTIE_PWM_CTRL(n)		(XUANTIE_PWM_CHN_BASE(n) + 0x00)
-#define  XUANTIE_PWM_CTRL_START		BIT(0)
-#define  XUANTIE_PWM_CTRL_SOFT_RST		BIT(1)
-#define  XUANTIE_PWM_CTRL_CFG_UPDATE	BIT(2)
-#define  XUANTIE_PWM_CTRL_INTEN		BIT(3)
-#define  XUANTIE_PWM_CTRL_MODE		GENMASK(5, 4)
-#define  XUANTIE_PWM_CTRL_MODE_CONTINUOUS	FIELD_PREP(XUANTIE_PWM_CTRL_MODE, 2)
-#define  XUANTIE_PWM_CTRL_EVTRIG		GENMASK(7, 6)
-#define  XUANTIE_PWM_CTRL_FPOUT		BIT(8)
-#define  XUANTIE_PWM_CTRL_INFACTOUT	BIT(9)
+#define XUANTIE_PWM_CTRL_START		BIT(0)
+#define XUANTIE_PWM_CTRL_SOFT_RST		BIT(1)
+#define XUANTIE_PWM_CTRL_CFG_UPDATE	BIT(2)
+#define XUANTIE_PWM_CTRL_INTEN		BIT(3)
+#define XUANTIE_PWM_CTRL_MODE		GENMASK(5, 4)
+#define XUANTIE_PWM_CTRL_MODE_CONTINUOUS	FIELD_PREP(XUANTIE_PWM_CTRL_MODE, 2)
+#define XUANTIE_PWM_CTRL_EVTRIG		GENMASK(7, 6)
+#define XUANTIE_PWM_CTRL_FPOUT		BIT(8)
+#define XUANTIE_PWM_CTRL_INFACTOUT	BIT(9)
 #define XUANTIE_PWM_RPT(n)		(XUANTIE_PWM_CHN_BASE(n) + 0x04)
 #define XUANTIE_PWM_PER(n)		(XUANTIE_PWM_CHN_BASE(n) + 0x08)
 #define XUANTIE_PWM_FP(n)			(XUANTIE_PWM_CHN_BASE(n) + 0x0c)
 #define XUANTIE_PWM_STATUS(n)		(XUANTIE_PWM_CHN_BASE(n) + 0x10)
-#define  XUANTIE_PWM_STATUS_CYCLE		GENMASK(7, 0)
+#define XUANTIE_PWM_STATUS_CYCLE		GENMASK(7, 0)
+#define XUANTIE_PWM_STATUS_BUSY		BIT(8)
 
 struct xuantie_pwm_chip {
 	struct pwm_chip chip;
@@ -165,8 +166,8 @@ static int xuantie_pwm_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
 	 */
 	state->period = DIV64_U64_ROUND_UP((u64)val * NSEC_PER_SEC, rate);
 
-	val = readl(priv->mmio_base + XUANTIE_PWM_FP(pwm->hwpwm));
-	state->enabled = !!val;
+	val = readl(priv->mmio_base + XUANTIE_PWM_STATUS(pwm->hwpwm));
+	state->enabled = !!(val & XUANTIE_PWM_STATUS_BUSY);
 	/*
 	 * val 32 bits, multiply NSEC_PER_SEC, won't overflow.
 	 */
