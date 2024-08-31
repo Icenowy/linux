@@ -263,8 +263,8 @@ static inline void riscv_v_vstate_save(struct task_struct *task,
 
 	if ((regs->status & sr_vs) == sr_vs_dirty) {
 		struct __riscv_v_ext_state *vstate = &task->thread.vstate;
-
-		__riscv_v_vstate_save(vstate, vstate->datap);
+		if (vstate->datap)
+			__riscv_v_vstate_save(vstate, vstate->datap);
 		__riscv_v_vstate_clean(regs);
 	}
 }
@@ -278,8 +278,8 @@ static inline void riscv_v_vstate_restore(struct task_struct *task,
 
 	if ((regs->status & sr_vs) != SR_VS_OFF) {
 		struct __riscv_v_ext_state *vstate = &task->thread.vstate;
-
-		__riscv_v_vstate_restore(vstate, vstate->datap);
+		if (vstate->datap)
+			__riscv_v_vstate_restore(vstate, vstate->datap);
 		__riscv_v_vstate_clean(regs);
 	}
 }
