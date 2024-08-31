@@ -390,6 +390,7 @@
 	non-removable;
 	no-sdio;
 	no-sd;
+	wprtn_ignore;
 	status = "okay";
 };
 
