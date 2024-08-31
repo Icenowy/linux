@@ -2784,7 +2784,7 @@ static int prepare_image(struct memory_bitmap *new_bm, struct memory_bitmap *bm,
 	/* Preallocate memory for the image */
 	nr_pages = (nr_zero_pages + nr_copy_pages) - nr_highmem - allocated_unsafe_pages;
 	while (nr_pages > 0) {
-		lp = (struct linked_page *)get_zeroed_page(GFP_ATOMIC);
+		lp = (struct linked_page *)__get_free_pages(GFP_ATOMIC,0);
 		if (!lp) {
 			error = -ENOMEM;
 			goto Free;
