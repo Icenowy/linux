@@ -328,17 +328,13 @@
 		regulator-always-on;
 	};
 
-	wcn_wifi: wireless-wlan {
-		compatible = "wlan-platdata";
-		clock-names = "clk_wifi";
-		ref-clock-frequency = <24000000>;
-		keep_wifi_power_on;
-		// pinctrl-names = "default";
-		// pinctrl-0 = <&pinctrl_wifi_wake>;
-		wifi_chip_type = "rtl8822cs";
-		// WIFI,poweren_gpio = <&gpio0 28 GPIO_ACTIVE_HIGH>;
-		status = "okay";
-	};
+ 	wcn_wifi: wireless-wlan {
+ 		compatible = "wlan-platdata";
+		WIFI,poweren-gpios = <&gpio0 25 GPIO_ACTIVE_HIGH>;
+		power_on_after_init;
+		power_on_when_resume;
+ 		status = "okay";
+ 	};
 
 	wcn_bt: wireless-bluetooth {
 		compatible = "bluetooth-platdata";
