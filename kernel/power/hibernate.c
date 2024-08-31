@@ -1056,6 +1056,15 @@ static int software_resume(void)
 	pm_restore_console();
 	pr_info("resume failed (%d)\n", error);
 	hibernate_release();
+	/* If hibernate image exists, this bootup dtb is cut as minimal system,
+	 * need reboot for normal bootup dtb */
+	if(error)
+	{
+		mutex_unlock(&system_transition_mutex);
+		pr_err("Hibernation resume error %d !\n",error);
+		kernel_restart(NULL);
+		return error;
+	}
 	/* For success case, the suspend path will release the lock */
  Unlock:
 	mutex_unlock(&system_transition_mutex);
@@ -1284,6 +1293,65 @@ static ssize_t resume_store(struct kobject *kobj, struct kobj_attribute *attr,
 
 power_attr(resume);
 
+/*only set device, not do software_resume*/
+static ssize_t resume_dev_show(struct kobject *kobj, struct kobj_attribute *attr,
+			   char *buf)
+{
+	return sprintf(buf, "%d:%d\n", MAJOR(swsusp_resume_device),
+		       MINOR(swsusp_resume_device));
+}
+
+static ssize_t resume_dev_store(struct kobject *kobj, struct kobj_attribute *attr,
+			    const char *buf, size_t n)
+{
+	unsigned int sleep_flags;
+	int len = n;
+	char *name;
+	dev_t dev;
+	int error;
+
+	if (!hibernation_available())
+		return n;
+
+	if (len && buf[len-1] == '\n')
+		len--;
+	name = kstrndup(buf, len, GFP_KERNEL);
+	if (!name)
+		return -ENOMEM;
+
+	error = lookup_bdev(name, &dev);
+	if (error) {
+		unsigned maj, min, offset;
+		char *p, dummy;
+
+		error = 0;
+		if (sscanf(name, "%u:%u%c", &maj, &min, &dummy) == 2 ||
+		    sscanf(name, "%u:%u:%u:%c", &maj, &min, &offset,
+				&dummy) == 3) {
+			dev = MKDEV(maj, min);
+			if (maj != MAJOR(dev) || min != MINOR(dev))
+				error = -EINVAL;
+		} else {
+			dev = new_decode_dev(simple_strtoul(name, &p, 16));
+			if (*p)
+				error = -EINVAL;
+		}
+	}
+	kfree(name);
+	if (error)
+		return error;
+
+	sleep_flags = lock_system_sleep();
+	swsusp_resume_device = dev;
+	unlock_system_sleep(sleep_flags);
+
+	pm_pr_dbg("Configured hibernation resume from disk to %u\n",
+		  swsusp_resume_device);
+	return n;
+}
+
+power_attr(resume_dev);
+
 static ssize_t resume_offset_show(struct kobject *kobj,
 				  struct kobj_attribute *attr, char *buf)
 {
@@ -1354,6 +1422,7 @@ static struct attribute *g[] = {
 	&disk_attr.attr,
 	&resume_offset_attr.attr,
 	&resume_attr.attr,
+	&resume_dev_attr.attr,
 	&image_size_attr.attr,
 	&reserved_size_attr.attr,
 	NULL,
