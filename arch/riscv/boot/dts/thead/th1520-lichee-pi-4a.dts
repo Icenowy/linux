@@ -1182,9 +1182,6 @@
         reg = <0x0 0x33400000 0x0 0x200000>;
 	};
 	//Note: with "no-map" reserv mem not saved in hibernation
-	audio_mem: memory@32000000 {
-		reg = <0x0 0x32000000 0x0 0x6400000>;
-	};
 	rpmsgmem: memory@1E000000 {
 		reg = <0x0 0x1E000000 0x0 0x10000>;
 	};

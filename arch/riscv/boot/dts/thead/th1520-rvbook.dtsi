@@ -581,11 +581,16 @@
 	rpmsgmem: memory@1E000000 {
 		reg = <0x0 0x1E000000 0x0 0x10000>;
 	};
-	audio_mem: memory@32000000 {
-		reg = <0x0 0x32000000 0x0 0x6400000>;
-    };
+	audio_text_mem: memory@32000000 {
+		reg = <0x0 0x32000000 0x0 0xE00000>;
+		//no-map;
+	};
+	audio_data_mem: memory@32E00000 {
+		reg = <0x0 0x32E00000 0x0 0x600000>;
+		//no-map;
+	};
 	audio_log_mem: memory@33400000 {
-		reg = <0x0 0x33400000 0x0 0x200000>;
+        reg = <0x0 0x33400000 0x0 0x200000>;
 	};
 	aon_log_mem: memory@33600000 {
 		reg = <0x0 0x33600000 0x0 0x200000>;

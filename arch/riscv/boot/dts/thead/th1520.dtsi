@@ -339,6 +339,7 @@
 		compatible = "xuantie,th1520-aon";
 		mbox-names = "aon";
 		mboxes = <&mbox_910t 1 0>;
+		opensbi-mboxes = <&mbox_910r>;
 		status = "okay";
 
 		pd: th1520-aon-pd {
@@ -1537,6 +1538,23 @@
 			clocks = <&apb_clk>;
 			clock-names = "ipg";
 			icu_cpu_id = <0>;
+			#mbox-cells = <2>;
+		};
+
+		mbox_910r: mbox@ffefc53000 {
+			compatible = "xuantie,th1520-mbox-r";
+			reg = <0xff 0xefc53000 0x0 0x4000>,
+			      <0xff 0xefc3f000 0x0 0x1000>,
+			      <0xff 0xefc47000 0x0 0x1000>,
+			      <0xff 0xefc4f000 0x0 0x1000>;
+			reg-names = "local_base",
+				    "remote_icu0",
+				    "remote_icu1",
+				    "remote_icu2";
+			interrupt-controller;
+			clocks = <&apb_clk>;
+			clock-names = "ipg";
+			icu_cpu_id = <3>;
 			#mbox-cells = <2>;
 		};
 
