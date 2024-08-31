@@ -42,3 +42,12 @@ config SND_SOC_XUANTIE_TH1520_TDM
         help
           Say Y or M if you want to add support for codecs attached to the
           XuanTie TH1520 interface
+
+config SND_SOC_XUANTIE_TH1520_SPDIF
+        tristate "XuanTie TH1520 audio spdif feature Support"
+	depends on SND_SOC_XUANTIE
+	select SND_SOC_GENERIC_DMAENGINE_PCM
+	default n
+        help
+          Say Y or M if you want to add support for codecs attached to the
+          XuanTie TH1520 interface

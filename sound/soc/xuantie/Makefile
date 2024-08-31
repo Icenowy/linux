@@ -13,3 +13,5 @@ obj-$(CONFIG_SND_SOC_XUANTIE_TH1520_I2S_CH8) += snd-soc-xuantie-th1520-i2s-ch8.o
 obj-$(CONFIG_SND_SOC_XUANTIE_TH1520_HDMI_PCM) += th1520-hdmi-pcm.o
 
 obj-$(CONFIG_SND_SOC_XUANTIE_TH1520_TDM) += th1520-tdm.o
+
+obj-$(CONFIG_SND_SOC_XUANTIE_TH1520_SPDIF) += th1520-spdif.o

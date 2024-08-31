@@ -768,6 +768,38 @@
 			status = "disabled";
 		};
 
+		spdif0: spdif@ffcb018000 {
+			#sound-dai-cells = <0>;
+			compatible = "xuantie,th1520-spdif";
+			reg = <0xff 0xcb018000 0x0 0x1000>;
+			audio-cpr-regmap = <&audio_cpr>;
+			pinctrl-names = "default";
+			interrupts = <179 IRQ_TYPE_LEVEL_HIGH>;
+			dmas = <&dmac2 25>, <&dmac2 24>;
+			dma-names = "tx", "rx";
+			#dma-cells = <1>;
+			clocks = <&audiosys_clk_gate TH1520_CLKGEN_AUDIO_SPDIF0>;
+			clock-names = "pclk";
+			resets = <&audiosys_rst TH1520_RESET_AUD_SPDIF0>;
+			status = "disabled";
+		};
+
+		spdif1: spdif@ffcb019000 {
+			#sound-dai-cells = <0>;
+			compatible = "xuantie,th1520-spdif";
+			reg = <0xff 0xcb019000 0x0 0x1000>;
+			audio-cpr-regmap = <&audio_cpr>;
+			pinctrl-names = "default";
+			interrupts = <180 IRQ_TYPE_LEVEL_HIGH>;
+			dmas = <&dmac2 27>, <&dmac2 26>;
+			dma-names = "tx", "rx";
+			#dma-cells = <1>;
+			clocks = <&audiosys_clk_gate TH1520_CLKGEN_AUDIO_SPDIF1>;
+			clock-names = "pclk";
+			resets = <&audiosys_rst TH1520_RESET_AUD_SPDIF1>;
+			status = "disabled";
+		};
+
 		plic: interrupt-controller@ffd8000000 {
 			compatible = "thead,th1520-plic", "thead,c900-plic";
 			reg = <0xff 0xd8000000 0x0 0x01000000>;

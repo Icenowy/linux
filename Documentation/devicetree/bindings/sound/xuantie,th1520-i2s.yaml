@@ -75,18 +75,17 @@ required:
 
 examples:
   - |
-    i2s1: audio_i2s1@0xffcb015000 {
+    i2s1: audio_i2s1@ffcb015000 {
         compatible = "xuantie,th1520-i2s";
         reg = <0xff 0xcb015000 0x0 0x1000>;
         pinctrl-names = "default";
-        interrupts = <175>;
+        interrupts = <175, IRQ_TYPE_LEVEL_HIGH>;
         dmas = <&dmac2 11>, <&dmac2 10>;
         dma-names = "tx", "rx";
         #dma-cells = <1>;
-        clocks = <&audiosys_clk_gate LIGHT_CLKGEN_AUDIO_I2S1>;
+        clocks = <&audiosys_clk_gate TH1520_CLKGEN_AUDIO_I2S1>;
         clock-names = "pclk";
-        resets = <&audiosys_rst LIGHT_RESET_AUD_I2S1>;
+        resets = <&audiosys_rst TH1520_RESET_AUD_I2S1>;
         xuantie,audio-cpr-regmap = <&audio_cpr>;
         #sound-dai-cells = <1>;
-        status = "disabled";
     };
