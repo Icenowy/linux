@@ -906,6 +906,7 @@ dma_chan_prep_dma_memcpy(struct dma_chan *dchan, dma_addr_t dst_adr,
 		goto err_desc_get;
 
 	desc->chan = chan;
+	chan->direction = DMA_MEM_TO_MEM;
 	num = 0;
 	desc->length = 0;
 	while (len) {
