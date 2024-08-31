@@ -67,7 +67,8 @@ static int hibernation_mode = HIBERNATION_SHUTDOWN;
 bool freezer_test_done;
 
 static const struct platform_hibernation_ops *hibernation_ops;
-
+/* for not only in HIBERNATION_PLATFORM mode calling ops*/
+static const struct platform_hibernation_ops *hibernation_all_mode_ops;
 static atomic_t hibernate_atomic = ATOMIC_INIT(1);
 
 bool hibernate_acquire(void)
@@ -119,6 +120,28 @@ void hibernation_set_ops(const struct platform_hibernation_ops *ops)
 }
 EXPORT_SYMBOL_GPL(hibernation_set_ops);
 
+/**
+ * hibernation_set_allmode_ops - Set the global hibernate operations for all mode(reboot/shutdown...).
+ * @ops: Hibernation operations to use in subsequent hibernation transitions.
+ * Note: This diffs from hibernation_set_ops,hibernation_set_allmode_ops is for not only 
+ * HIBERNATION_PLATFORM
+ */
+void hibernation_set_allmode_ops(const struct platform_hibernation_ops *ops)
+{
+	unsigned int sleep_flags;
+	if( !ops && !ops->begin && !ops->end &&  !ops->pre_snapshot
+		&& !ops->prepare && !ops->finish && !ops->enter && !ops->pre_restore
+		&& !ops->restore_cleanup && !ops->leave ) {
+		WARN_ON(1);
+		return;
+	}
+	sleep_flags = lock_system_sleep();
+	hibernation_all_mode_ops = ops;
+
+	unlock_system_sleep(sleep_flags);
+}
+EXPORT_SYMBOL_GPL(hibernation_set_allmode_ops);
+
 static bool entering_platform_hibernation;
 
 bool system_entering_hibernation(void)
@@ -152,6 +175,9 @@ static int hibernation_test(int level) { return 0; }
  */
 static int platform_begin(int platform_mode)
 {
+	if(hibernation_all_mode_ops && hibernation_all_mode_ops->begin)
+		return hibernation_all_mode_ops->begin(PMSG_FREEZE);
+
 	return (platform_mode && hibernation_ops) ?
 		hibernation_ops->begin(PMSG_FREEZE) : 0;
 }
@@ -162,6 +188,10 @@ static int platform_begin(int platform_mode)
  */
 static void platform_end(int platform_mode)
 {
+	if(hibernation_all_mode_ops && hibernation_all_mode_ops->end) {
+		hibernation_all_mode_ops->end();
+		return;
+	}
 	if (platform_mode && hibernation_ops)
 		hibernation_ops->end();
 }
@@ -176,6 +206,9 @@ static void platform_end(int platform_mode)
 
 static int platform_pre_snapshot(int platform_mode)
 {
+	if(hibernation_all_mode_ops && hibernation_all_mode_ops->pre_snapshot)
+		return hibernation_all_mode_ops->pre_snapshot();
+
 	return (platform_mode && hibernation_ops) ?
 		hibernation_ops->pre_snapshot() : 0;
 }
@@ -191,6 +224,10 @@ static int platform_pre_snapshot(int platform_mode)
  */
 static void platform_leave(int platform_mode)
 {
+	if(hibernation_all_mode_ops && hibernation_all_mode_ops->leave) {
+		hibernation_all_mode_ops->leave();
+		return;
+	}
 	if (platform_mode && hibernation_ops)
 		hibernation_ops->leave();
 }
@@ -206,6 +243,10 @@ static void platform_leave(int platform_mode)
  */
 static void platform_finish(int platform_mode)
 {
+	if(hibernation_all_mode_ops && hibernation_all_mode_ops->finish) {
+		hibernation_all_mode_ops->finish();
+		return;
+	}
 	if (platform_mode && hibernation_ops)
 		hibernation_ops->finish();
 }
@@ -222,6 +263,10 @@ static void platform_finish(int platform_mode)
  */
 static int platform_pre_restore(int platform_mode)
 {
+	if(hibernation_all_mode_ops && hibernation_all_mode_ops->pre_restore) {
+		return hibernation_all_mode_ops->pre_restore();
+	}
+
 	return (platform_mode && hibernation_ops) ?
 		hibernation_ops->pre_restore() : 0;
 }
@@ -239,6 +284,11 @@ static int platform_pre_restore(int platform_mode)
  */
 static void platform_restore_cleanup(int platform_mode)
 {
+	if(hibernation_all_mode_ops && hibernation_all_mode_ops->restore_cleanup) {
+		hibernation_all_mode_ops->restore_cleanup();
+		return;
+	}
+
 	if (platform_mode && hibernation_ops)
 		hibernation_ops->restore_cleanup();
 }
@@ -249,6 +299,11 @@ static void platform_restore_cleanup(int platform_mode)
  */
 static void platform_recover(int platform_mode)
 {
+	if(hibernation_all_mode_ops && hibernation_all_mode_ops->recover) {
+		hibernation_all_mode_ops->recover();
+		return;
+	}
+
 	if (platform_mode && hibernation_ops && hibernation_ops->recover)
 		hibernation_ops->recover();
 }

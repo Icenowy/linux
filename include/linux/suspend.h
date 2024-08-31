@@ -446,6 +446,7 @@ extern u32 swsusp_hardware_signature;
 extern int hibernate_register_nosave_region(unsigned long start_pfn, unsigned long end_pfn);
 extern int hibernate_remove_nosave_region(unsigned long start_pfn, unsigned long end_pfn);
 
+extern void hibernation_set_allmode_ops(const struct platform_hibernation_ops *ops);
 extern void hibernation_set_ops(const struct platform_hibernation_ops *ops);
 extern int hibernate(void);
 extern bool system_entering_hibernation(void);
@@ -471,7 +472,7 @@ static inline int hibernate_register_nosave_region(unsigned long start_pfn, unsi
 static inline int hibernate_remove_nosave_region(unsigned long start_pfn, unsigned long end_pfn){
 	return 0;
 }
-
+static inline void hibernation_set_allmode_ops(const struct platform_hibernation_ops *ops) {}
 static inline void hibernation_set_ops(const struct platform_hibernation_ops *ops) {}
 static inline int hibernate(void) { return -ENOSYS; }
 static inline bool system_entering_hibernation(void) { return false; }
