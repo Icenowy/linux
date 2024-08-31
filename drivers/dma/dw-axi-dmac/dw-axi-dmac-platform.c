@@ -1141,6 +1141,9 @@ static int dma_chan_terminate_all(struct dma_chan *dchan)
 	int ret;
 	LIST_HEAD(head);
 
+	axi_chan_irq_clear(chan, DWAXIDMAC_IRQ_ALL);
+	axi_chan_irq_disable(chan, DWAXIDMAC_IRQ_ALL);
+
 	axi_chan_disable(chan);
 
 	ret = readl_poll_timeout_atomic(chan->chip->regs + DMAC_CHEN, val,
