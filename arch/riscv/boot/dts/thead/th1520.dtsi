@@ -2195,5 +2195,12 @@
 				opp-microvolt = <800000>;
 			};
 		};
+
+		iso7816: iso7816-card@fff7f30000 {
+			compatible = "xuantie,th1520-iso7816-card";
+			reg = <0xff 0xf7f30000 0x0 0x4000>;
+			interrupts = <69 IRQ_TYPE_LEVEL_HIGH>;
+			status = "disabled";
+		};
 	};
 };

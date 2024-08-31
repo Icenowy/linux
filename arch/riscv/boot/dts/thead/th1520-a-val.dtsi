@@ -730,6 +730,28 @@
 			slew-rate = <0>;
 		};
 	};
+
+	iso7816_pins: iso7816-0 {
+		det-pin {
+			pins = "QSPI1_SCLK";
+			function = "iso7816";
+			bias-disable;
+			drive-strength = <7>;
+			input-enable;
+			input-schmitt-enable;
+			slew-rate = <0>;
+		};
+
+		iso7816-pins {
+			pins = "QSPI1_D0_MOSI", "QSPI1_D1_MISO", "QSPI1_D2_WP", "QSPI1_D3_HOLD";
+			function = "iso7816";
+			bias-pull-up;
+			drive-strength = <7>;
+			input-enable;
+			input-schmitt-enable;
+			slew-rate = <0>;
+		};
+	};
 };
 
 &padctrl_aosys {
