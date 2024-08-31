@@ -124,16 +124,6 @@
 		enable-active-high;
 	};
 
-	reg_vcc5v_usb: regulator-vcc5v-usb {
-		compatible = "regulator-fixed";
-		regulator-name = "VCC5V_USB";
-		regulator-min-microvolt = <5000000>;
-		regulator-max-microvolt = <5000000>;
-		gpio = <&gpio0 27 GPIO_ACTIVE_HIGH>;
-		enable-active-high;
-		regulator-always-on;
-	};
-
 	mbox_910t_client2: mbox_910t_client2 {
 		compatible = "thead,th1520-mbox-client";
 		mbox-names = "906";
@@ -217,14 +207,6 @@
 &aon_suspend_ctrl {
 	audio-text-memory-region = <&audio_text_mem>;
 	status = "okay";
-};
-
-&aogpio {
-	sel-usb-hub-hog {
-		gpio-hog;
-		gpios = <4 GPIO_ACTIVE_HIGH>;
-		output-high;
-	};
 };
 
 &gmac0 {
@@ -830,20 +812,6 @@
 	status = "okay";
 	#address-cells = <1>;
 	#size-cells = <0>;
-
-	hub_2_0: hub@1 {
-		compatible = "usb2109,2817";
-		reg = <1>;
-		peer-hub = <&hub_3_0>;
-		vbus-supply = <&reg_vcc5v_usb>;
-	};
-
-	hub_3_0: hub@2 {
-		compatible = "usb2109,817";
-		reg = <2>;
-		peer-hub = <&hub_2_0>;
-		vbus-supply = <&reg_vcc5v_usb>;
-	};
 };
 
 &adc {
