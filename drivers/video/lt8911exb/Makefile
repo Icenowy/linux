@@ -1,1 +1,0 @@
-obj-$(CONFIG_ROCKCHIP_LT8911EXB) += lt8911exb.o

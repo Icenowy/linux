@@ -20,10 +20,11 @@
 #include <linux/workqueue.h>
 #include <linux/freezer.h>
 #include <linux/of_gpio.h>
-#include <linux/sensor-dev.h>
+#include <linux/gpio/consumer.h>
+#include <linux/gpio/machine.h>
 #include <linux/fb.h>
 #include <linux/notifier.h>
-#include <linux/rk_keys.h>
+#include "../../gpio/gpiolib-of.h"
 #include <linux/input.h>
 
 struct mh248_para {
@@ -103,10 +104,10 @@ static int hall_mh248_probe(struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;
 	struct mh248_para *mh248;
-	enum of_gpio_flags irq_flags;
+	unsigned long irq_flags;
 	int hallactive = 0;
 	int ret = 0;
-
+	struct gpio_desc *desc;
 	mh248 = devm_kzalloc(&pdev->dev, sizeof(*mh248), GFP_KERNEL);
 	if (!mh248)
 		return -ENOMEM;
@@ -114,12 +115,14 @@ static int hall_mh248_probe(struct platform_device *pdev)
 	g_mh248 = mh248;
 	mh248->dev = &pdev->dev;
 	mh248->is_open = true;
-	mh248->gpio_pin = of_get_named_gpio_flags(np, "irq-gpio",
+
+	desc = of_find_gpio(np, "irq-hall-mh248",
 						  0, &irq_flags);
-	if (!gpio_is_valid(mh248->gpio_pin)) {
-		dev_err(mh248->dev, "Can not read property irq-gpio\n");
-		return mh248->gpio_pin;
+	if (IS_ERR(desc)) {
+		dev_err(mh248->dev, "Can not read property irq-hall-mh248\n");
+		return -EINVAL;
 	}
+	mh248->gpio_pin = desc_to_gpio(desc);
 	mh248->irq = gpio_to_irq(mh248->gpio_pin);
 
 	of_property_read_u32(np, "hall-active", &hallactive);
@@ -136,7 +139,7 @@ static int hall_mh248_probe(struct platform_device *pdev)
 
 	ret = devm_request_threaded_irq(mh248->dev, mh248->irq,
 					NULL, hall_mh248_interrupt,
-					irq_flags | IRQF_NO_SUSPEND | IRQF_ONESHOT,
+					IRQ_TYPE_EDGE_BOTH | IRQF_NO_SUSPEND | IRQF_ONESHOT,
 					"hall_mh248", mh248);
 	if (ret < 0) {
 		dev_err(mh248->dev, "request irq(%d) failed, ret=%d\n",

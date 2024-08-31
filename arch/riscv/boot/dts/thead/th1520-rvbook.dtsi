@@ -35,7 +35,7 @@
 		compatible = "hall-mh248";
 		pinctrl-names = "default";
 		pinctrl-0 = <&mh248_int_pins>;
-		irq-gpio = <&aogpio 2 IRQ_TYPE_EDGE_BOTH>;
+		irq-hall-mh248-gpios = <&aogpio 2 IRQ_TYPE_EDGE_BOTH>;
 		hall-active = <1>;
 		status = "okay";
 	};
@@ -1200,7 +1200,6 @@
 	lt8911exb_pins: lt8911exb-0 {
 		gpio-pins {
 			pins = "GPIO2_20", "GMAC0_RXD1", "GMAC0_RXD0";
-			function = "gpio";
 			bias-disable;
 			drive-strength = <13>;
 			input-enable;
@@ -1666,7 +1665,7 @@
 	mh248_int_pins: mh248-int-0 {
 		gpio-pins {
 			pins = "CPU_JTG_TCLK";
-			function = "gpio";
+
 			bias-pull-up;
 			drive-strength = <13>;
 			input-enable;

@@ -167,8 +167,7 @@ static struct syscore_ops TH1520_syscore_ops = {
 	.shutdown = TH1520_syscore_shutdown,
 };
 
-static int hc32fx_probe(struct i2c_client *client,
-			 const struct i2c_device_id *i2c_id)
+static int hc32fx_probe(struct i2c_client *client)
 {
 	int ret;
 	struct hc32fx *hc32fx;

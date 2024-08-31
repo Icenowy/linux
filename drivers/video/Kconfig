@@ -50,7 +50,7 @@ source "drivers/video/fbdev/Kconfig"
 endmenu
 
 source "drivers/video/backlight/Kconfig"
-source "drivers/video/lt8911exb/Kconfig"
+
 
 config VGASTATE
        tristate

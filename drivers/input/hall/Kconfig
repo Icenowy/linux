@@ -3,12 +3,6 @@
 # hall  sensor drivers configuration
 #
 
-# menuconfig HALL_DEVICE
-# 	tristate "hall sensor device support"
-
-# if HALL_DEVICE
 
 config HS_MH248
 	tristate "hall sensor mh248"
-
-# endif

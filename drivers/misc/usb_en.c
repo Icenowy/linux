@@ -35,7 +35,7 @@ static int usb_en_probe(struct platform_device *pdev)
 	}
 	priv = usb_priv;
 
-	ret = of_get_named_gpio_flags(node, "host-en-gpio", 0, NULL);
+	ret = of_get_named_gpio(node, "host-en-gpio", 0);
 	if (ret < 0) {
 		dev_err(&pdev->dev, "Can not read property host-en-gpio\n");
 	} else {
@@ -49,7 +49,7 @@ static int usb_en_probe(struct platform_device *pdev)
 		}
 	}
 
-	ret = of_get_named_gpio_flags(node, "hub-en-gpio", 0, NULL);
+	ret = of_get_named_gpio(node, "hub-en-gpio", 0);
 	if (ret < 0) {
 		dev_err(&pdev->dev, "Can not read property hub-en-gpio\n");
 	} else {
@@ -63,7 +63,7 @@ static int usb_en_probe(struct platform_device *pdev)
 		}
 	}
 
-	ret = of_get_named_gpio_flags(node, "usb_sw-gpio", 0, NULL);
+	ret = of_get_named_gpio(node, "usb_sw-gpio", 0);
 	if (ret < 0) {
 		dev_err(&pdev->dev, "Can not read property usb_sw-gpio\n");
 	} else {

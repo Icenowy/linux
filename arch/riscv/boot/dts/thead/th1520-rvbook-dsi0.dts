@@ -62,6 +62,8 @@
 		lt8911,edp-lane-cnt = <2>;
 		lt8911,mipi-lane-cnt = <4>;
 		lt8911,edp-depth = <8>; /* 6 or 8 */
+		pinctrl-names = "default";
+		pinctrl-0 = <&lt8911exb_pins>;
 		hsvcc-supply = <&reg_vcc1v8_lontium>;
 		vspn3v3-supply = <&reg_vcc3v3_edp>;
 
