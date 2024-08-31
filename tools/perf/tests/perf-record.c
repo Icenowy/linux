@@ -259,7 +259,7 @@ static int test__PERF_RECORD(struct test_suite *test __maybe_unused, int subtest
 						if (!found_cmd_mmap)
 							found_cmd_mmap = !strcmp(bname + 1, cmd);
 						if (!found_coreutils_mmap)
-							found_coreutils_mmap = !strcmp(bname + 1, "coreutils");
+							found_coreutils_mmap = !strcmp(bname + 1, "coreutils") + !strcmp(bname + 1, "sleep.coreutils");
 						if (!found_libc_mmap)
 							found_libc_mmap = !strncmp(bname + 1, "libc", 4);
 						if (!found_ld_mmap)
