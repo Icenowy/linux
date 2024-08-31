@@ -535,6 +535,11 @@
 					mode_idx = <1>;
 					path_type = "SENSOR_2592x1944_LINER";
 				};
+				dma {
+					subdev_name = "vipre";
+					idx = <0>;
+					path_type = "VIPRE_CSI0_ISP1";
+				};
 				isp {
 					subdev_name = "isp";
 					idx = <1>;
@@ -554,6 +559,11 @@
 					csi_idx = <0>;
 					mode_idx = <1>;
 					path_type = "SENSOR_2592x1944_LINER";
+				};
+				dma {
+					subdev_name = "vipre";
+					idx = <0>;
+					path_type = "VIPRE_CSI0_ISP1";
 				};
 				isp {
 					subdev_name = "isp";
