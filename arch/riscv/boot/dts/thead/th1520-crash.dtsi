@@ -532,14 +532,6 @@
 	status = "disabled";
 };
 
-&watchdog0 {
-	status = "disabled";
-};
-
-&watchdog1 {
-	status = "disabled";
-};
-
 &th1520_event {
 	status = "disabled";
 };
