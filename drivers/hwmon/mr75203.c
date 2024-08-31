@@ -85,6 +85,7 @@
 #define IP_VM_MODE		BIT(10)
 
 #define IP_CFG			0x01
+#define CFG0_MODE_1		(0)
 #define CFG0_MODE_2		BIT(0)
 #define CFG0_PARALLEL_OUT	0
 #define CFG0_12_BIT		0
@@ -450,7 +451,7 @@ static int pvt_init(struct pvt_device *pvt)
 		if (ret)
 			return ret;
 
-		val = CFG0_MODE_2 | CFG0_PARALLEL_OUT | CFG0_12_BIT |
+		val = CFG0_MODE_1 | CFG0_PARALLEL_OUT | CFG0_12_BIT |
 		      IP_CFG << SDIF_ADDR_SFT | SDIF_WRN_W | SDIF_PROG;
 		ret = regmap_write(t_map, SDIF_W, val);
 		if (ret < 0)
@@ -489,7 +490,7 @@ static int pvt_init(struct pvt_device *pvt)
 		if (ret < 0)
 			return ret;
 
-		ret = regmap_write(p_map, SDIF_DISABLE, BIT(p_num) - 1);
+		ret = regmap_write(p_map, SDIF_DISABLE, 0);
 		if (ret < 0)
 			return ret;
 
