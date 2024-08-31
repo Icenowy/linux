@@ -19,31 +19,6 @@
 	};
 
 	aliases {
-		ethernet0 = &gmac0;
-		ethernet1 = &gmac1;
-		gpio0 = &gpio0;
-		gpio1 = &gpio1;
-		gpio2 = &gpio2;
-		gpio3 = &gpio3;
-		gpio4 = &gpio4;
-		gpio5 = &aogpio;
-		serial0 = &uart0;
-		serial1 = &uart1;
-		serial2 = &uart2;
-		serial3 = &uart3;
-		serial4 = &uart4;
-		serial5 = &uart5;
-		i2c0 = &i2c0;
-		i2c1 = &i2c1;
-		i2c2 = &i2c2;
-		i2c3 = &i2c3;
-		i2c4 = &i2c4;
-		i2c5 = &audio_i2c0;
-		i2c6 = &audio_i2c1;
-		light_i2s = &light_i2s;
-		i2s0 = &i2s0;
-		i2s1 = &i2s1;
-		i2s2 = &i2s2;
 		flash_led0 = &vvcam_flash_led0;
 		vivcam0 = &vvcam_sensor0;
 		vivcam1 = &vvcam_sensor1;
