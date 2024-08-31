@@ -285,7 +285,7 @@ static void dwcmshc_phy_1_8v_init(struct sdhci_host *host)
 	/* set delay line */
 	sdhci_writeb(host, priv->delay_line, PHY_SDCLKDL_DC_R);
 	sdhci_writeb(host, PHY_DLL_CNFG2_JUMPSTEP, PHY_DLL_CNFG2_R);
-
+	pr_debug("%s: 1_8v set delay line delay %d \n",host->hw_name,priv->delay_line);
 	/* enable delay lane */
 	val = sdhci_readb(host, PHY_SDCLKDL_CNFG_R);
 	val &= ~(PHY_SDCLKDL_CNFG_UPDATE);
@@ -336,7 +336,7 @@ static void dwcmshc_phy_3_3v_init(struct sdhci_host *host)
 	/* set delay line */
 	sdhci_writeb(host, priv->delay_line, PHY_SDCLKDL_DC_R);
 	sdhci_writeb(host, PHY_DLL_CNFG2_JUMPSTEP, PHY_DLL_CNFG2_R);
-
+	pr_debug("%s: 3_3v set delay line delay %d \n",host->hw_name,priv->delay_line);
 	/* enable delay lane */
 	val = sdhci_readb(host, PHY_SDCLKDL_CNFG_R);
 	val &= ~(PHY_SDCLKDL_CNFG_UPDATE);
@@ -491,20 +491,26 @@ static void th1520_set_uhs_signaling(struct sdhci_host *host,
 	struct th1520_priv *th_priv = priv->th_priv;
 
 	dwcmshc_set_uhs_signaling(host, timing);
-	if (timing == MMC_TIMING_MMC_HS400)
-		priv->delay_line = th_priv->delay_line[MMC_TIMING_MMC_HS400];
-	else if(timing == MMC_TIMING_UHS_SDR104)
-		priv->delay_line = th_priv->delay_line[MMC_TIMING_UHS_SDR104];
-	else
-		priv->delay_line = th_priv->delay_line[0];
 
-	if (timing != MMC_TIMING_MMC_HS400) {
+	pr_debug("%s: %s timing %d\n",host->hw_name,__func__,timing);
+	if (timing == MMC_TIMING_MMC_HS400) {
+		//disable auto tuning
+		u32 reg = sdhci_readl(host, priv->vendor_specific_area1 + DWCMSHC_EMMC_ATCTRL);
+		reg &= ~AT_CTRL_AT_EN;
+		sdhci_writel(host, reg, priv->vendor_specific_area1 + DWCMSHC_EMMC_ATCTRL);
+
+		priv->delay_line = th_priv->delay_line[MMC_TIMING_MMC_HS400];
+		th1520_sdhci_set_phy(host);	/* update tx delay*/
+	} else if(timing == MMC_TIMING_UHS_SDR104){
+		priv->delay_line = th_priv->delay_line[MMC_TIMING_UHS_SDR104];
+		th1520_sdhci_set_phy(host);	/* update tx delay*/
+		sdhci_writeb(host, 0, PHY_DLLDL_CNFG_R);
+	}else {
 		sdhci_writeb(host, 0, PHY_DLLDL_CNFG_R);
 		if(th_priv->rxclk_sw_tune_en && (timing == MMC_TIMING_SD_HS)) {
 			(void)th1520_sdhci_set_rxclk_sample_delay(host, th_priv->rxclk_delay_set, 10000);
 		}
 	}
-	th1520_sdhci_set_phy(host);
 }
 
 static void dwcmshc_hs400_enhanced_strobe(struct mmc_host *mmc,
@@ -696,6 +702,9 @@ static int th1520_execute_tuning(struct sdhci_host *host, u32 opcode)
 
 	host->tuning_loop_count = 128; /*max loop count allow to 128*/
 
+	val &= ~AT_CTRL_AT_EN;
+	sdhci_writel(host, val, priv->vendor_specific_area1 + DWCMSHC_EMMC_ATCTRL);
+
 	/* perform tuning */
 	sdhci_start_tuning(host);
 	host->tuning_err = __sdhci_execute_tuning(host, opcode);
@@ -750,6 +759,115 @@ static void  th1520_sdhci_hs400_complete(struct mmc_host *mmc)
 	th1520_sdhci_reset(host,mask);
 
 }
+static void dwcmshc_set_power_reg(struct sdhci_host *host, unsigned char mode,
+				unsigned short vdd)
+{
+	struct mmc_host *mmc = host->mmc;
+
+	mmc_regulator_set_ocr(mmc, mmc->supply.vmmc, vdd);
+
+	if (mode != MMC_POWER_OFF)
+		sdhci_writeb(host, SDHCI_POWER_ON, SDHCI_POWER_CONTROL);
+	else
+		sdhci_writeb(host, 0, SDHCI_POWER_CONTROL);
+}
+
+/* Add th1520_sdhci_set_phy before POWER ON for this controller.
+ * Similar to public sdhci.c sdhci_set_power_noreg().
+ */
+static void th1520_sdhci_set_power_noreg(struct sdhci_host *host, unsigned char mode,
+			   unsigned short vdd)
+{
+	u8 pwr = 0;
+	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
+	struct dwcmshc_priv *priv = sdhci_pltfm_priv(pltfm_host);
+	if (mode != MMC_POWER_OFF) {
+		switch (1 << vdd) {
+		case MMC_VDD_165_195:
+		/*
+		 * Without a regulator, SDHCI does not support 2.0v
+		 * so we only get here if the driver deliberately
+		 * added the 2.0v range to ocr_avail. Map it to 1.8v
+		 * for the purpose of turning on the power.
+		 */
+		case MMC_VDD_20_21:
+			pwr = SDHCI_POWER_180;
+			break;
+		case MMC_VDD_29_30:
+		case MMC_VDD_30_31:
+			pwr = SDHCI_POWER_300;
+			break;
+		case MMC_VDD_32_33:
+		case MMC_VDD_33_34:
+		/*
+		 * 3.4 ~ 3.6V are valid only for those platforms where it's
+		 * known that the voltage range is supported by hardware.
+		 */
+		case MMC_VDD_34_35:
+		case MMC_VDD_35_36:
+			pwr = SDHCI_POWER_330;
+			break;
+		default:
+			WARN(1, "%s: Invalid vdd %#x\n",
+			     mmc_hostname(host->mmc), vdd);
+			break;
+		}
+	}
+
+	if (host->pwr == pwr)
+		return;
+
+	host->pwr = pwr;
+	pr_debug("%s: %s set pwr %d\n",host->hw_name,__func__,pwr);
+	priv->delay_line = priv->th_priv->delay_line[0];
+	th1520_sdhci_set_phy(host);
+
+	if (pwr == 0) {
+		sdhci_writeb(host, 0, SDHCI_POWER_CONTROL);
+		/*
+		if (host->quirks2 & SDHCI_QUIRK2_CARD_ON_NEEDS_BUS_ON)
+			sdhci_runtime_pm_bus_off(host);
+		*/
+	} else {
+		/*
+		 * Spec says that we should clear the power reg before setting
+		 * a new value. Some controllers don't seem to like this though.
+		 */
+		if (!(host->quirks & SDHCI_QUIRK_SINGLE_POWER_WRITE))
+			sdhci_writeb(host, 0, SDHCI_POWER_CONTROL);
+
+		/*
+		 * At least the Marvell CaFe chip gets confused if we set the
+		 * voltage and set turn on power at the same time, so set the
+		 * voltage first.
+		 */
+		if (host->quirks & SDHCI_QUIRK_NO_SIMULT_VDD_AND_POWER)
+			sdhci_writeb(host, pwr, SDHCI_POWER_CONTROL);
+
+		pwr |= SDHCI_POWER_ON;
+
+		sdhci_writeb(host, pwr, SDHCI_POWER_CONTROL);
+		/*
+		if (host->quirks2 & SDHCI_QUIRK2_CARD_ON_NEEDS_BUS_ON)
+			sdhci_runtime_pm_bus_on(host);
+		*/
+		/*
+		 * Some controllers need an extra 10ms delay of 10ms before
+		 * they can apply clock after applying power
+		 */
+		if (host->quirks & SDHCI_QUIRK_DELAY_AFTER_POWER)
+			mdelay(10);
+	}
+}
+
+static void th1520_sdhci_set_power(struct sdhci_host *host, unsigned char mode,
+		     unsigned short vdd)
+{
+	if (IS_ERR(host->mmc->supply.vmmc))
+		th1520_sdhci_set_power_noreg(host, mode, vdd);
+	else
+		dwcmshc_set_power_reg(host, mode, vdd);
+}
 
 static const struct sdhci_ops sdhci_dwcmshc_ops = {
 	.set_clock		= sdhci_set_clock,
@@ -771,6 +889,7 @@ static const struct sdhci_ops sdhci_dwcmshc_rk35xx_ops = {
 
 static const struct sdhci_ops sdhci_dwcmshc_th1520_ops = {
 	.set_clock		= sdhci_set_clock,
+	.set_power		= th1520_sdhci_set_power,
 	.set_bus_width		= sdhci_set_bus_width,
 	.set_uhs_signaling	= th1520_set_uhs_signaling,
 	.get_max_clock		= dwcmshc_get_max_clock,
