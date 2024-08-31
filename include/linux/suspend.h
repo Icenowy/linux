@@ -443,6 +443,9 @@ extern asmlinkage int swsusp_arch_suspend(void);
 extern asmlinkage int swsusp_arch_resume(void);
 
 extern u32 swsusp_hardware_signature;
+extern int hibernate_register_nosave_region(unsigned long start_pfn, unsigned long end_pfn);
+extern int hibernate_remove_nosave_region(unsigned long start_pfn, unsigned long end_pfn);
+
 extern void hibernation_set_ops(const struct platform_hibernation_ops *ops);
 extern int hibernate(void);
 extern bool system_entering_hibernation(void);
@@ -461,6 +464,13 @@ static inline void register_nosave_region(unsigned long b, unsigned long e) {}
 static inline int swsusp_page_is_forbidden(struct page *p) { return 0; }
 static inline void swsusp_set_page_free(struct page *p) {}
 static inline void swsusp_unset_page_free(struct page *p) {}
+
+static inline int hibernate_register_nosave_region(unsigned long start_pfn, unsigned long end_pfn){
+	return 0;
+}
+static inline int hibernate_remove_nosave_region(unsigned long start_pfn, unsigned long end_pfn){
+	return 0;
+}
 
 static inline void hibernation_set_ops(const struct platform_hibernation_ops *ops) {}
 static inline int hibernate(void) { return -ENOSYS; }

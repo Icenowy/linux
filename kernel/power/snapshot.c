@@ -957,6 +957,7 @@ struct nosave_region {
 };
 
 static LIST_HEAD(nosave_regions);
+static DEFINE_MUTEX(nosave_regions_list_lock);
 
 static void recycle_zone_bm_rtree(struct mem_zone_bm_rtree *zone)
 {
@@ -1022,6 +1023,87 @@ void __init register_nosave_region(unsigned long start_pfn, unsigned long end_pf
 		(unsigned long long) start_pfn << PAGE_SHIFT,
 		((unsigned long long) end_pfn << PAGE_SHIFT) - 1);
 }
+
+/**
+ * hibernate_register_nosave_region - Register a region of unsaveable memory.
+ *
+ * Register a range of page frames the contents of which should not be saved
+ * during hibernation (To be used in the running driver code,before start hibernation).
+ */
+int hibernate_register_nosave_region(unsigned long start_pfn, unsigned long end_pfn)
+{
+	struct nosave_region *region;
+
+	if (start_pfn >= end_pfn)
+	{
+		pr_warn(": start_pfn should smaller than end_pfn\n", __func__);
+		return -1;
+	}
+	region = kmalloc(sizeof(struct nosave_region),
+				GFP_KERNEL);
+	if (!region)
+	{
+		pr_err("%s: Failed to allocate %zu bytes\n", __func__,
+		      sizeof(struct nosave_region));
+		return -1;
+	}
+	region->start_pfn = start_pfn;
+	region->end_pfn = end_pfn;
+	mutex_lock(&nosave_regions_list_lock);
+	list_add_tail(&region->list, &nosave_regions);
+	mutex_unlock(&nosave_regions_list_lock);
+ Report:
+	pr_info("Registered nosave memory: [mem %#010llx-%#010llx]\n",
+		(unsigned long long) start_pfn << PAGE_SHIFT,
+		((unsigned long long) end_pfn << PAGE_SHIFT) - 1);
+	return 0;
+}
+EXPORT_SYMBOL_GPL(hibernate_register_nosave_region);
+
+/**
+ * hibernate_remove_nosave_region - UnRegister a region of unsaveable memory.
+ *
+ * Remove page frames  of which regitstered as unsaveable memory berfore
+ *  (To be used in the running driver code,before start hibernation).
+ */
+int hibernate_remove_nosave_region(unsigned long start_pfn, unsigned long end_pfn)
+{
+	struct nosave_region *region, *tmp;
+	int found = 0;
+	mutex_lock(&nosave_regions_list_lock);
+	if (list_empty(&nosave_regions))
+	{
+		mutex_unlock(&nosave_regions_list_lock);
+		return 0;
+	}
+
+	list_for_each_entry_safe(region, tmp, &nosave_regions, list) {
+		if(!region) {
+			break;
+		}
+		/*need to remove all,so not break found first one*/
+		if((region->start_pfn == start_pfn) && (region->end_pfn == end_pfn)) {
+			list_del(&region->list);
+			kfree(region);
+			found++;
+			pr_info("Unregistered nosave memory: [mem %#010llx-%#010llx]\n",
+				(unsigned long long) start_pfn << PAGE_SHIFT,
+				((unsigned long long) end_pfn << PAGE_SHIFT) - 1);
+		}
+	}
+	mutex_unlock(&nosave_regions_list_lock);
+
+	if(!found) {
+		pr_warn("Not find  nosave memory: [mem %#010llx-%#010llx]\n",
+			(unsigned long long) start_pfn << PAGE_SHIFT,
+			((unsigned long long) end_pfn << PAGE_SHIFT) - 1);
+		return -1;
+	}
+	if(found > 1)
+		pr_warn("More than one region find in  nosave memory,actual find %d\n",found);
+	return 0;
+}
+EXPORT_SYMBOL_GPL(hibernate_remove_nosave_region);
 
 /*
  * Set bits in this map correspond to the page frames the contents of which
