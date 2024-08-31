@@ -902,6 +902,8 @@ static int mr75203_probe(struct platform_device *pdev)
 		return ret;
 	}
 
+	platform_set_drvdata(pdev, pvt);
+
 	pvt_chip_info.info = pvt_info;
 	hwmon_dev = devm_hwmon_device_register_with_info(dev, "pvt",
 							 pvt,
