@@ -915,6 +915,7 @@ static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
 	{
 		/* Anytime RX_OVER is set, Make sure to skip them.*/
 		regmap_write(dev->map, DW_IC_INTR_MASK, 0);
+		dev->status |= STATUS_READ_IN_PROGRESS;
 		goto tx_aborted;
 	}
 
