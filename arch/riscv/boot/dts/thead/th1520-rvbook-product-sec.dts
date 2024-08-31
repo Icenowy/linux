@@ -1,0 +1,17 @@
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (C) 2021 Alibaba Group Holding Limited.
+ */
+
+/dts-v1/;
+
+#include "th1520-rvbook-product.dts"
+
+
+&light_iopmp {
+        status = "disabled";
+};
+
+&eip_28 {
+        status = "disabled";
+};
