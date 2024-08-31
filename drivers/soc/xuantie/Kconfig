@@ -14,4 +14,11 @@ config TH1520_SYSTEM_MONITOR
 	help
 	 This driver supports system monitor feature in Th1520 FM platform
 
+config TH1520_REGDUMP
+	bool "XuanTie th1520 sysdump support"
+	depends on TH1520_AON
+	default y
+	help
+	 This driver supports sysdump feature in TH1520 FM platform
+
 endmenu

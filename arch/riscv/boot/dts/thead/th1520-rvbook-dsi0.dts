@@ -14,25 +14,25 @@
 		reg = <0x0 0x200000 0x1 0xffe00000>;
 	};
 
-	vcc1v8_lontium: vcc1v8-lontium {
+	reg_vcc1v8_lontium: regulator-vcc1v8-lontium {
 		compatible = "regulator-fixed";
 		enable-active-high;
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
-		gpio = <&gpio3_porta 17 GPIO_ACTIVE_HIGH>;
+		gpio = <&gpio3 17 GPIO_ACTIVE_HIGH>;
 		pinctrl-names = "default";
-		pinctrl-0 = <&vcc1v8_lontium_pwren>;
+		pinctrl-0 = <&lontium_pwren_pins>;
 		regulator-name = "vcc1v8-lontium";
 	};
 
-	vcc3v3_edp: vcc3v3-edp {
+	reg_vcc3v3_edp: regulator-vcc3v3-edp {
 		compatible = "regulator-fixed";
 		enable-active-high;
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
-		gpio = <&gpio2_porta 18 GPIO_ACTIVE_HIGH>;
+		gpio = <&gpio2 18 GPIO_ACTIVE_HIGH>;
 		pinctrl-names = "default";
-		pinctrl-0 = <&vcc3v3_edp_pwren>;
+		pinctrl-0 = <&edp_pwren_pins>;
 		regulator-name = "vcc3v3-edp";
 	};        
 };
@@ -46,7 +46,7 @@
 	clock-frequency = <400000>;
 	status = "okay";
 	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_i2c3>;
+	pinctrl-0 = <&i2c3_pins>;
 
 	lt8911i2c: lt8911i2c@29{
 		compatible = "i2c,lt8911";
@@ -62,17 +62,17 @@
 	panel0@0 {
 		compatible = "i2c_dsi,lt8911";
 		reg = <0>;
-		lt8911,backlight-gpio = <&gpio2_porta 20 GPIO_ACTIVE_HIGH>;
-		lt8911,irq-gpio = <&gpio3_porta 16 GPIO_ACTIVE_LOW>;
-		lt8911,reset-gpio = <&gpio3_porta 15 GPIO_ACTIVE_LOW>;
+		lt8911,backlight-gpio = <&gpio2 20 GPIO_ACTIVE_HIGH>;
+		lt8911,irq-gpio = <&gpio3 16 GPIO_ACTIVE_LOW>;
+		lt8911,reset-gpio = <&gpio3 15 GPIO_ACTIVE_LOW>;
 		lt8911,rst-delay-ms = <10>;
 		lt8911,edp-lane-cnt = <2>;
 		lt8911,mipi-lane-cnt = <4>;
 		lt8911,edp-depth = <8>; /* 6 or 8 */
 		pinctrl-names = "default";
-		pinctrl-0 = <&lt8911exb_gpios>;
-		hsvcc-supply = <&vcc1v8_lontium>;
-		vspn3v3-supply = <&vcc3v3_edp>;
+		pinctrl-0 = <&lt8911exb_pins>;
+		hsvcc-supply = <&reg_vcc1v8_lontium>;
+		vspn3v3-supply = <&reg_vcc3v3_edp>;
 
 		port {
 			panel0_in: endpoint {
@@ -82,42 +82,3 @@
 	};
 };
 
-&padctrl0_apsys { /* right-pinctrl */
-	light-evb-padctrl0 {
-		/*
-		 * Pin Configuration Node:
-		 * Format: <pin_id mux_node config>
-		 */
-		pinctrl_i2c3: i2c3grp {
-			thead,pins = <
-				FM_I2C3_SCL	LIGHT_PIN_FUNC_0	0x204
-				FM_I2C3_SDA	LIGHT_PIN_FUNC_0	0x204
-			>;
-		};
-
-		lt8911exb_gpios: lt8911exb-gpios {
-			thead,pins = <
-				FM_GPIO2_20	LIGHT_PIN_FUNC_0	0x208
-				FM_GMAC0_RXD1	LIGHT_PIN_FUNC_3	0x0
-				FM_GMAC0_RXD0	LIGHT_PIN_FUNC_3	0x208
-			>;
-		};
-
-		vcc1v8_lontium_pwren: vcc1v8-lontium-pwren {
-			thead,pins = <
-				FM_GMAC0_RXD2	LIGHT_PIN_FUNC_3	0x208
-			>;
-		};
-
-		vcc3v3_edp_pwren: vcc3v3-edp-pwren {
-			thead,pins = <
-				FM_GPIO2_18	LIGHT_PIN_FUNC_0	0x208
-			>;
-		};
-		dsi_reset_gpio: dsi-reset-gpio {
-			thead,pins = <
-				FM_GPIO2_22	LIGHT_PIN_FUNC_0	0x0
-			>;
-                };
-	};
-};

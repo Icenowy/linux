@@ -7,7 +7,7 @@
 
 #include "th1520-rvbook-dsi0.dts"
 
-&lightsound {
+&th1520_sound {
         status = "okay";
         simple-audio-card,dai-link@0 {          /* I2S - AUDIO SYS CODEC 8388*/
                 reg = <0>;
@@ -23,10 +23,10 @@
                 reg = <1>;
                 format = "i2s";
                 cpu {
-                        sound-dai = <&light_i2s 1>;
+                        sound-dai = <&ap_i2s 1>;
                 };
                 codec {
-                        sound-dai = <&dummy_codec>;
+                        sound-dai = <&hdmi_codec>;
                 };
         };
 };

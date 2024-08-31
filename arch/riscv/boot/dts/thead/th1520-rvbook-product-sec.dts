@@ -8,10 +8,6 @@
 #include "th1520-rvbook-product.dts"
 
 
-&light_iopmp {
-        status = "disabled";
-};
-
 &eip_28 {
         status = "disabled";
 };
