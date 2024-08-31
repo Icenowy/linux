@@ -922,6 +922,18 @@
 			slew-rate = <0>;
 		};
 	};
+
+	hdmi_tx_pins: hdmi-tx-0 {
+		hdmi-pins {
+			pins = "HDMI_SCL", "HDMI_SDA", "HDMI_CEC";
+			function = "hdmi";
+			bias-disable;
+			drive-strength = <3>;
+			input-enable;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+	};
 };
 
 &padctrl1_apsys {
@@ -1411,6 +1423,8 @@
 
 &hdmi_tx {
 	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&hdmi_tx_pins>;
 
 	port@0 {
 		/* input */
