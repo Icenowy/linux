@@ -1311,6 +1311,7 @@
 				reg = <0xff 0xe7040000 0x0 0x10000>;
 				interrupts = <68 IRQ_TYPE_LEVEL_HIGH>;
 				dr_mode = "host";
+				snps,dis_u2_susphy_quirk;
 				snps,usb3_lpm_capable;
 				status = "disabled";
 			};
