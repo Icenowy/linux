@@ -10,6 +10,7 @@
 #include <linux/tee_drv.h>
 #include <linux/types.h>
 #include "optee_private.h"
+#include <linux/freezer.h>
 
 #define MAX_ARG_PARAM_COUNT	6
 
@@ -39,6 +40,8 @@ struct optee_shm_arg_entry {
 	DECLARE_BITMAP(map, MAX_ARG_COUNT_PER_ENTRY);
 };
 
+struct kref sess_refcount = KREF_INIT(1);
+
 void optee_cq_wait_init(struct optee_call_queue *cq,
 			struct optee_call_waiter *w)
 {
@@ -67,7 +70,12 @@ void optee_cq_wait_init(struct optee_call_queue *cq,
 void optee_cq_wait_for_completion(struct optee_call_queue *cq,
 				  struct optee_call_waiter *w)
 {
-	wait_for_completion(&w->c);
+	/*
+	 * wait_for_completion but allow hibernation/suspend
+     * to freeze the waiting task
+	 */
+	while (wait_for_completion_interruptible(&w->c))
+		try_to_freeze();
 
 	mutex_lock(&cq->mutex);
 
@@ -339,6 +347,7 @@ int optee_open_session(struct tee_context *ctx,
 		mutex_lock(&ctxdata->mutex);
 		list_add(&sess->list_node, &ctxdata->sess_list);
 		mutex_unlock(&ctxdata->mutex);
+		kref_get(&sess_refcount);
 	} else {
 		kfree(sess);
 	}
@@ -359,7 +368,7 @@ out:
 
 	return rc;
 }
-
+extern void session_put(void);
 int optee_close_session_helper(struct tee_context *ctx, u32 session)
 {
 	struct optee *optee = tee_get_drvdata(ctx->teedev);
@@ -377,7 +386,7 @@ int optee_close_session_helper(struct tee_context *ctx, u32 session)
 	optee->ops->do_call_with_arg(ctx, shm, offs);
 
 	optee_free_msg_arg(ctx, entry, offs);
-
+	session_put();
 	return 0;
 }
 

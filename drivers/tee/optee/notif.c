@@ -11,6 +11,7 @@
 #include <linux/spinlock.h>
 #include <linux/tee_drv.h>
 #include "optee_private.h"
+#include <linux/freezer.h>
 
 struct notif_entry {
 	struct list_head link;
@@ -70,7 +71,8 @@ int optee_notif_wait(struct optee *optee, u_int key)
 	 * Unlock temporarily and wait for completion.
 	 */
 	spin_unlock_irqrestore(&optee->notif.lock, flags);
-	wait_for_completion(&entry->c);
+	while (wait_for_completion_interruptible(&entry->c))
+		try_to_freeze();
 	spin_lock_irqsave(&optee->notif.lock, flags);
 
 	list_del(&entry->link);
