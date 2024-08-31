@@ -1036,7 +1036,7 @@ int hibernate_register_nosave_region(unsigned long start_pfn, unsigned long end_
 
 	if (start_pfn >= end_pfn)
 	{
-		pr_warn(": start_pfn should smaller than end_pfn\n", __func__);
+		pr_warn("register nosave region : start_pfn should smaller than end_pfn\n");
 		return -1;
 	}
 	region = kmalloc(sizeof(struct nosave_region),
@@ -1052,7 +1052,7 @@ int hibernate_register_nosave_region(unsigned long start_pfn, unsigned long end_
 	mutex_lock(&nosave_regions_list_lock);
 	list_add_tail(&region->list, &nosave_regions);
 	mutex_unlock(&nosave_regions_list_lock);
- Report:
+
 	pr_info("Registered nosave memory: [mem %#010llx-%#010llx]\n",
 		(unsigned long long) start_pfn << PAGE_SHIFT,
 		((unsigned long long) end_pfn << PAGE_SHIFT) - 1);

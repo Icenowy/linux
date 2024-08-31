@@ -638,7 +638,6 @@ static int lzo_compress_threadfn(void *data)
 		                          d->wrk);
 		lzo_head = (struct hib_lzo_header *)d->cmp;
 		lzo_head->cmp_len	= d->cmp_len;
-		lzo_head->unc_crc32 = crc32_le(0,d->unc, d->unc_len);
 		atomic_set_release(&d->stop, 1);
 		wake_up(&d->done);
 	}
@@ -1089,7 +1088,7 @@ static int lzo_decompress_threadfn(void *data)
 		d->ret = lzo1x_decompress_safe(d->cmp + LZO_HEADER, d->cmp_len,
 		                               d->unc, &d->unc_len);
 
-		unc_crc32 = crc32_le(0,d->unc, d->unc_len);
+		unc_crc32 = crc32_le(0,d->cmp + LZO_HEADER, d->cmp_len);
 		if(unc_crc32 != get_header_crc32((struct hib_lzo_header *)&d->cmp) ) {
 			d->crc32_err++;
 		}
@@ -1131,7 +1130,6 @@ static int load_image_lzo(struct swap_map_handle *handle,
 	unsigned long read_pages = 0;
 	unsigned char **page = NULL;
 	struct dec_data *data = NULL;
-	volatile u32 crc32_result[LZO_THREADS];
 	int crc_err = 0;
 
 	hib_init_batch(&hb);
@@ -1254,6 +1252,7 @@ static int load_image_lzo(struct swap_map_handle *handle,
 			ret = hib_wait_io(&hb);
 			disk_total += ktime_sub(ktime_get(), disk_start);
 			disk_start = ktime_get();
+			pr_info(" asked %d wait disk io took %lldms\n",asked,ktime_to_ms(disk_total));
 			if (ret)
 				goto out_finish;
 			have += asked;
