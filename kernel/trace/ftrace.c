@@ -7235,12 +7235,26 @@ int __init __weak ftrace_dyn_arch_init(void)
 	return 0;
 }
 
+static bool noftrace_init = false;
+
+/* noftrace bootargs: for option not init ftrace*/
+static int __init noftrace_setup(char *str)
+{
+	noftrace_init = true;
+	return 1;
+}
+
+__setup("noftrace", noftrace_setup);
+
 void __init ftrace_init(void)
 {
 	extern unsigned long __start_mcount_loc[];
 	extern unsigned long __stop_mcount_loc[];
 	unsigned long count, flags;
 	int ret;
+
+	if(noftrace_init)
+		goto failed;
 
 	local_irq_save(flags);
 	ret = ftrace_dyn_arch_init();

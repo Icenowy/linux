@@ -198,6 +198,17 @@ static int boot_instance_index;
 static char boot_snapshot_info[COMMAND_LINE_SIZE] __initdata;
 static int boot_snapshot_index;
 
+static bool notrace_init;
+
+/* notrace bootargs: for option not init trace*/
+static int __init notrace_setup(char *str)
+{
+	notrace_init = 1;
+	return 1;
+}
+
+__setup("notrace", notrace_setup);
+
 static int __init set_cmdline_ftrace(char *str)
 {
 	strscpy(bootup_tracer_buf, str, MAX_TRACER_SIZE);
@@ -9964,6 +9975,8 @@ static __init int tracer_init_tracefs(void)
 {
 	int ret;
 
+	if(notrace_init)
+		return 0;
 	trace_access_lock_init();
 
 	ret = tracing_init_dentry();
