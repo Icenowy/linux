@@ -1053,7 +1053,7 @@ int hibernate_register_nosave_region(unsigned long start_pfn, unsigned long end_
 	list_add_tail(&region->list, &nosave_regions);
 	mutex_unlock(&nosave_regions_list_lock);
 
-	pr_info("Registered nosave memory: [mem %#010llx-%#010llx]\n",
+	pr_debug("Registered nosave memory: [mem %#010llx-%#010llx]\n",
 		(unsigned long long) start_pfn << PAGE_SHIFT,
 		((unsigned long long) end_pfn << PAGE_SHIFT) - 1);
 	return 0;
@@ -1086,7 +1086,7 @@ int hibernate_remove_nosave_region(unsigned long start_pfn, unsigned long end_pf
 			list_del(&region->list);
 			kfree(region);
 			found++;
-			pr_info("Unregistered nosave memory: [mem %#010llx-%#010llx]\n",
+			pr_debug("Unregistered nosave memory: [mem %#010llx-%#010llx]\n",
 				(unsigned long long) start_pfn << PAGE_SHIFT,
 				((unsigned long long) end_pfn << PAGE_SHIFT) - 1);
 		}
