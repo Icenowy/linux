@@ -646,6 +646,12 @@
 					      <&cpu3_intc 3>, <&cpu3_intc 7>;
 		};
 
+		aclint_sswi: aclint-sswi@ffdc00c000 {
+			compatible = "riscv,aclint-sswi";
+			reg = <0xff 0xdc00c000 0x0 0x00010000>;
+			interrupt-controller;
+		};
+
 		gmac0: ethernet@ffe7070000 {
 			compatible = "xuantie,th1520-dwmac";
 			reg = <0xff 0xe7070000 0x0 0x2000>;
