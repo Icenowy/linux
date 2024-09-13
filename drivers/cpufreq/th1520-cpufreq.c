@@ -83,19 +83,23 @@ static int _th1520_get_pllid(void)
 
 static int _th1520_switch_pllid(int pllid, int target_freq)
 {
+	int ret;
+
 	pr_debug("[%s] switch to pll[%d], freq[%u]\n", __func__, pllid, target_freq);
 	if (pllid == TH1520_CPU_PLL_IDX(1)) {
 		clk_prepare_enable(clks[TH1520_CPU_PLL1_FOUTPOSTDIV].clk);
 		clk_set_rate(clks[TH1520_CPU_PLL1_FOUTPOSTDIV].clk, target_freq * 1000);
-		clk_set_parent(clks[TH1520_C910_CCLK].clk, clks[TH1520_CPU_PLL1_FOUTPOSTDIV].clk);
+		ret = clk_set_parent(clks[TH1520_C910_CCLK].clk, clks[TH1520_CPU_PLL1_FOUTPOSTDIV].clk);
 		udelay(1);
-		clk_disable_unprepare(clks[TH1520_CPU_PLL0_FOUTPOSTDIV].clk);
+		if (ret)
+			clk_disable_unprepare(clks[TH1520_CPU_PLL0_FOUTPOSTDIV].clk);
 	} else {
 		clk_prepare_enable(clks[TH1520_CPU_PLL0_FOUTPOSTDIV].clk);
 		clk_set_rate(clks[TH1520_CPU_PLL0_FOUTPOSTDIV].clk, target_freq * 1000);
-		clk_set_parent(clks[TH1520_C910_CCLK].clk, clks[TH1520_C910_CCLK_I0].clk);
+		ret = clk_set_parent(clks[TH1520_C910_CCLK].clk, clks[TH1520_C910_CCLK_I0].clk);
 		udelay(1);
-		clk_disable_unprepare(clks[TH1520_CPU_PLL1_FOUTPOSTDIV].clk);
+		if (ret)
+			clk_disable_unprepare(clks[TH1520_CPU_PLL1_FOUTPOSTDIV].clk);
 	}
 
 	return 0;
