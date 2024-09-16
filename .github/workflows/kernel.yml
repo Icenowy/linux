@@ -1,0 +1,79 @@
+name: revyos-kernel-build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 2 * * *"
+
+env:
+  wget_alias: 'wget --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 0'
+  ARCH: riscv
+  board: th1520
+  KBUILD_BUILD_USER: builder
+  KBUILD_BUILD_HOST: revyos-riscv-builder
+  KDEB_COMPRESS: none
+  KDEB_CHANGELOG_DIST: unstable
+
+jobs:
+  kernel:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: native
+            cross: riscv64-linux-gnu-
+            machine: [ self-hosted, Linux, riscv64 ]
+            run_image: ghcr.io/revyos/revyos-kernel-builder:riscv64-2024.04.02
+
+    runs-on: ${{ matrix.machine }}
+    container:
+      image: ${{ matrix.run_image }}
+    env:
+      CROSS_COMPILE: ${{ matrix.cross }}
+
+    steps:
+      - name: Checkout kernel
+        uses: actions/checkout@v4
+        with:
+            path: 'kernel'
+
+      - name: Compile Kernel && Install
+        run: |
+              mkdir -p output
+              pushd kernel
+                make revyos_defconfig
+                export KDEB_PKGVERSION="$(make kernelversion)-$(date "+%Y.%m.%d.%H.%M")+$(git rev-parse --short HEAD)"
+                if [ `uname -m` = "riscv64" ]; then
+                  # FIXME: force use 64 thread
+                  make -j64 bindeb-pkg LOCALVERSION="-${board}"
+                  make -j64 dtbs
+                else
+                  make -j$(nproc) bindeb-pkg LOCALVERSION="-${board}"
+                  make -j$(nproc) dtbs
+                fi
+
+                # Copy deb
+                sudo dcmd cp -v ../*.changes ${GITHUB_WORKSPACE}/output
+
+                # record commit-id
+                git rev-parse HEAD > kernel-commitid
+                sudo cp -v kernel-commitid ${GITHUB_WORKSPACE}/output
+
+                # Build & Install perf
+                # pushd tools/perf
+                #   make LDFLAGS=-static NO_LIBELF=1 NO_LIBTRACEEVENT=1 perf
+                #   cp -v perf ${GITHUB_WORKSPACE}/output/perf-th1520
+                # popd
+              popd
+
+      - name: compress
+        run: tar -zcvf xuantie-mainline-kernel-${{ matrix.name }}.tar.gz output
+
+      - name: 'Upload Artifact'
+        uses: actions/upload-artifact@v4
+        with:
+          name: xuantie-mainline-kernel-${{ matrix.name }}.tar.gz
+          path: xuantie-mainline-kernel-${{ matrix.name }}.tar.gz
+          retention-days: 30
