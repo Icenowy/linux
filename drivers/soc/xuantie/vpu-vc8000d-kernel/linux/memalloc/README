@@ -1,0 +1,44 @@
+==============================================================================
+                            USAGE
+==============================================================================
+
+./memalloc_load.sh
+
+===============================================================================
+                            What is memalloc?
+===============================================================================
+
+memalloc is a test environment specific memory allocation kernel driver.
+It uses memory left outside linux memory management, divides it into chunks and
+gives base addresses to processes for these chunks(= a block of memory).
+
+It has been written for test memory purposes for a very specific test
+environment and nothing more.
+
+===============================================================================
+                    Loading the memalloc kernel driver
+===============================================================================
+
+1. compile the kernel driver in software/linux/memalloc
+> make
+
+2. For testing load kernel driver with:
+>./memalloc_load.sh
+
+...or if you want to specify the max size in MB of linear memory:
+>./memalloc_load.sh alloc_size=400
+
+...or if you want to specify the base address of linear memory:
+>./memalloc_load.sh alloc_base=0x42000000
+
+...or both:
+>./memalloc_load.sh alloc_base=0x42000000 alloc_size=400
+
+3. Debugging:
+the device node should show up in the the directory /dev
+The device should show up in the list /proc/devices
+> ls /dev
+> cat /proc/devices
+Kernel messages can be viewed with
+> dmesg
+More kernel debug prints can be enabled in the Makefile

@@ -1,0 +1,49 @@
+/* Copyright 2013 Google Inc. All Rights Reserved. */
+
+-- BUILD --
+
+You need a fully configured kernel source tree in order to build the
+driver. Please set the location of the kernel tree in the Makefile (KDIR).
+If you want some extra debug information in the kernel logs, you could
+define the HANTRODEC_DEBUG but please be aware that allot of things are traced
+with this option.
+Also you could set a particular device MAJOR in the 'hantrodec.c' if you don't want
+dynamic allocation.
+
+Just run in this dir:
+
+%make
+
+-- USAGE --
+
+The parameters that can be set when loading the driver are the HW IO base
+address and the assigned IRQ number.
+
+First of all the module has to be inserted into the kernel with:
+(you need a Linux shell cmd line)
+
+%insmod hantrodec.o base_port=<baseaddress> irq=<irq number> pcie=<pcie_enabled>
+
+Set the correct values for the HW IO base address and the IRQ number if
+the default values compiled into the module are not valid.
+
+E.g., to disable PCIE mode:
+
+%insmod hantrodec.o pcie=0 base_port=<baseaddress> irq=<irq number>
+
+E.g., to enable vcmd mode:
+
+%insmod hantrodec.o vcmd=1
+
+Second of all a char device file has to be created:
+
+%mknod /dev/hantrodec c <MAJOR> 0
+
+Replace MAJOR with the correct value (i.e. read /proc/devices to found out
+the exact values).
+
+Make sure that you have RW rights for the newly created dev file (use 'chmod').
+
+The 'driver_load' script is provided for preparing all the things necessary for
+the driver to be usable. The script is using 'awk' to retrieve the device's
+major from /proc/devices. Remember to set the driver parameters.

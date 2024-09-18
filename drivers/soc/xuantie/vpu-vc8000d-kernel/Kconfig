@@ -1,0 +1,3 @@
+config VIDEO_VC8000D
+    tristate "VC8000D support"
+    default m
