@@ -1,0 +1,7 @@
+-include device/thead/common/build/common.mk.def
+-include vendor/thead/build/make/common.mk.def
+
+
+BUILD_VENDOR_TEST = 1
+PLATFORM_VENDOR = 1
+

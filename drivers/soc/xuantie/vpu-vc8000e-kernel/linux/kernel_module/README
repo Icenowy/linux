@@ -1,0 +1,42 @@
+
+-- BUILD --
+
+You need a fully configured kernel source tree in order to build the
+driver. Please set the location of the kernel tree in the Makefile (KDIR).
+If you want some extra debug information in the kernel logs, you could
+define the HANTRO_DRIVER_DEBUG but please be aware that allot of things are traced
+with this option.
+Also you could set a particular device MAJOR in the 'vc8000_normal_driver.c' and 'vc8000_vcmd_driver.c' 
+if you don't want dynamic allocation.
+
+Just run in this dir:
+
+%make
+
+If you want to install the modules please check first the install destination
+in the Makefile (MDIR, DEST) and run:
+
+%make install
+
+-- USAGE --
+
+Run script driver_load.sh to do all the things described below.
+> sh driver_load.sh vcmd=0
+
+First of all the module has to be inserted into the kernel with:
+(you need a Linux shell cmd line)
+
+%insmod vc8000.ko vcmd_supported=1
+
+Second of all a char device file has to be created:
+
+%mknod /dev/vc8000 c $MAJOR 0
+
+Replace MAJOR = 254 with the correct value (i.e. read /proc/devices to find out
+the exact value).
+
+Make sure that you have RW rights for the newly created dev file (use 'chmod').
+
+The 'driver_load' script is provided for preparing all the things necessary for
+the driver to be usable. The script is using 'cat' to retrieve the device's
+major from /proc/devices. Remember to set the driver parameters.

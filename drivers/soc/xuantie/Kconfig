@@ -30,4 +30,5 @@ config TH1520_IOPMP
 source "drivers/soc/xuantie/nna/Kconfig"
 source "drivers/soc/xuantie/video_memory/Kconfig"
 source "drivers/soc/xuantie/vpu-vc8000d-kernel/Kconfig"
+source "drivers/soc/xuantie/vpu-vc8000e-kernel/Kconfig"
 endmenu
