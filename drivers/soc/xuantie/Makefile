@@ -6,3 +6,4 @@ obj-$(CONFIG_TH1520_IOPMP) += th1520-iopmp.o
 
 # npu-ax3386-gpl driver
 obj-y += nna/
+obj-$(CONFIG_VIDEO_MEMORY) += video_memory/driver/

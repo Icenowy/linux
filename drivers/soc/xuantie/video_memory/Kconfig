@@ -1,0 +1,3 @@
+config VIDEO_MEMORY
+    tristate "Video memory driver support"
+    default m
