@@ -1,0 +1,17 @@
+1. How to build
+
+make -C /lib/modules/$(uname -r)/build M=/path/to/dmabuf_exporter modules
+
+2. Carveout example
+
+sudo insmod dmabuf_exporter_carveout.ko carveout_base=0x38000000 carveout_size=0x8000000
+
+3. Coherent example
+
+sudo insmod dmabuf_exporter_coherent.ko
+
+3. Non-Coherent example
+
+sudo insmod dmabuf_exporter_noncoherent.ko cache_type=3
+
+cache_type: 1-cached, 2-uncached, 3-writecombine

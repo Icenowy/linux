@@ -1,0 +1,29 @@
+TO ADD to kernel source tree:
+$ cp -r . /my/path/to/kernel/drivers/directory/nna
+$ editor /my/path/to/kernel/drivers/directory/Makefile  # add reference to nna
+$ editor Kconfig                                        # add CONFIG_VHA etc
+
+TO BUILD a dummy driver:
+$ make KDIR=/path/to/linux/kernel CONFIG_VHA_DUMMY=y
+TO BUILD a QEMU PCI driver:
+$ make CONFIG_VHA_PCI=y
+
+TO INSTALL using system memory: 
+$ insmod img_mem/img_mem.ko
+$ insmod vha/vha.ko
+
+TO CREATE SOME CARVEOUT MEMORY:
+edit /etc/default/grub:
+     GRUB_CMDLINE_LINUX="mem=768m"
+# update-grub; reboot
+
+TO INSTALL using CARVEOUT:
+$ insmod img_mem/img_mem.ko
+$ insmod vha/vha.ko carveout_phys_start=$((768*1048576)) carveout_size=$((255*1048576))
+# (top 1MB of iomem is reserved!)
+
+TO ENABLE EXTRA DEBUG:
+$ echo module vha +p     | sudo tee /sys/kernel/debug/dynamic_debug/control
+$ echo module img_mem +p | sudo tee /sys/kernel/debug/dynamic_debug/control
+OR:
+$ echo "file */vha/* +p" | sudo tee /sys/kernel/debug/dynamic_debug/control

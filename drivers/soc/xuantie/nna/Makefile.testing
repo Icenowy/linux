@@ -1,0 +1,168 @@
+include Makefile
+
+# if building the kernel module in-tree, these config options
+# should be put into a Kconfig file.
+# if building out-of-tree, defining them here is as good as any.
+# CONFIG_VHA: build the VHA driver
+export CONFIG_VHA := m
+
+# hardware options:
+# CONFIG_VHA_DUMMY:        driver runs without hardware
+# CONFIG_VHA_DUMMY_HW_SIM: driver runs without hardware but simulates hw processing time
+# CONFIG_VHA_PCI:          driver runs with generic PCI hardware
+# CONFIG_VHA_EMU:          driver runs with hardware emulator using legacy ICE interface
+# CONFIG_VHA_FROST:        driver runs with hardware emulator using ICE2 interface
+# CONFIG_VHA_APOLLO:       driver runs with IMG Apollo fpga baseboard
+# CONFIG_VHA_ORION:        driver runs with IMG Orion/Sirius hardware
+# CONFIG_VHA_ODIN:         driver runs with IMG Sleipnir/Odin fpga baseboard
+# CONFIG_VHA_NEXEF:        driver runs with the 3NX-F base platform driver and Gyrus system configuration file
+# CONFIG_VHA_DT_EXAMPLE:   driver example using a device tree
+
+# CONFIG_VHA_SERIES :      either AX2 or AX3
+# CONFIG_HW_AX2:           driver runs AX2145 and AX2185 hardware
+# CONFIG_HW_AX3:           driver runs AX31xx/AX33xx/AX35xx hardware
+# CONFIG_HW_AX3_MC/CONFIG_HW_MULITCORE: driver runs AXAX3797 multicore hardware
+#
+# system configuration options
+# CONFIG_VHA_SYS_MIRAGE:   driver runs with Mirage system configuration file. It is set by default when CONFIG_HW_AX2 is set. 
+# CONFIG_VHA_SYS_AURA:     driver runs with Aura system configuration file. It is set by default when CONFIG_HW_AX3 is set. 
+# CONFIG_VHA_SYS_VAGUS:    driver runs with Vagus system configuration file. Applicable when CONFIG_HW_AX3 is set.
+# CONFIG_VHA_SYS_MAGNA:    driver runs with Magna system configuration file. It is set by default when CONFIG_HW_MULTICORE is set.
+
+# misc options:
+# CONFIG_TARGET_OSID:           driver is compiled for selected OS id. Default: 0 (OS0), Applicable for CONFIG_HW_AX3 only. 
+# CONFIG_VHA_MMU_MIRRORED_CTX:  driver is compiled with mirrored MMU page tables regarding MODEL & IO. Default: enabled, Applicable for CONFIG_HW_AX3 only. 
+# CONFIG_VHA_SCF:               driver is compiled with safety critical features. Default: enabled, Applicable for CONFIG_VHA_SYS_VAGUS & CONFIG_VHA_SYS_MAGNA.
+# CONFIG_VHA_NCORES:            driver is compiled for specified number of cores. Default: 6, Applicable for CONFIG_HW_MULITCORE.
+# CONFIG_VHA_ENHANCED_APM:      driver is compiled to support Enhanced Active Power Management. Default: enabled, Applicable for CONFIG_HW_MULITCORE.
+
+# Aliases
+CONFIG_VHA_APOLLO := $(CONFIG_VHA_FPGA)
+CONFIG_HW_AX3_MC  := $(CONFIG_HW_MULTICORE)
+
+subdir-ccflags-y += -Wall -g
+# this should not be needed, but on our fpga, ubuntu kernel 4.4.0-116 does not work without it
+subdir-ccflags-$(CONFIG_VHA_APOLLO) += -DRETPOLINE
+subdir-ccflags-$(CONFIG_VHA_ODIN) += -DRETPOLINE
+
+# fail if target not specified
+ifeq ($(CONFIG_VHA_PCI)$(CONFIG_VHA_EMU)$(CONFIG_VHA_FROST)$(CONFIG_VHA_APOLLO)$(CONFIG_VHA_DUMMY)$(CONFIG_VHA_DUMMY_HW_SIM)$(CONFIG_VHA_ORION)$(CONFIG_VHA_ODIN)$(CONFIG_VHA_DT_EXAMPLE)${CONFIG_VHA_NEXEF},)
+  $(error no VHA platform specified. Try CONFIG_VHA_DUMMY=y or CONFIG_VHA_APOLLO=y or CONFIG_VHA_ODIN=y or CONFIG_VHA_ORION=y etc)
+endif
+
+#------------------------------------
+# for internal use
+#------------------------------------
+export CONFIG_FUNCTONAL_TEST_CONTROL := y
+export CONFIG_FORCE_IOREG_DEBUG := y
+
+ifeq ($(KERNELRELEASE),)
+
+KDIR ?= /lib/modules/$(shell uname -r)/build
+PWD := $(shell pwd)
+
+# Hardware variant
+ifeq ($(CONFIG_HW_AX2)$(CONFIG_HW_AX3)$(CONFIG_HW_AX3_MC),)
+  $(info no HW variant specified. Defaulting to Mirage: CONFIG_HW_AX2=y. To build for Aura, please specify: CONFIG_HW_AX3=y, To build for Magna, please specify: CONFIG_HW_AX3_MC=y (or CONFIG_HW_MULTICORE=y))
+  export CONFIG_HW_AX2 := y
+endif
+
+ifeq ($(CONFIG_HW_AX2), y)
+  $(info Building Mirage target!)
+  
+  ifeq ($(CONFIG_VHA_SCF), y)
+    $(error Safety cirtical features not supported by Mirage!)
+  endif
+  
+  ifeq ($(CONFIG_VHA_LO_PRI_SUBSEGS), y)
+    $(error Low priority subsegments not supported by Mirage!)
+  endif
+  
+  export CONFIG_VHA_MMU_MIRRORED_CTX ?= n
+  
+  ifeq ($(CONFIG_VHA_MMU_MIRRORED_CTX),)
+    $(error Separate MMU contexts not supported by Mirage!)
+  endif
+endif
+
+ifeq ($(CONFIG_HW_AX3_MC), y)
+    ifeq ($(CONFIG_VHA_LO_PRI_SUBSEGS), y)
+      $(error Low priority subsegments not supported by Magna!)
+    endif
+
+    export CONFIG_HW_AX3 := y
+    export CONFIG_VHA_MMU_MIRRORED_CTX := y
+    export CONFIG_VHA_SYS_MAGNA := y
+    export CONFIG_VHA_NCORES ?= 6
+    export CONFIG_VHA_SCF ?= y
+    export CONFIG_VHA_ENHANCED_APM ?= y
+    
+    $(info Building Magna target for $(CONFIG_VHA_NCORES) core(s)!)
+
+    # Safety critical features
+    ifeq ($(CONFIG_VHA_SCF), y)
+      $(info Building with Magna safety cirtical features !)
+    endif
+    
+    # Selective APM
+    ifeq ($(CONFIG_VHA_ENHANCED_APM), y)
+      $(info Building with Enhanced APM feature !)
+    endif
+endif
+
+ifeq ($(CONFIG_HW_AX3), y) 
+  ifeq ($(CONFIG_HW_AX3_MC),)
+    # Default OS target = 0
+    export CONFIG_TARGET_OSID ?= 0
+    export CONFIG_VHA_MMU_MIRRORED_CTX ?= y
+
+    $(info Building Aura/Vagus target for OS$(CONFIG_TARGET_OSID) !)
+
+    ifeq ($(CONFIG_VHA_MMU_MIRRORED_CTX),y)
+      $(info Building target with mirrored mmu contexts!)
+    else  
+      $(info Building target with separate mmu contexts!)
+    endif
+
+    # System config
+    ifeq ($(CONFIG_VHA_SYS_AURA)$(CONFIG_VHA_SYS_VAGUS),)
+      $(info no system config specified. Defaulting to Aura: CONFIG_VHA_SYS_AURA=y. To build for Vagus, please specify: CONFIG_VHA_SYS_VAGUS=y)
+      export CONFIG_VHA_SYS_AURA := y
+    endif
+
+    ifeq ($(CONFIG_VHA_LO_PRI_SUBSEGS), y)
+      $(info Building with Low priority subsegments QoS feature !)
+    endif
+    
+    ifeq ($(CONFIG_VHA_SYS_VAGUS),)
+      ifeq ($(CONFIG_VHA_SCF), y)
+        # No safety critical features
+        $(error Safety cirtical features not supported by Aura!)
+      endif   
+    else
+      export CONFIG_VHA_SCF ?= y
+      # Safety critical features
+      ifeq ($(CONFIG_VHA_SCF), y)
+        $(info Building with Vagus safety cirtical features !)
+      endif
+    endif
+  endif  
+endif
+
+# kernel warning levels: as high as possible:
+# W=12 and W=123 seem to warn about linux kernel headers, so use W=1.
+KWARN := W=1
+
+ifneq (,$(shell which sparse))
+# C=1: use 'sparse' for extra warnings, if it is avail.
+SPARSE := C=1
+endif
+
+modules:
+	$(MAKE) -C $(KDIR) M=$(PWD) $(SPARSE) $(KWARN) EXTRA_CFLAGS="$(EXTRA_CFLAGS)"
+clean:
+	$(MAKE) -C $(KDIR) M=$(PWD) clean
+check:
+	cd $(KDIR); scripts/checkpatch.pl -f `find $(PWD)/vha $(PWD)/include $(PWD)/img_mem -name "*\.[ch]"`
+
+endif # KERNELRELEASE
