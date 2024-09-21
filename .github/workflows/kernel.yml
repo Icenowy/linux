@@ -45,14 +45,8 @@ jobs:
               pushd kernel
                 make revyos_defconfig
                 export KDEB_PKGVERSION="$(make kernelversion)-$(date "+%Y.%m.%d.%H.%M")+$(git rev-parse --short HEAD)"
-                if [ `uname -m` = "riscv64" ]; then
-                  # FIXME: force use 64 thread
-                  make -j64 bindeb-pkg LOCALVERSION="-${board}"
-                  make -j64 dtbs
-                else
-                  make -j$(nproc) bindeb-pkg LOCALVERSION="-${board}"
-                  make -j$(nproc) dtbs
-                fi
+                make -j$(nproc) bindeb-pkg LOCALVERSION="-${board}"
+                make -j$(nproc) dtbs
 
                 # Copy deb
                 sudo dcmd cp -v ../*.changes ${GITHUB_WORKSPACE}/output
