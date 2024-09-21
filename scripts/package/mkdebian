@@ -220,6 +220,7 @@ Homepage: https://www.kernel.org/
 
 Package: $packagename-$version
 Architecture: $debarch
+Provides: wireguard-modules (= 1.0.0)
 Description: Linux kernel, version $version
  This package contains the Linux kernel, modules and corresponding other
  files, version: $version.
