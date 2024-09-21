@@ -259,7 +259,7 @@ static const struct of_device_id pvr_of_ids[] = {
 };
 
 #if !defined(CHROMIUMOS_KERNEL) || !defined(MODULE)
-//MODULE_DEVICE_TABLE(of, pvr_of_ids);
+MODULE_DEVICE_TABLE(of, pvr_of_ids);
 #endif
 #endif
 
@@ -271,7 +271,7 @@ static struct platform_device_id pvr_platform_ids[] = {
 };
 
 #if !defined(CHROMIUMOS_KERNEL) || !defined(MODULE)
-//MODULE_DEVICE_TABLE(platform, pvr_platform_ids);
+MODULE_DEVICE_TABLE(platform, pvr_platform_ids);
 #endif
 
 static struct platform_driver pvr_platform_driver = {
