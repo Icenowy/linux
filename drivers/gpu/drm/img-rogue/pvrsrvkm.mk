@@ -131,7 +131,6 @@ pvrsrvkm-y += \
  uniq_key_splay_tree.o \
  rgx_hwperf_table.o \
  interrupt_support.o \
- pci_support.o \
  sysconfig_cmn.o \
  dma_support.o \
  vmm_type_stub.o \
@@ -141,6 +140,9 @@ pvrsrvkm-$(CONFIG_DRM_POWERVR_ROGUE_DEBUG) += \
  client_ri_direct_bridge.o \
  server_ri_bridge.o \
  ri_server.o
+
+pvrsrvkm-$(CONFIG_PCI) += pci_support.o
+
 pvrsrvkm-$(CONFIG_ARM)   += osfunc_arm.o
 pvrsrvkm-$(CONFIG_ARM64) += osfunc_arm64.o
 pvrsrvkm-$(CONFIG_EVENT_TRACING) += trace_events.o
