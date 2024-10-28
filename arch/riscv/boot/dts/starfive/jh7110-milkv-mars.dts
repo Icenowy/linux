@@ -35,3 +35,8 @@
 	rx-internal-delay-ps = <1500>;
 	tx-internal-delay-ps = <1500>;
 };
+
+&usb0 {
+	dr_mode = "peripheral";
+	status = "okay";
+};

@@ -62,3 +62,8 @@
 	motorcomm,tx-clk-10-inverted;
 	motorcomm,tx-clk-100-inverted;
 };
+
+&usb0 {
+	dr_mode = "peripheral";
+	status = "okay";
+};
