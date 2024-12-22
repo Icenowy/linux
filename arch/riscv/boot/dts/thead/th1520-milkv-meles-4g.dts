@@ -1,0 +1,16 @@
+/* SPDX-License-Identifier: (GPL-2.0 OR MIT) */
+/*
+ * Copyright (C) 2024 Alibaba Group Holding Limited.
+ */
+
+#include "th1520-milkv-meles.dts"
+
+/ {
+	model = "Milk-V Meles 4G";
+	compatible = "milkv,meles", "thead,th1520";
+
+	memory@0 {
+		device_type = "memory";
+		reg = <0x0 0x200000 0x0 0xffe00000>;
+	};
+};

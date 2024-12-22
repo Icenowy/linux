@@ -6,4 +6,4 @@ dtb-$(CONFIG_ARCH_XUANTIE) += th1520-a-val.dtb th1520-a-val-sec.dtb
 dtb-$(CONFIG_ARCH_XUANTIE) += th1520-a-val-audio.dtb th1520-a-val-audio-i2s-8ch.dtb th1520-a-val-audio-tdm.dtb th1520-a-val-audio-spdif.dtb th1520-a-val-crash.dtb
 dtb-$(CONFIG_ARCH_XUANTIE) += th1520-a-val-dsi0-dsi1.dtb th1520-a-val-dsi0-hdmi.dtb
 dtb-$(CONFIG_ARCH_XUANTIE) += th1520-rvbook-product.dtb th1520-rvbook-product-sec.dtb
-dtb-$(CONFIG_ARCH_XUANTIE) += th1520-milkv-meles.dtb
+dtb-$(CONFIG_ARCH_XUANTIE) += th1520-milkv-meles.dtb th1520-milkv-meles-4g.dtb th1520-milkv-meles-16g.dtb

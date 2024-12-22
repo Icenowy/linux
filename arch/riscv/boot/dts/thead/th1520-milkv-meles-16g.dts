@@ -1,0 +1,17 @@
+/* SPDX-License-Identifier: (GPL-2.0 OR MIT) */
+/*
+ * Copyright (C) 2024 Alibaba Group Holding Limited.
+ */
+
+#include "th1520-milkv-meles.dts"
+
+/ {
+	memory@0 {
+		device_type = "memory";
+		reg = <0x0 0x200000 0x3 0xffe00000>;
+	};
+};
+
+&cmamem {
+	alloc-ranges = <0x3 0xe4000000 0 0x14000000>; // [0x3E400_0000 ~ 0x3F800_0000]
+};
