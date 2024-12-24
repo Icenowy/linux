@@ -165,13 +165,13 @@
 			is_default_region;
 		};
 
-		iopmp_audio0: IOPMP_AUDIO0 {
-			is_default_region;
-		};
+		// iopmp_audio0: IOPMP_AUDIO0 {
+		// 	is_default_region;
+		// };
 
-		iopmp_audio1: IOPMP_AUDIO1 {
-			is_default_region;
-		};
+		// iopmp_audio1: IOPMP_AUDIO1 {
+		// 	is_default_region;
+		// };
 	};
 
 	// mbox_910t_client1: mbox_910t_client1 {
@@ -199,10 +199,10 @@
 			reg = <0>;
 			format = "i2s";
 			cpu {
-				sound-dai = <&ap_i2s 0>;
+				sound-dai = <&ap_i2s 1>;
 			};
 			codec {
-				sound-dai = <&es8156_audio_codec>;
+				sound-dai = <&hdmi_codec>;
 			};
 		};
 
@@ -210,10 +210,10 @@
 			reg = <1>;
 			format = "i2s";
 			cpu {
-				sound-dai = <&i2s1 1>;
+				sound-dai = <&i2s1 0>;
 			};
 			codec {
-				sound-dai = <&hdmi_codec>;
+				sound-dai = <&es8156_audio_codec>;
 			};
 		};
 	};
@@ -320,7 +320,7 @@
         reset-gpios = <&gpio0 20 GPIO_ACTIVE_LOW>;
 		pinctrl-names = "default";
 		// pinctrl-0 = <&pinctrl_wireless_power>;  /* WL_HOST_WAKE_DEV*/
-        pinctrl-0 = <&pinctrl_wifi_wake>;
+        // pinctrl-0 = <&pinctrl_wifi_wake>;
 	};
 
 	board_antenna: board-antenna { // TODO: GPIO define
@@ -820,6 +820,14 @@
 	status = "okay";
 };
 
+&dmac0 {
+	status = "okay";
+};
+
+&dmac2 {
+	status = "okay";
+};
+
 &adc {
 	vref-supply = <&reg_vref_1v8>;
 	#io-channel-cells = <1>;
@@ -830,11 +838,8 @@
 	clock-frequency = <100000>;
 	status = "okay";
 	pinctrl-names = "default";
-	// pinctrl-0 = <&pinctrl_audiopa6>,
-	// 		<&pinctrl_audiopa7>,
-	// 		<&pinctrl_audio_i2c0>;
-    pinctrl-0 = <&aud_i2c0_pa_pins>,
-        <&aud_i2c0_pins>;
+	pinctrl-0 = <&aud_i2c0_pa_pins>,
+				<&aud_i2c0_pins>;
 
 	es8156_audio_codec: es8156@9 {
 		#sound-dai-cells = <0>;
@@ -872,6 +877,18 @@
 	pinctrl-0 = <&uart4_pins>;
 	status = "okay";
 };
+
+&usb {
+	status = "okay";
+};
+
+&usb_dwc3 {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+};
+
+// TODO: Add spi node (conected to 40-Pin header)
 
 &qspi0 {
 	status = "okay";
@@ -974,9 +991,9 @@
 		reg = <1>;
 	};
 
-	phy1: ethernet-phy@2 {
-		reg = <2>;
-	};
+	// phy1: ethernet-phy@2 {
+	// 	reg = <2>;
+	// };
 };
 
 &padctrl0_apsys {
@@ -1876,7 +1893,7 @@
 	i2c-sda-hold-time-ns = <300>;
 	i2c-sda-falling-time-ns = <510>;
 	i2c-scl-falling-time-ns = <510>;
-	status = "disabled";
+	status = "okay";
 };
 
 &i2c2 {
@@ -2024,9 +2041,9 @@
 	status = "okay";
 };
 
-&i2s0 {
-	status = "okay";
-};
+// &i2s0 { /* connected to nothing... */
+// 	status = "okay";
+// };
 
 &i2s1 {
 	status = "okay";
@@ -2283,4 +2300,73 @@
 
 &uart_sclk {
 	clock-frequency = <100000000>;
+};
+
+&gmac_clk {
+	clock-frequency = <500000000>;
+};
+
+&gmac_axi_clk {
+	clock-frequency = <100000000>;
+};
+
+&isp0 {
+	status = "okay";
+};
+
+&isp1 {
+	status = "okay";
+};
+
+&isp_ry0 {
+	status = "okay";
+};
+
+&dewarp {
+	status = "okay";
+};
+
+&dec400_isp0 {
+	status = "okay";
+};
+
+&dec400_isp1 {
+	status = "okay";
+};
+
+&dec400_isp2 {
+	status = "okay";
+};
+
+&bm_visys {
+	status = "okay";
+};
+
+&bm_csi0 {
+	status = "okay";
+};
+
+&bm_csi1 {
+	status = "okay";
+};
+
+&bm_csi2 {
+	status = "okay";
+};
+
+&vi_pre {
+	status = "okay";
+};
+&xtensa_dsp {
+	status = "okay";
+};
+
+&xtensa_dsp0 {
+	status = "okay";
+	memory-region = <&dsp0_mem>;
+};
+
+&xtensa_dsp1 {
+	status = "okay";
+	memory-region = <&dsp1_mem>;
 };
