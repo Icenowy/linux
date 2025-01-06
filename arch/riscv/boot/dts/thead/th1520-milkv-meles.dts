@@ -876,6 +876,21 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart4_pins>;
 	status = "okay";
+    uart-has-rtscts;
+
+	bluetooth {
+		compatible = "brcm,bcm4345c5";
+		clocks = <&osc_32k>;
+		clock-names = "lpo";
+		// max-speed = <912600>;
+		device-wakeup-gpios = <&gpio2 29 GPIO_ACTIVE_HIGH>;
+		// host-wakeup-gpios = <&gpio2 28 GPIO_ACTIVE_HIGH>;
+		shutdown-gpios = <&gpio0 29 GPIO_ACTIVE_HIGH>;
+		// pinctrl-names = "default";
+		// pinctrl-0 = <&bt_host_wake_l &bt_wake_l &bt_enable_h>;
+		// pinctrl-names = "default";
+		// pinctrl-0 = <&pinctrl_bt_wake>;
+	};
 };
 
 &usb {
@@ -1475,6 +1490,16 @@
 			input-schmitt-enable;
 			slew-rate = <0>;
 		};
+
+		ctrl-pins {
+			pins = "UART4_CTSN", "UART4_RTSN";
+			function = "uart";
+			bias-disable;
+			drive-strength = <3>;
+			input-enable;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
 	};
 
 	// 	pinctrl_wireless_power: wireless-power-grp {
@@ -1503,7 +1528,7 @@
 
 	pinctrl_bt_wake: bt_grp {
 		bt-pins {
-			pins = "GPIO0_28";
+			pins = "GPIO2_29";
 			function = "gpio";
 			bias-disable;
 			drive-strength = <7>;
@@ -1944,41 +1969,48 @@
 
 &gpio0 {
 	gpio-line-names = "", "", "", "", "", "", "", "", "", "",
-			  "", "", "", "", "", "", "", "", "", "",
-			  "", "", "", "",
-			  "GPIO07",
-			  "GPIO08",
+			  "", "", "", "", "", "", "", "", "", "WL_HOST_WAKE_DEV",
+			  "WL_DEV_WAKE_HOST", "", "", "",
+			  "GPIO0_24",
+			  "GPIO0_25",
 			  "",
-			  "GPIO01",
-			  "GPIO02";
+			  "GPIO0_27",
+			  "GPIO0_28";
 };
 
 &gpio1 {
-	gpio-line-names = "", "", "",
-			  "GPIO11",
-			  "GPIO12",
-			  "GPIO13",
-			  "GPIO14",
-			  "", "", "", "", "", "", "", "", "", "",
-			  "", "", "", "", "",
-			  "GPIO06";
+	gpio-line-names = "GPIO1_0", "GPIO1_1", "GPIO1_2",
+			  "GPIO1_3",
+			  "GPIO1_4",
+			  "GPIO1_5",
+			  "GPIO1_6",
+			  "GPIO1_7", "GPIO1_8", "GPIO1_9", "GPIO1_10", "GPIO1_11", "GPIO1_12", "GPIO1_13", "GPIO1_14", "GPIO1_15", "GPIO1_16",
+			  "CLK_OUT_0", "CLK_OUT_1", "CLK_OUT_2", "CLK_OUT_3", "GPIO1_21",
+			  "GPIO1_22";
 };
 
 &gpio2 {
-	gpio-line-names = "GPIO03",
-			  "GPIO05";
+	gpio-line-names = "GPIO2_0", "GPIO2_1", "GPIO2_2", "GPIO2_3", "GPIO2_4", "GPIO2_5", "GPIO2_6", "GPIO2_7", "GPIO2_8", "GPIO2_9",
+			  "GPIO2_10", "GPIO2_11", "GPIO2_12", "GPIO2_13", "GPIO2_14", "GPIO2_15", "GPIO2_16", "GPIO2_17", "GPIO2_18", "GPIO2_19",
+			  "GPIO2_20", "GPIO2_21", "GPIO2_22", "GPIO2_23", "GPIO2_24", "GPIO2_25", "GPIO2_26", "SDIO0_DETN", "WL_DIS", "BT_DIS",
+			  "GPIO2_30", "GPIO2_31";
 };
 
 &gpio3 {
 	gpio-line-names = "", "",
-			  "GPIO09",
-			  "GPIO10";
+			  "GPIO3_2",
+			  "GPIO3_3";
+};
+
+&gpio4 {
+	gpio-line-names = "", "";
 };
 
 &aogpio {
-	gpio-line-names = "", "", "",
-			  "GPIO00",
-			  "GPIO04";
+	gpio-line-names = "I2C_AON_SCL", "I2C_AON_SDA", 
+			  "CPU_JTG_TCLK", "CPU_JTG_TMS", "CPU_JTG_TDI", "CPU_JTG_TDO", "CPU_JTG_TRST", 
+			  "AOGPIO_7", "AOGPIO_8", "AOGPIO_9", "AOGPIO_10",
+			  "AOGPIO_11", "AOGPIO_12", "AOGPIO_13", "AOGPIO_14", "AOGPIO_15";
 };
 
 &vidmem {
