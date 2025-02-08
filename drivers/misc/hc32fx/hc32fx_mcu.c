@@ -27,7 +27,6 @@ struct i2c_client *g_client;
 struct hc32fx {
 	int	gpio_int;
 	struct regmap *regmap;
-	struct device dev;
 	struct input_dev *input;
 };
 
@@ -192,7 +191,6 @@ static int hc32fx_probe(struct i2c_client *client)
 		return PTR_ERR(hc32fx->regmap);
 
 	i2c_set_clientdata(client, hc32fx);
-	hc32fx->dev = client->dev;
 	g_client = client;
 
 	hc32fx->input = devm_input_allocate_device(&client->dev);
@@ -224,7 +222,7 @@ static int hc32fx_probe(struct i2c_client *client)
 		return ret;
 	}
 
-	ret = sysfs_create_group(&hc32fx->dev.kobj, &debug_attr_group);
+	ret = sysfs_create_group(&client->dev.kobj, &debug_attr_group);
 	if(ret) {
 		dev_warn(&client->dev, "attr group create failed\n");
 	}
@@ -234,19 +232,22 @@ static int hc32fx_probe(struct i2c_client *client)
 		return client->irq;
 	}
 
-	ret = devm_request_threaded_irq(&hc32fx->dev, client->irq, NULL,
+	ret = devm_request_threaded_irq(&client->dev, client->irq, NULL,
 					hc32fx_irq_handler_thread,
 					IRQF_TRIGGER_FALLING | IRQF_ONESHOT, "hc32fx_irq",
 					hc32fx);
-	if (ret)
+	if (ret) {
+		dev_err(&client->dev, "request irq failed\n");
 		goto irq_fail;
+	}
 	enable_irq_wake(client->irq);
 
 	register_syscore_ops(&TH1520_syscore_ops);
 	DBG("%s %d end\n", __func__, __LINE__);
-
-irq_fail:
 	return 0;
+irq_fail:
+	sysfs_remove_group(&client->dev.kobj, &debug_attr_group);
+	return ret;
 }
 
 static struct of_device_id hc32fx_of_match[] = {
