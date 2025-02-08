@@ -1510,18 +1510,6 @@
 		};
 	};
 
-	ext_vcc5v_en_pins: ext-vcc5v-en-0 {
-		gpio-pins {
-			pins = "GPIO1_2";
-			function = "gpio";
-			bias-disable;
-			drive-strength = <13>;
-			input-enable;
-			input-schmitt-disable;
-			slew-rate = <0>;
-		};
-	};
-
 	typec0_host_en_pins: typec0-host-en-0 {
 		usb-pins {
 			pins = "GPIO1_6";
@@ -2047,8 +2035,7 @@
 &hdmi_tx {
 	status = "okay";
 	pinctrl-names = "default";
-	pinctrl-0 = <&hdmi_pins>,
-				<&ext_vcc5v_en_pins>;
+	pinctrl-0 = <&hdmi_pins>;
 
 	port@0 {
 		/* input */
