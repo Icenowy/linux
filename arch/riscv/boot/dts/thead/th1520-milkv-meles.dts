@@ -334,198 +334,6 @@
 		regulator-name = "board_antenna";
 	};
 
-	// aon: aon {
-	// 	compatible = "thead,light-aon";
-	// 	mbox-names = "aon";
-	// 	mboxes = <&mbox_910t 1 0>;
-	// 	log-memory-region = <&aon_log_mem>;
-	// 	status = "okay";
-
-	// 	pd: light-aon-pd {
-	// 		compatible = "thead,light-aon-pd";
-	// 		#power-domain-cells = <1>;
-	// 	};
-
-	// 	/* da9063 vbcore1 */
-	// 	dvdd_cpu_reg: appcpu_dvdd {
-	// 		compatible = "thead,light-dialog-pmic";
-	// 		regulator-name = "appcpu_dvdd";
-	// 		regulator-min-microvolt = <300000>;
-	// 		regulator-max-microvolt = <1570000>;
-	// 		regulator-type = "dvdd";
-	// 		regulator-boot-on;
-	// 		regulator-always-on;
-	// 	};
-
-	// 	/* da9063 vbcore */
-	// 	dvddm_cpu_reg: appcpu_dvddm {
-	// 		compatible = "thead,light-dialog-pmic";
-	// 		regulator-name = "appcpu_dvddm";
-	// 		regulator-min-microvolt = <300000>;
-	// 		regulator-max-microvolt = <1570000>;
-	// 		regulator-type = "dvddm";
-	// 		regulator-dual-rail;
-	// 		regulator-boot-on;
-	// 		regulator-always-on;
-	// 	};
-
-	// 	/* da9063 vldo3 */
-	// 	soc_dvdd18_aon_reg: soc_dvdd18_aon {
-	// 		compatible = "thead,light-dialog-pmic";
-	// 		regulator-name = "soc_dvdd18_aon";
-	// 		regulator-type = "common";
-	// 		regulator-boot-on;
-	// 		regulator-always-on;
-	// 	};
-
-	// 	/* da9063 vldo9 */
-	// 	soc_avdd33_usb3_reg: soc_avdd33_usb3 {
-	// 		compatible = "thead,light-dialog-pmic";
-	// 		regulator-name = "soc_avdd33_usb3";
-	// 		regulator-type = "common";
-	// 		regulator-boot-on;
-	// 		regulator-always-on;
-	// 	};
-
-	// 	/* da9063 vldo2 */
-	// 	soc_dvdd08_aon_reg: soc_dvdd08_aon {
-	// 		compatible = "thead,light-dialog-pmic";
-	// 		regulator-name = "soc_dvdd08_aon";
-	// 		regulator-type = "common";
-	// 		regulator-boot-on;
-	// 		regulator-always-on;
-	// 	};
-
-	// 	/* da9063 buckperi */
-	// 	soc_dvdd08_ddr_reg: soc_dvdd08_ddr {
-	// 		compatible = "thead,light-dialog-pmic";
-	// 		regulator-name = "soc_dvdd08_ddr";
-	// 		regulator-type = "common";
-	// 		regulator-boot-on;
-	// 		regulator-always-on;
-	// 	};
-
-	// 	/* da9063 vldo4 */
-	// 	soc_vdd_ddr_1v8_reg: soc_vdd_ddr_1v8 {
-	// 		compatible = "thead,light-dialog-pmic";
-	// 		regulator-name = "soc_vdd_ddr_1v8";
-	// 		regulator-type = "common";
-	// 		regulator-boot-on;
-	// 		regulator-always-on;
-	// 	};
-
-	// 	/* da9063 buckmem & buckio */
-	// 	soc_vdd_ddr_1v1_reg: soc_vdd_ddr_1v1 {
-	// 		compatible = "thead,light-dialog-pmic";
-	// 		regulator-name = "soc_vdd_ddr_1v1";
-	// 		regulator-type = "common";
-	// 		regulator-boot-on;
-	// 		regulator-always-on;
-	// 	};
-
-	// 	/* da9063 buckpro */
-	// 	soc_vdd_ddr_0v6_reg: soc_vdd_ddr_0v6 {
-	// 		compatible = "thead,light-dialog-pmic";
-	// 		regulator-name = "soc_vdd_ddr_0v6";
-	// 		regulator-type = "common";
-	// 		regulator-boot-on;
-	// 		regulator-always-on;
-	// 	};
-
-	// 	/* da9063 vldo11 */
-	// 	soc_dvdd18_ap_reg: soc_dvdd18_ap {
-	// 		compatible = "thead,light-dialog-pmic";
-	// 		regulator-name = "soc_dvdd18_ap";
-	// 		regulator-type = "common";
-	// 		regulator-boot-on;
-	// 		regulator-always-on;
-	// 	};
-
-	// 	/* da9121 ex */
-	// 	soc_dvdd08_ap_reg: soc_dvdd08_ap {
-	// 		compatible = "thead,light-dialog-pmic";
-	// 		regulator-name = "soc_dvdd08_ap";
-	// 		regulator-type = "common";
-	// 		regulator-boot-on;
-	// 		regulator-always-on;
-	// 	};
-
-	// 	/* da9063 vldo1 */
-	// 	soc_avdd08_mipi_hdmi_reg: soc_avdd08_mipi_hdmi {
-	// 		compatible = "thead,light-dialog-pmic";
-	// 		regulator-name = "soc_avdd08_mipi_hdmi";
-	// 		regulator-type = "common";
-	// 		regulator-boot-on;
-	// 		regulator-always-on;
-	// 	};
-
-	// 	/* da9063 vldo5 */
-	// 	soc_avdd18_mipi_hdmi_reg: soc_avdd18_mipi_hdmi {
-	// 		compatible = "thead,light-dialog-pmic";
-	// 		regulator-name = "soc_avdd18_mipi_hdmi";
-	// 		regulator-type = "common";
-	// 		regulator-boot-on;
-	// 		regulator-always-on;
-	// 	};
-
-	// 	/* da9063 vldo10 */
-	// 	soc_vdd33_emmc_reg: soc_vdd33_emmc {
-	// 		compatible = "thead,light-dialog-pmic";
-	// 		regulator-name = "soc_dvdd33_emmc";
-	// 		regulator-type = "common";
-	// 		regulator-boot-on;
-	// 		regulator-always-on;
-	// 	};
-
-	// 	soc_vdd18_emmc_reg: soc_vdd18_emmc {
-	// 		compatible = "thead,light-dialog-pmic";
-	// 		regulator-name = "soc_dvdd18_emmc";
-	// 		regulator-type = "gpio";
-	// 		regulator-boot-on;
-	// 		regulator-always-on;
-	// 	};
-
-	// 	/* da9063 vldo6 */
-	// 	soc_dovdd18_scan_reg: soc_dovdd18_scan {
-	// 		compatible = "thead,light-dialog-pmic";
-	// 		regulator-name = "soc_dovdd18_scan";
-	// 		regulator-type = "common";
-	// 		regulator-min-microvolt = <1800000>;
-	// 		regulator-max-microvolt = <1800000>;
-	// 		regulator-boot-on;
-	// 		regulator-always-on;
-	// 	};
-
-	// 	/* da9063 vldo8 */
-	// 	soc_dvdd12_scan_reg: soc_dvdd12_scan {
-	// 		compatible = "thead,light-dialog-pmic";
-	// 		regulator-name = "soc_dvdd12_scan";
-	// 		regulator-type = "common";
-	// 		regulator-min-microvolt = <900000>;
-	// 		regulator-max-microvolt = <3600000>;
-	// 		status = "disabled";
-	// 	};
-
-	// 	/* da9063 gpio4 */
-	// 	soc_avdd28_scan_en_reg: soc_avdd28_scan_en {
-	// 		compatible = "thead,light-dialog-pmic";
-	// 		regulator-name = "soc_avdd28_scan_en";
-	// 		regulator-type = "common";
-	// 		regulator-min-microvolt = <900000>;
-	// 		regulator-max-microvolt = <3600000>;
-	// 		status = "disabled";
-	// 	};
-
-	// 	c910_cpufreq {
-	// 		compatible = "thead,light-mpw-cpufreq";
-	// 		status = "okay";
-	// 	};
-
-	// 	test: light-aon-test {
-	// 		compatible = "thead,light-aon-test";
-	// 	};
-	// };
-
 	thermal-zones {
 		cpu-thermal-zone {
 			sustainable-power = <1600>;
@@ -583,175 +391,6 @@
 
     //     // camera node here
     // };
-};
-
-&aon {
-    log-memory-region = <&aon_log_mem>;
-	status = "okay";
-
-	pd: th1520-aon-pd {
-		compatible = "xuantie,th1520-aon-pd";
-		#power-domain-cells = <1>;
-	};
-	cpufreq: c910_cpufreq {
-		compatible = "xuantie,th1520-cpufreq";
-		status = "okay";
-	};
-	/* da9063 vbcore1 */
-	dvdd_cpu_reg: appcpu_dvdd {
-		compatible = "thead,th1520-aon-pmic";
-		regulator-name = "appcpu_dvdd";
-		regulator-min-microvolt = <300000>;
-		regulator-max-microvolt = <1570000>;
-		regulator-type = "dvdd";
-		regulator-boot-on;
-		regulator-always-on;
-	};
-	/* da9063 vbcore */
-	dvddm_cpu_reg: appcpu_dvddm {
-		compatible = "thead,th1520-aon-pmic";
-		regulator-name = "appcpu_dvddm";
-		regulator-min-microvolt = <300000>;
-		regulator-max-microvolt = <1570000>;
-		regulator-type = "dvddm";
-		regulator-dual-rail;
-		regulator-boot-on;
-		regulator-always-on;
-	};
-	/* da9063 vldo3 */
-	soc_dvdd18_aon_reg: soc_dvdd18_aon {
-		compatible = "thead,th1520-aon-pmic";
-		regulator-name = "soc_dvdd18_aon";
-		regulator-type = "common";
-		regulator-boot-on;
-		regulator-always-on;
-	};
-	/* da9063 vldo9 */
-	soc_avdd33_usb3_reg: soc_avdd33_usb3 {
-		compatible = "thead,th1520-aon-pmic";
-		regulator-name = "soc_avdd33_usb3";
-		regulator-type = "common";
-		regulator-boot-on;
-		regulator-always-on;
-	};
-	/* da9063 vldo2 */
-	soc_dvdd08_aon_reg: soc_dvdd08_aon {
-		compatible = "thead,th1520-aon-pmic";
-		regulator-name = "soc_dvdd08_aon";
-		regulator-type = "common";
-		regulator-boot-on;
-		regulator-always-on;
-	};
-	/* da9063 buckperi */
-	soc_dvdd08_ddr_reg: soc_dvdd08_ddr {
-		compatible = "thead,th1520-aon-pmic";
-		regulator-name = "soc_dvdd08_ddr";
-		regulator-type = "common";
-		regulator-boot-on;
-		regulator-always-on;
-	};
-	/* da9063 vldo4 */
-	soc_vdd_ddr_1v8_reg: soc_vdd_ddr_1v8 {
-		compatible = "thead,th1520-aon-pmic";
-		regulator-name = "soc_vdd_ddr_1v8";
-		regulator-type = "common";
-		regulator-boot-on;
-		regulator-always-on;
-	};
-	/* da9063 buckmem & buckio */
-	soc_vdd_ddr_1v1_reg: soc_vdd_ddr_1v1 {
-		compatible = "thead,th1520-aon-pmic";
-		regulator-name = "soc_vdd_ddr_1v1";
-		regulator-type = "common";
-		regulator-boot-on;
-		regulator-always-on;
-	};
-	/* da9063 buckpro */
-	soc_vdd_ddr_0v6_reg: soc_vdd_ddr_0v6 {
-		compatible = "thead,th1520-aon-pmic";
-		regulator-name = "soc_vdd_ddr_0v6";
-		regulator-type = "common";
-		regulator-boot-on;
-		regulator-always-on;
-	};
-	/* da9063 vldo11 */
-	soc_dvdd18_ap_reg: soc_dvdd18_ap {
-		compatible = "thead,th1520-aon-pmic";
-		regulator-name = "soc_dvdd18_ap";
-		regulator-type = "common";
-		regulator-boot-on;
-		regulator-always-on;
-	};
-	/* da9121 ex */
-	soc_dvdd08_ap_reg: soc_dvdd08_ap {
-		compatible = "thead,th1520-aon-pmic";
-		regulator-name = "soc_dvdd08_ap";
-		regulator-type = "common";
-		regulator-boot-on;
-		regulator-always-on;
-	};
-	/* da9063 vldo1 */
-	soc_avdd08_mipi_hdmi_reg: soc_avdd08_mipi_hdmi {
-		compatible = "thead,th1520-aon-pmic";
-		regulator-name = "soc_avdd08_mipi_hdmi";
-		regulator-type = "common";
-		regulator-boot-on;
-		regulator-always-on;
-	};
-	/* da9063 vldo5 */
-	soc_avdd18_mipi_hdmi_reg: soc_avdd18_mipi_hdmi {
-		compatible = "thead,th1520-aon-pmic";
-		regulator-name = "soc_avdd18_mipi_hdmi";
-		regulator-type = "common";
-		regulator-boot-on;
-		regulator-always-on;
-	};
-	/* da9063 vldo10 */
-	soc_vdd33_emmc_reg: soc_vdd33_emmc {
-		compatible = "thead,th1520-aon-pmic";
-		regulator-name = "soc_dvdd33_emmc";
-		regulator-type = "common";
-		regulator-boot-on;
-		regulator-always-on;
-	};
-	soc_vdd18_emmc_reg: soc_vdd18_emmc {
-		compatible = "thead,th1520-aon-pmic";
-		regulator-name = "soc_dvdd18_emmc";
-		regulator-type = "common";
-		regulator-boot-on;
-		regulator-always-on;
-	};
-	/* da9063 vldo6 */
-	soc_dovdd18_scan_reg: soc_dovdd18_scan {
-		compatible = "thead,th1520-aon-pmic";
-		regulator-name = "soc_dovdd18_scan";
-		regulator-type = "common";
-		// regulator-min-microvolt = <1800000>;
-		regulator-min-microvolt = <900000>;
-		// regulator-max-microvolt = <1800000>;
-		regulator-max-microvolt = <3600000>;
-	};
-	/* da9063 vldo8 */
-	soc_dvdd12_scan_reg: soc_dvdd12_scan {
-		compatible = "thead,th1520-aon-pmic";
-		regulator-name = "soc_dvdd12_scan";
-		regulator-type = "common";
-		regulator-min-microvolt = <900000>;
-		regulator-max-microvolt = <3600000>;
-	};
-	/* da9063 gpio4 */
-	soc_avdd28_scan_en_reg: soc_avdd28_scan_en {
-		compatible = "thead,th1520-aon-pmic";
-		regulator-name = "soc_avdd28_scan_en";
-		regulator-type = "common";
-		// regulator-min-microvolt = <900000>;
-		// regulator-max-microvolt = <3600000>;
-		status = "disabled";
-	};
-
-	// test: light-aon-test {
-		// compatible = "thead,light-aon-test";
-	// };
 };
 
 &resmem {
@@ -2401,4 +2040,158 @@
 &xtensa_dsp1 {
 	status = "okay";
 	memory-region = <&dsp1_mem>;
+};
+
+&aon {
+	log-memory-region = <&aon_log_mem>;
+	status = "okay";
+
+	dvdd_cpu_reg: appcpu_dvdd {
+		compatible = "xuantie,th1520-aon-pmic";
+		regulator-name = "appcpu_dvdd";
+		regulator-min-microvolt = <300000>;
+		regulator-max-microvolt = <1570000>;
+		regulator-type = "dvdd";
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	dvddm_cpu_reg: appcpu_dvddm {
+		compatible = "xuantie,th1520-aon-pmic";
+		regulator-name = "appcpu_dvddm";
+		regulator-min-microvolt = <300000>;
+		regulator-max-microvolt = <1570000>;
+		regulator-type = "dvddm";
+		regulator-dual-rail;
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	soc_dvdd18_aon_reg: soc_dvdd18_aon {
+		compatible = "xuantie,th1520-aon-pmic";
+		regulator-name = "soc_dvdd18_aon";
+		regulator-type = "common";
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	soc_avdd33_usb3_reg: soc_avdd33_usb3 {
+		compatible = "xuantie,th1520-aon-pmic";
+		regulator-name = "soc_avdd33_usb3";
+		regulator-type = "common";
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	soc_dvdd08_aon_reg: soc_dvdd08_aon {
+		compatible = "xuantie,th1520-aon-pmic";
+		regulator-name = "soc_dvdd08_aon";
+		regulator-type = "common";
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	soc_dvdd08_ddr_reg: soc_dvdd08_ddr {
+		compatible = "xuantie,th1520-aon-pmic";
+		regulator-name = "soc_dvdd08_ddr";
+		regulator-type = "common";
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	soc_vdd_ddr_1v8_reg: soc_vdd_ddr_1v8 {
+		compatible = "xuantie,th1520-aon-pmic";
+		regulator-name = "soc_vdd_ddr_1v8";
+		regulator-type = "common";
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	soc_vdd_ddr_1v1_reg: soc_vdd_ddr_1v1 {
+		compatible = "xuantie,th1520-aon-pmic";
+		regulator-name = "soc_vdd_ddr_1v1";
+		regulator-type = "common";
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	soc_vdd_ddr_0v6_reg: soc_vdd_ddr_0v6 {
+		compatible = "xuantie,th1520-aon-pmic";
+		regulator-name = "soc_vdd_ddr_0v6";
+		regulator-type = "common";
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	soc_dvdd18_ap_reg: soc_dvdd18_ap {
+		compatible = "xuantie,th1520-aon-pmic";
+		regulator-name = "soc_dvdd18_ap";
+		regulator-type = "common";
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	soc_dvdd08_ap_reg: soc_dvdd08_ap {
+		compatible = "xuantie,th1520-aon-pmic";
+		regulator-name = "soc_dvdd08_ap";
+		regulator-type = "common";
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	soc_avdd08_mipi_hdmi_reg: soc_avdd08_mipi_hdmi {
+		compatible = "xuantie,th1520-aon-pmic";
+		regulator-name = "soc_avdd08_mipi_hdmi";
+		regulator-type = "common";
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	soc_avdd18_mipi_hdmi_reg: soc_avdd18_mipi_hdmi {
+		compatible = "xuantie,th1520-aon-pmic";
+		regulator-name = "soc_avdd18_mipi_hdmi";
+		regulator-type = "common";
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	soc_vdd33_emmc_reg: soc_vdd33_emmc {
+		compatible = "xuantie,th1520-aon-pmic";
+		regulator-name = "soc_dvdd33_emmc";
+		regulator-type = "common";
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	soc_vdd18_emmc_reg: soc_vdd18_emmc {
+		compatible = "xuantie,th1520-aon-pmic";
+		regulator-name = "soc_dvdd18_emmc";
+		regulator-type = "gpio";
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	soc_dovdd18_scan_reg: soc_dovdd18_scan {
+		compatible = "xuantie,th1520-aon-pmic";
+		regulator-name = "soc_dovdd18_scan";
+		regulator-type = "common";
+		regulator-min-microvolt = <900000>;
+		regulator-max-microvolt = <3600000>;
+	};
+
+	soc_dvdd12_scan_reg: soc_dvdd12_scan {
+		compatible = "xuantie,th1520-aon-pmic";
+		regulator-name = "soc_dvdd12_scan";
+		regulator-type = "common";
+		regulator-min-microvolt = <900000>;
+		regulator-max-microvolt = <3600000>;
+	};
+
+	soc_avdd28_scan_en_reg: soc_avdd28_scan_en {
+		compatible = "xuantie,th1520-aon-pmic";
+		regulator-name = "soc_avdd28_scan_en";
+		regulator-type = "common";
+		regulator-min-microvolt = <900000>;
+		regulator-max-microvolt = <3600000>;
+	};
 };
