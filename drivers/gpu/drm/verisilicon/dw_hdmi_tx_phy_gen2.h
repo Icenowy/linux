@@ -619,10 +619,8 @@ dw_hdmi_tx_phy_gen2_mode_valid(struct dw_hdmi *dw_hdmi, void *data,
 		return MODE_V_ILLEGAL;
 
 	for (i = 0; i < ARRAY_SIZE(mpll_configs); i++) {
-		if (abs(mode->clock - mpll_configs[i].pixelclock) <= 100)
+		if (mode->clock <= mpll_configs[i].pixelclock)
 			return MODE_OK;
-		else if (mode->clock < mpll_configs[i].pixelclock)
-			break;
 	}
 
 	return MODE_NOMODE;
@@ -640,7 +638,7 @@ static int dw_hdmi_tx_phy_gen2_configure(struct dw_hdmi *hdmi, void *data,
 	for (i = 0; i < ARRAY_SIZE(mpll_configs); i++) {
 		config = &mpll_configs[i];
 		/* TODO: add colordepth check later */
-		if (abs(config->pixelclock - pixclk) <= 100)
+		if (pixclk <= config->pixelclock)
 			break;
 	}
 
