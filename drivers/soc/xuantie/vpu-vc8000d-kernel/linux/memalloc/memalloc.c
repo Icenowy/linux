@@ -134,13 +134,13 @@ static long memalloc_ioctl(struct file *filp, unsigned int cmd,
 
   if (_IOC_DIR(cmd) & _IOC_READ)
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5,0,0)
-    ret = !access_ok(arg, _IOC_SIZE(cmd));
+    ret = !access_ok((void*)arg, _IOC_SIZE(cmd));
 #else
     ret = !access_ok(VERIFY_WRITE, arg, _IOC_SIZE(cmd));
 #endif
   else if (_IOC_DIR(cmd) & _IOC_WRITE)
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5,0,0)
-    ret = !access_ok(arg, _IOC_SIZE(cmd));
+    ret = !access_ok((void*)arg, _IOC_SIZE(cmd));
 #else
     ret = !access_ok(VERIFY_READ, arg, _IOC_SIZE(cmd));
 #endif

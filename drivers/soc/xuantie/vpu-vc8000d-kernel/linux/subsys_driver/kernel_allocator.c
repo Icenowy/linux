@@ -1161,9 +1161,9 @@ int allocator_ioctl(void *filp, unsigned int cmd, unsigned long arg)
     if (_IOC_NR(cmd) > MEMORY_IOC_MAXNR) return EINVAL;
 
     if (_IOC_DIR(cmd) & _IOC_READ)
-        ret = !access_ok(arg, _IOC_SIZE(cmd));
+        ret = !access_ok((void*)arg, _IOC_SIZE(cmd));
     else if (_IOC_DIR(cmd) & _IOC_WRITE)
-        ret = !access_ok(arg, _IOC_SIZE(cmd));
+        ret = !access_ok((void*)arg, _IOC_SIZE(cmd));
     if (ret) return EINVAL;
 
     switch (cmd)
