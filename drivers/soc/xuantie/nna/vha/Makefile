@@ -12,10 +12,10 @@ vha-y                   += vha_devfreq.o
 vha-y                   += vha_dbg.o vha_pdump.o
 
 ifeq ($(CONFIG_HW_AX3_MC), y) 
-subdir-ccflags-y        += -I$(src)/multi
+subdir-ccflags-y        += -I$(srctree)/$(src)/multi
 vha-y                   += multi/vha_dev.o multi/vha_wm.o multi/vha_mmu.o multi/vha_mt19937.o
 else
-subdir-ccflags-y        += -I$(src)/single
+subdir-ccflags-y        += -I$(srctree)/$(src)/single
 vha-y                   += single/vha_dev.o single/vha_cnn.o single/vha_mmu.o
 vha-$(CONFIG_HW_AX2)    += single/vha_dev_ax2.o
 vha-$(CONFIG_HW_AX3)    += single/vha_dev_ax3.o
@@ -49,8 +49,8 @@ ccflags-$(CONFIG_VHA_SYS_AURA)   += -DCFG_SYS_AURA
 ccflags-$(CONFIG_VHA_SYS_VAGUS)  += -DCFG_SYS_VAGUS
 ccflags-$(CONFIG_VHA_SYS_MAGNA)  += -DCFG_SYS_MAGNA
 
-ccflags-y        += -I$(src)/$(PLAT)/
-subdir-ccflags-y += -I$(src)
+ccflags-y        += -I$(srctree)/$(src)/$(PLAT)/
+subdir-ccflags-y += -I$(srctree)/$(src)
 
 ifdef CONFIG_NEXEF_NNPU_INCLUDE
     subdir-ccflags-y += -I${CONFIG_NEXEF_NNPU_INCLUDE}
