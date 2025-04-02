@@ -315,12 +315,20 @@ static int unified_vmap_dmabuf(struct dma_buf *buf, struct iosys_map *map)
 	struct heap *heap;
 
 	if (!buffer)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 11, 0)
 		return NULL;
+#else
+		return 0;
+#endif
 
 	heap = buffer->heap;
 
 	if (unified_map_km(heap, buffer))
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 11, 0)
 		return NULL;
+#else
+		return 0;
+#endif
 
 	pr_debug("%s:%d buffer %d kptr 0x%p\n", __func__, __LINE__,
 		buffer->id, buffer->kptr);
