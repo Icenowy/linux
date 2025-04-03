@@ -165,6 +165,12 @@ properties:
             memory types as ratified in the 20191213 version of the privileged
             ISA specification.
 
+        - const: xtheadsstc
+          description: |
+            The xtheadsstc supervisor-level extension for time compare as
+            ratified at commit 3f9ed34 ("Add ability to manually trigger
+            workflow. (#2)") of riscv-time-compare.
+
         - const: zba
           description: |
             The standard Zba bit-manipulation extension for address generation

@@ -29,12 +29,15 @@
 #include <asm/timex.h>
 
 static DEFINE_STATIC_KEY_FALSE(riscv_sstc_available);
+static DEFINE_STATIC_KEY_FALSE(riscv_xtheadsstc_available);
 static bool riscv_timer_cannot_wake_cpu;
+static void __iomem *stimecmp_base;
 
 static int riscv_clock_next_event(unsigned long delta,
 		struct clock_event_device *ce)
 {
 	u64 next_tval = get_cycles64() + delta;
+	int hartid = smp_processor_id();
 
 	csr_set(CSR_IE, IE_TIE);
 	if (static_branch_likely(&riscv_sstc_available)) {
@@ -44,6 +47,9 @@ static int riscv_clock_next_event(unsigned long delta,
 #else
 		csr_write(CSR_STIMECMP, next_tval);
 #endif
+	} else if (static_branch_likely(&riscv_xtheadsstc_available)) {
+		writel(next_tval & 0xFFFFFFFF, stimecmp_base + 8 * hartid);
+		writel(next_tval >> 32, stimecmp_base + 8 * hartid + 4);
 	} else
 		sbi_set_timer(next_tval);
 
@@ -130,6 +136,7 @@ static int __init riscv_timer_init_common(void)
 	int error;
 	struct irq_domain *domain;
 	struct fwnode_handle *intc_fwnode = riscv_get_intc_hwnode();
+	stimecmp_base = ioremap(0xFFDC00D000, 8 * 4);
 
 	domain = irq_find_matching_fwnode(intc_fwnode, DOMAIN_BUS_ANY);
 	if (!domain) {
@@ -163,6 +170,11 @@ static int __init riscv_timer_init_common(void)
 	if (riscv_isa_extension_available(NULL, SSTC)) {
 		pr_info("Timer interrupt in S-mode is available via sstc extension\n");
 		static_branch_enable(&riscv_sstc_available);
+	}
+
+	if (riscv_isa_extension_available(NULL, XTHEADSSTC)) {
+		pr_info("Timer interrupt in S-mode is available via xtheadsstc extension\n");
+		static_branch_enable(&riscv_xtheadsstc_available);
 	}
 
 	error = cpuhp_setup_state(CPUHP_AP_RISCV_TIMER_STARTING,
