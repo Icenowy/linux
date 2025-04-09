@@ -13,32 +13,6 @@
 		ethernet1 = &gmac1;
 	};
 
-	reserved-memory {
-		#address-cells = <2>;
-		#size-cells = <2>;
-		ranges;
-
-		linux,cma {
-			compatible = "shared-dma-pool";
-			reusable;
-			size = <0x0 0x20000000>;
-			alignment = <0x0 0x1000>;
-			alloc-ranges = <0x0 0x70000000 0x0 0x20000000>;
-			linux,cma-default;
-		};
-
-		e24_mem: e24@c0000000 {
-			reg = <0x0 0x6ce00000 0x0 0x1600000>;
-		};
-
-		xrp_reserved: xrpbuffer@f0000000 {
-			reg = <0x0 0x69c00000 0x0 0x01ffffff
-				0x0 0x6bc00000 0x0 0x00001000
-				0x0 0x6bc01000 0x0 0x00fff000
-				0x0 0x6cc00000 0x0 0x00001000>;
-		};
-	};
-
 	leds {
 		compatible = "gpio-leds";
 
@@ -282,40 +256,6 @@
 };
 
 &sysgpio {
-	hdmi_pins: hdmi-0 {
-		scl-pins {
-			pinmux = <GPIOMUX(0, GPOUT_SYS_HDMI_DDC_SCL,
-					     GPOEN_SYS_HDMI_DDC_SCL,
-					     GPI_SYS_HDMI_DDC_SCL)>;
-			bias-pull-up;
-			input-enable;
-		};
-
-		sda-pins {
-			pinmux = <GPIOMUX(1, GPOUT_SYS_HDMI_DDC_SDA,
-					     GPOEN_SYS_HDMI_DDC_SDA,
-					     GPI_SYS_HDMI_DDC_SDA)>;
-			bias-pull-up;
-			input-enable;
-		};
-
-		cec-pins {
-			pinmux = <GPIOMUX(14, GPOUT_SYS_HDMI_CEC_SDA,
-					      GPOEN_SYS_HDMI_CEC_SDA,
-					      GPI_SYS_HDMI_CEC_SDA)>;
-			bias-pull-up;
-			input-enable;
-		};
-
-		hpd-pins {
-			pinmux = <GPIOMUX(15, GPOUT_LOW,
-					      GPOEN_DISABLE,
-					      GPI_SYS_HDMI_HPD)>;
-			bias-disable; /* external pull-up */
-			input-enable;
-		};
-	};
-
 	i2srx_pins: i2srx-0 {
 		clk-sd-pins {
 			pinmux = <GPIOMUX(38, GPOUT_LOW,
@@ -415,66 +355,10 @@
 	status = "disabled";
 };
 
-&display {
-	ports = <&dc_out_dpi0>;
-	status = "okay";
-};
-
-&dc8200 {
-	status = "okay";
-
-	dc_out: port {
-		#address-cells = <1>;
-		#size-cells = <0>;
-		dc_out_dpi0: endpoint@0 {
-			reg = <0>;
-			remote-endpoint = <&hdmi_input0>;
-		};
-		dc_out_dpi1: endpoint@1 {
-			reg = <1>;
-			remote-endpoint = <&hdmi_in_lcdc>;
-		};
-
-		dc_out_dpi2: endpoint@2 {
-			reg = <2>;
-			remote-endpoint = <&mipi_in>;
-		};
-	};
-};
-
-&hdmi {
-	status = "okay";
-	pinctrl-names = "default";
-	pinctrl-0 = <&hdmi_pins>;
-	hpd-gpio = <&sysgpio 15 GPIO_ACTIVE_HIGH>;
-	hdmi_0p9-supply = <&hdmi_0p9>;
-	hdmi_1p8-supply = <&hdmi_1p8>;
-
-	hdmi_in: port {
-		#address-cells = <1>;
-		#size-cells = <0>;
-		hdmi_in_lcdc: endpoint@0 {
-			reg = <0>;
-			remote-endpoint = <&dc_out_dpi1>;
-		};
-	};
-};
-
-&rgb_output {
-	status = "disabled";
-
-	ports {
-		#address-cells = <1>;
-		#size-cells = <0>;
-		port@0 {
-			#address-cells = <1>;
-			#size-cells = <0>;
-			reg = <0>;
-			hdmi_input0:endpoint@0 {
-				reg = <0>;
-				remote-endpoint = <&dc_out_dpi0>;
-			};
-		};
+&dc_out {
+	dc_out_dpi2: endpoint@2 {
+		reg = <2>;
+		remote-endpoint = <&mipi_in>;
 	};
 };
 
@@ -549,22 +433,6 @@
 };
 
 &mailbox_client0 {
-	status = "okay";
-};
-
-&vpu_dec {
-	status = "okay";
-};
-
-&vpu_enc {
-	status = "okay";
-};
-
-&jpu {
-	status = "okay";
-};
-
-&gpu {
 	status = "okay";
 };
 
