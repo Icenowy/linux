@@ -1,0 +1,392 @@
+// SPDX-License-Identifier: GPL-2.0 OR MIT
+/*
+ * Copyright (C) 2025 Icenowy Zheng <uwu@icenowy.me>
+ */
+
+/dts-v1/;
+#include "jh7110-common.dtsi"
+#include <dt-bindings/input/linux-event-codes.h>
+#include <dt-bindings/pwm/pwm.h>
+
+/ {
+	model = "Pine64 PineTab-V";
+	compatible = "pine64,pinetab-v", "starfive,jh7110";
+
+	backlight: backlight {
+		compatible = "pwm-backlight";
+		pwms = <&pwm 0 50000 PWM_POLARITY_INVERTED>;
+		brightness-levels = <10 9 8 7 6 5 4 3 2 1 0>;
+		default-brightness-level = <6>;
+		status = "okay";
+		power-supply = <&vcc_5v>;
+	};
+
+	bat: battery {
+		compatible = "simple-battery";
+		charge-full-design-microamp-hours = <9800000>;
+		voltage-max-design-microvolt = <4350000>;
+		voltage-min-design-microvolt = <3000000>;
+	};
+
+	gpio_keys: gpio-keys {
+		status = "okay";
+		compatible = "gpio-keys";
+		autorepeat;
+
+		key-vol-up {
+			label = "volume up key";
+			debounce-interval = <10>;
+			linux,input-type = <EV_KEY>;
+			linux,code = <KEY_VOLUMEUP>;
+			gpios = <&aongpio 0 GPIO_ACTIVE_LOW>;
+		};
+
+		key-vol-down {
+			label = "volume down key";
+			debounce-interval = <10>;
+			linux,input-type = <EV_KEY>;
+			linux,code = <KEY_VOLUMEDOWN>;
+			gpios = <&sysgpio 49 GPIO_ACTIVE_LOW>;
+		};
+
+		key-power {
+			label = "power key";
+			debounce-interval = <10>;
+			linux,input-type = <EV_KEY>;
+			linux,code = <KEY_POWER>;
+			gpios = <&sysgpio 59 GPIO_ACTIVE_HIGH>;
+		};
+
+		switch-hall-sensor {
+			label = "hall effect sensor";
+			debounce-interval = <10>;
+			linux,input-type = <EV_SW>;
+			linux,code = <SW_TABLET_MODE>;
+			gpios = <&sysgpio 40 GPIO_ACTIVE_LOW>;
+		};
+	};
+
+	gpio-restart {
+		compatible = "gpio-restart";
+		gpios = <&sysgpio 35 GPIO_ACTIVE_HIGH>;
+		priority = <160>;
+	};
+
+	vcc_5v: regulator-vcc-5v {
+		compatible = "regulator-fixed";
+		enable-active-high;
+		gpio = <&sysgpio 39 GPIO_ACTIVE_HIGH>;
+		regulator-boot-on;
+		regulator-always-on;
+		regulator-name = "vcc-5v";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+	};
+
+	vcc_wifi_3v3: vcc-wifi_3v3{
+		compatible = "regulator-fixed";
+		enable-active-low;
+		gpio = <&sysgpio 46 GPIO_ACTIVE_LOW>;
+		regulator-boot-on;
+		regulator-always-on;
+		regulator-name = "wifi_3v3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		vin-supply = <&vcc_3v3>;
+	};
+
+	speaker_amp: speaker-amplifier {
+		compatible = "simple-audio-amplifier";
+		enable-gpios = <&sysgpio 50 GPIO_ACTIVE_HIGH>;
+		sound-name-prefix = "Speaker Amplifier";
+	};
+
+	soundcard: snd-card1 {
+		compatible = "simple-audio-card";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		simple-audio-card,name = "PineTab-V";
+		simple-audio-card,format = "i2s";
+		simple-audio-card,bitclock-master = <&soundcard_codec>;
+		simple-audio-card,frame-master = <&soundcard_codec>;
+
+		simple-audio-card,widgets =
+			"Microphone", "Internal Mic",
+			"Microphone", "Headset Mic",
+			"Headphone", "Headphones",
+			"Speaker", "Speaker";
+		simple-audio-card,routing =
+			"MIC1", "Headset Mic",
+			"MIC2", "Internal Mic",
+			"Headphones", "HPOL",
+			"Headphones", "HPOR",
+			"Speaker Amplifier INL", "HPOL",
+			"Speaker Amplifier INR", "HPOR",
+			"Speaker", "Speaker Amplifier OUTL",
+			"Speaker", "Speaker Amplifier OUTR";
+
+		simple-audio-card,hp-det-gpio = <&sysgpio 36 GPIO_ACTIVE_LOW>;
+		simple-audio-card,aux-devs = <&speaker_amp>;
+		simple-audio-card,pin-switches = "Speaker";
+
+		simple-audio-card,cpu@0 {
+			reg = <0>;
+			sound-dai = <&i2srx>;
+		};
+
+		simple-audio-card,cpu@1 {
+			reg = <1>;
+			sound-dai = <&i2stx1>;
+		};
+
+		soundcard_codec: simple-audio-card,codec {
+			sound-dai = <&es8316>;
+			clocks = <&mclk_ext>;
+			clock-names = "mclk";
+		};
+	};
+};
+
+&dc_out {
+	dc_out_dpi2: endpoint@2 {
+		reg = <2>;
+		remote-endpoint = <&mipi_in>;
+	};
+};
+
+&dsi_output {
+	status = "okay";
+
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@0 {
+			reg = <0>;
+			mipi_in: endpoint {
+				remote-endpoint = <&dc_out_dpi2>;
+			};
+		};
+
+		port@1 {
+			reg = <1>;
+			dpi_output: endpoint {
+				remote-endpoint = <&dsi_input>;
+			};
+		};
+	};
+};
+
+&gmac0 {
+	status = "disabled";
+};
+
+&i2c0 {
+	es8316: audio-codec@11 {
+		pinctrl-0 = <&mclk_ext_pins>;
+		pinctrl-names = "default";
+		compatible = "everest,es8316";
+		reg = <0x11>;
+		clocks = <&mclk_ext>;
+		clock-names = "mclk";
+		#sound-dai-cells = <0>;
+	};
+
+	accelerometer@18 {
+		compatible = "silan,sc7a20";
+		reg = <0x18>;
+		mount-matrix =	 "-1",  "0",  "0",
+				  "0",  "0", "-1",
+				  "0",  "1",  "0";
+	};
+};
+
+&i2c2 {
+	touchscreen@14 {
+		status = "okay";
+		compatible = "goodix,gt911";
+		reg = <0x14>;
+		irq-gpios = <&sysgpio 30 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&sysgpio 31 GPIO_ACTIVE_HIGH>;
+	};
+};
+
+&i2c5 {
+	cw2015@62 {
+		status = "okay";
+		compatible = "cellwise,cw2015";
+		reg = <0x62>;
+		cellwise,battery-profile = /bits/ 8
+			<0x17 0x67 0x63 0x64 0x63 0x62 0x61 0x5E
+			 0x59 0x61 0x55 0x57 0x60 0x50 0x43 0x3C
+			 0x33 0x2D 0x27 0x24 0x26 0x2D 0x39 0x47
+			 0x44 0x11 0x0E 0x15 0x20 0x41 0x48 0x55
+			 0x59 0x5B 0x60 0x60 0x3F 0x19 0x6A 0x4A
+			 0x0B 0x1B 0x2D 0x57 0x8B 0x93 0x96 0x13
+			 0x2E 0x56 0xA3 0xCA 0x80 0x6A 0x99 0xCB
+			 0x2F 0x00 0x64 0xA5 0xB5 0x11 0xF0 0x31>;
+		cellwise,monitor-interval-ms = <5000>;
+		monitored-battery = <&bat>;
+		power-supplies = <&charger>;
+	};
+
+	charger: sc89890@6a {
+		compatible = "sc,sc89890";
+		status = "okay";
+		reg = <0x6a>;
+		interrupt-parent = <&sysgpio>;
+		interrupts = <48 IRQ_TYPE_EDGE_FALLING>;
+		ti,battery-regulation-voltage = <4350000>;
+		ti,charge-current = <2000000>;
+		ti,termination-current = <300000>;
+		ti,precharge-current = <128000>;
+		ti,minimum-sys-voltage = <3400000>;
+		ti,boost-voltage = <5000000>;
+		ti,boost-max-current = <1500000>;
+		ti,use-ilim-pin = <0>;
+		ti,input-current-limit = <2000000>;
+		monitored-battery = <&bat>;
+	};
+};
+
+&i2srx {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2srx_pins>;
+	status = "okay";
+};
+
+&i2stx1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2stx1_pins>;
+	status = "okay";
+};
+
+&mipi_dsi {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	status = "okay";
+
+	panel: panel@0 {
+		status = "okay";
+		compatible ="boe,th101mb31ig002-28a-pinetab-v";
+		reg = <0x0>;
+		enable-gpio = <&sysgpio 37 GPIO_ACTIVE_HIGH>;
+		reset-gpio = <&sysgpio 51 GPIO_ACTIVE_LOW>;
+		backlight = <&backlight>;
+		rotation = <90>;
+
+		port {
+			panel_input: endpoint {
+				remote-endpoint = <&dsi_out>;
+			};
+		};
+	};
+
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@0 {
+			reg = <0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			dsi_out: endpoint {
+				remote-endpoint = <&panel_input>;
+			};
+		};
+
+		port@1{
+			reg = <1>;
+			dsi_input: endpoint {
+				remote-endpoint = <&dpi_output>;
+			};
+		};
+
+	};
+};
+
+&mipi_dphy {
+	status = "okay";
+};
+
+&pwm_pins {
+	pwm-pins {
+		pinmux = <GPIOMUX(45, GPOUT_SYS_PWM_CHANNEL0,
+				      GPOEN_SYS_PWM0_CHANNEL0,
+				      GPI_NONE)>;
+		bias-disable;
+		drive-strength = <12>;
+		input-disable;
+		input-schmitt-disable;
+		slew-rate = <0>;
+	};
+};
+
+&pwmdac {
+	status = "disabled";
+};
+
+&sysgpio {
+	i2srx_pins: i2srx-0 {
+		clk-sd-pins {
+			pinmux = <GPIOMUX(38, GPOUT_LOW,
+					      GPOEN_DISABLE,
+					      GPI_SYS_I2SRX_BCLK)>,
+				 <GPIOMUX(63, GPOUT_LOW,
+					      GPOEN_DISABLE,
+					      GPI_SYS_I2SRX_LRCK)>,
+				 <GPIOMUX(38, GPOUT_LOW,
+					      GPOEN_DISABLE,
+					      GPI_SYS_I2STX1_BCLK)>,
+				 <GPIOMUX(63, GPOUT_LOW,
+					      GPOEN_DISABLE,
+					      GPI_SYS_I2STX1_LRCK)>,
+				 <GPIOMUX(61, GPOUT_LOW,
+					      GPOEN_DISABLE,
+					      GPI_SYS_I2SRX_SDIN0)>;
+			input-enable;
+		};
+	};
+
+	i2stx1_pins: i2stx1-0 {
+		sd-pins {
+			pinmux = <GPIOMUX(44, GPOUT_SYS_I2STX1_SDO0,
+					      GPOEN_ENABLE,
+					      GPI_NONE)>;
+			bias-disable;
+			input-disable;
+		};
+	};
+
+	mclk_ext_pins: mclk-ext-0 {
+		mclk-ext-pins {
+			pinmux = <GPIOMUX(4, GPOUT_LOW,
+					     GPOEN_DISABLE,
+					     GPI_SYS_MCLK_EXT)>;
+			input-enable;
+		};
+	};
+
+	usb0_pins: usb0-0 {
+		usb0-pins {
+			pinmux = <GPIOMUX(PAD_INTERNAL_HIGH,
+					  GPOUT_LOW,
+					  GPOEN_DISABLE,
+					  GPI_SYS_USB_OVERCURRENT)>;
+		};
+	};
+};
+
+&usb0 {
+	pinctrl-0 = <&usb0_pins>;
+	pinctrl-names = "default";
+	dr_mode = "host";
+	status = "okay";
+};
+
+&usb_cdns3 {
+	phys = <&usbphy0>, <&pciephy0>;
+	phy-names = "cdns3,usb2-phy", "cdns3,usb3-phy";
+};
