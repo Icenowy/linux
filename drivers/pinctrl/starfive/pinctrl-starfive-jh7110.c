@@ -291,6 +291,24 @@ void jh7110_set_gpiomux(struct jh7110_pinctrl *sfp, unsigned int pin,
 }
 EXPORT_SYMBOL_GPL(jh7110_set_gpiomux);
 
+static void jh7110_set_gpi(struct jh7110_pinctrl *sfp, u32 gpi, u32 val)
+{
+	u32 offset, shift;
+	u32 reg_val;
+	const struct jh7110_pinctrl_soc_info *info = sfp->info;
+
+	offset = 4 * (gpi / 4);
+	shift  = 8 * (gpi % 4);
+
+	reg_val = readl_relaxed(sfp->base +
+				info->gpi_reg_base + offset);
+	reg_val &= info->gpi_mask << shift;
+	reg_val |= (val & info->gpi_mask) << shift;
+
+	writel_relaxed(reg_val, sfp->base +
+				info->gpi_reg_base + offset);
+}
+
 static int jh7110_set_mux(struct pinctrl_dev *pctldev,
 			  unsigned int fsel, unsigned int gsel)
 {
@@ -307,14 +325,24 @@ static int jh7110_set_mux(struct pinctrl_dev *pctldev,
 	pinmux = group->data;
 	for (i = 0; i < group->grp.npins; i++) {
 		u32 v = pinmux[i];
+		u32 pin = jh7110_pinmux_pin(v);
 
-		if (info->jh7110_set_one_pin_mux)
-			info->jh7110_set_one_pin_mux(sfp,
-					jh7110_pinmux_pin(v),
-					jh7110_pinmux_din(v),
-					jh7110_pinmux_dout(v),
-					jh7110_pinmux_doen(v),
-					jh7110_pinmux_function(v));
+		switch (pin) {
+		case PAD_INTERNAL_LOW:
+			jh7110_set_gpi(sfp, jh7110_pinmux_din(v), 0);
+			break;
+		case PAD_INTERNAL_HIGH:
+			jh7110_set_gpi(sfp, jh7110_pinmux_din(v), 1);
+			break;
+		default:
+			if (info->jh7110_set_one_pin_mux)
+				info->jh7110_set_one_pin_mux(sfp,
+						jh7110_pinmux_pin(v),
+						jh7110_pinmux_din(v),
+						jh7110_pinmux_dout(v),
+						jh7110_pinmux_doen(v),
+						jh7110_pinmux_function(v));
+		}
 	}
 
 	return 0;
