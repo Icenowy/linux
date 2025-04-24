@@ -74,6 +74,13 @@
 			input-schmitt-disable;
 			slew-rate = <0>;
 		};
+
+		overcurrent-pins {
+			pinmux = <GPIOMUX(PAD_INTERNAL_HIGH,
+					  GPOUT_LOW,
+					  GPOEN_DISABLE,
+					  GPI_SYS_USB_OVERCURRENT)>;
+		};
 	};
 };
 
