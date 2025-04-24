@@ -126,6 +126,10 @@
 #define	PAD_GMAC0_TXEN		18
 #define	PAD_GMAC0_TXC		19
 
+/* virtual pins for forcing GPI */
+#define PAD_INTERNAL_LOW	254
+#define PAD_INTERNAL_HIGH	255
+
 #define GPOUT_LOW		0
 #define GPOUT_HIGH		1
 
