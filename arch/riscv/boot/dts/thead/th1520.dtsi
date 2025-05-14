@@ -238,6 +238,24 @@
 		resets = <&rst TH1520_RESET_ID_GPU_CLKGEN>;
 		reset-names = "gpu-clkgen";
 		#power-domain-cells = <1>;
+		opensbi-mboxes = <&mbox_910r>;
+		status = "okay";
+	};
+
+	mbox_910r: mbox@ffefc53000 {
+		compatible = "xuantie,th1520-mbox-r";
+		reg = <0xff 0xefc53000 0x0 0x4000>,
+		      <0xff 0xefc3f000 0x0 0x1000>,
+		      <0xff 0xefc47000 0x0 0x1000>,
+		      <0xff 0xefc4f000 0x0 0x1000>;
+		reg-names = "local_base",
+			    "remote_icu0",
+			    "remote_icu1",
+			    "remote_icu2";
+		clocks = <&clk CLK_PERI_APB_PCLK>;
+		clock-names = "ipg";
+		icu_cpu_id = <3>;
+		#mbox-cells = <2>;
 	};
 
 	soc {
