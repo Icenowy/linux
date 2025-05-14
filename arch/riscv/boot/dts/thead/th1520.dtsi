@@ -232,7 +232,7 @@
 	};
 
 	aon: aon {
-		compatible = "thead,th1520-aon";
+		compatible = "xuantie,th1520-aon", "thead,th1520-aon";
 		mboxes = <&mbox_910t 1>;
 		mbox-names = "aon";
 		resets = <&rst TH1520_RESET_ID_GPU_CLKGEN>;
