@@ -153,6 +153,12 @@ config DRM_ITE_IT66121
 	help
 	  Support for ITE IT66121 HDMI bridge.
 
+config DRM_LONTIUM_LT8911EXB
+	tristate "Lontium LT8911EXB mipi2edp chip"
+	depends on OF
+	help
+	  Driver for Lontium LT8911EXB DSI to eDP bridge
+
 config DRM_LVDS_CODEC
 	tristate "Transparent LVDS encoders and decoders support"
 	depends on OF
