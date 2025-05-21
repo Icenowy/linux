@@ -87,3 +87,4 @@ obj-$(CONFIG_DRM_PANEL_WIDECHIPS_WS2401) += panel-widechips-ws2401.o
 obj-$(CONFIG_DRM_PANEL_XINPENG_XPP055C272) += panel-xinpeng-xpp055c272.o
 obj-$(CONFIG_DRM_PANEL_HX8279) += panel-himax-hx8279.o
 obj-$(CONFIG_DRM_PANEL_LT8911) += panel-lt8911.o
+obj-$(CONFIG_DRM_PANEL_MINGJUN_070BI30IA2) += panel-mingjun-070bi30ia2.o

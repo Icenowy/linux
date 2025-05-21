@@ -854,4 +854,14 @@ config DRM_PANEL_LT8911
 		Say Y if you want to enable support for panels based on the
 		lt8911 controller.
 
+config DRM_PANEL_MINGJUN_070BI30IA2
+	tristate "MingJun 070BI30IA2 DSI panel"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	help
+	  Say Y here if you want to enable support for MingJun 070BI30IA2
+	  MIPI DSI panel. The panel support TFT dot matrix LCD with
+	  800RGBx1280 dots at maximum.
+
 endmenu
