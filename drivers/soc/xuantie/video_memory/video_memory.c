@@ -1314,12 +1314,13 @@ void free_memblk_pages(struct mem_block *memBlk)
     if (memBlk->is_cma == false && memBlk->is_vi_mem == false) {
         for (i = 0; i < memBlk->numPages; i++)
         {
-            if (memBlk->contiguous)
-            {
+            if (memBlk->contiguous) {
                 page = nth_page(memBlk->contiguousPages, i);
+            } else {
+	        page = memBlk->nonContiguousPages[i];
+	    }
 
-                ClearPageReserved(page);
-            }
+            ClearPageReserved(page);
         }
     }
 
