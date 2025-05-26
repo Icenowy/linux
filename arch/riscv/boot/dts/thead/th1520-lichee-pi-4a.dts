@@ -1153,6 +1153,10 @@
 	};
 };
 
+&sdio0 {
+       max-frequency = <100000000>;
+};
+
 &sdio1 {
 		max-frequency = <100000000>;
 		bus-width = <4>;
