@@ -253,7 +253,7 @@ irq_fail:
 static struct of_device_id hc32fx_of_match[] = {
 	{.compatible = "hc32fx-mcu"},
 	{}
-}
+};
 MODULE_DEVICE_TABLE(of, hc32fx_of_match);
 
 static const struct i2c_device_id hc32fx_id[] = {
