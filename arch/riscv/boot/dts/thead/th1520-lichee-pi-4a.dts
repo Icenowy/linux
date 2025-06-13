@@ -323,11 +323,11 @@
 
 	th1520_sound: soundcard@1 {
 		compatible = "simple-audio-card";
-		simple-audio-card,name = "TH1520-Sound-Card";
+		simple-audio-card,name = "HDMI";
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		simple-audio-card,dai-link@0 {
+		simple-audio-card,dai-link@0 {  /* I2S - HDMI*/
 			reg = <0>;
 			format = "i2s";
 			cpu {
@@ -337,24 +337,40 @@
 				sound-dai = <&hdmi_codec>;
 			};
 		};
-		simple-audio-card,dai-link@1 {
-			reg = <1>;
-			format = "i2s";
-			cpu {
-				sound-dai = <&i2s1 0>;
-			};
-			codec {
-				sound-dai = <&es7210_audio_codec>;
-			};
-		};
-		simple-audio-card,dai-link@2 {
-			reg = <2>;
+	};
+
+	th1520_sound_jack: soundcard@2 {
+		compatible = "simple-audio-card";
+		simple-audio-card,name = "Headphones";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		simple-audio-card,dai-link@0 {  /* I2S - AUDIO SYS CODEC 8156*/
+			reg = <0>;
 			format = "i2s";
 			cpu {
 				sound-dai = <&i2s1 0>;
 			};
 			codec {
 				sound-dai = <&es8156_audio_codec>;
+			};
+		};
+	};
+
+	th1520_sound_input: soundcard@3 {
+		compatible = "simple-audio-card";
+		simple-audio-card,name = "Mic";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		simple-audio-card,dai-link@1 {  /* I2S - AUDIO SYS CODEC 7210*/
+			reg = <0>;
+			format = "i2s";
+			cpu {
+				sound-dai = <&i2s1 0>;
+			};
+			codec {
+				sound-dai = <&es7210_audio_codec>;
 			};
 		};
 	};
