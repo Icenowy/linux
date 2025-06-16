@@ -4514,7 +4514,7 @@ static struct attribute_group venc_dev_attr_group = {
     .attrs = attrs,
 };
 
-int __init hantroenc_vcmd_probe(struct platform_device *pdev)
+int hantroenc_vcmd_probe(struct platform_device *pdev)
 {
   int i,k;
   int result;
