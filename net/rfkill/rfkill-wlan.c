@@ -115,9 +115,7 @@ static int wlan_platdata_parse_dt(struct device *dev, struct wifi_moudle_gpios *
 	}
 
 	gpio = -EINVAL;
-	desc = of_find_gpio(node, "WIFI,poweren", 0, &flags);
-	if (!IS_ERR(desc))
-		gpio = desc_to_gpio(desc);
+	gpio = of_get_named_gpio(node, "WIFI,poweren-gpios", 0);
 	LOG("%s: The power of the WiFi module is controlled by GPIO.\n", __func__);
 	if (gpio_is_valid(gpio)) {
 		data->power_n.io = gpio;
@@ -197,10 +195,10 @@ static int rfkill_wlan_remove(struct platform_device *pdev)
 {
 	struct rfkill_wlan_data *rfkill = platform_get_drvdata(pdev);
 
-	if (gpio_is_valid(rfkill->pdata->power_n.io))
+	if (rfkill && rfkill->pdata && gpio_is_valid(rfkill->pdata->power_n.io))
 		gpio_free(rfkill->pdata->power_n.io);
-
-	kfree(rfkill);
+	if (rfkill)
+		kfree(rfkill);
 	g_rfkill = NULL;
 
 	return 0;

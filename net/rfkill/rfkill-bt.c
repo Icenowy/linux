@@ -107,9 +107,7 @@ static int bluetooth_platdata_parse_dt(struct device *dev, struct rfkill_platfor
 	memset(data, 0, sizeof(*data));
 
 	gpio = -EINVAL;
-	desc = of_find_gpio(node, "BT,power", 0, &flags);
-	if (!IS_ERR(desc))
-		gpio = desc_to_gpio(desc);
+	gpio = of_get_named_gpio(node, "BT,power-gpios", 0);
 	LOG("%s: BT,power-gpios = %d\n", __func__, gpio);
 	if (gpio_is_valid(gpio)) {
 		data->power_n.io = gpio;
