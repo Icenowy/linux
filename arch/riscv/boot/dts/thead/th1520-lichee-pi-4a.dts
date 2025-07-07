@@ -1163,12 +1163,13 @@
 	status = "okay";
 	uart-has-rtscts;
 
-	bluetooth {
-		compatible = "realtek,rtl8723ds-bt";
-		device-wake-gpios = <&gpio0 28 GPIO_ACTIVE_HIGH>; /* GPIO02 */
-		host-wake-gpios = <&ioexp2 7 GPIO_ACTIVE_HIGH>;
-		enable-gpios = <&ioexp2 5 GPIO_ACTIVE_HIGH>;
-	};
+	// For rtl8723/aic8800 compatibility, using systemd to manually attach HCI port
+	// bluetooth {
+	// 	compatible = "realtek,rtl8723ds-bt";
+	// 	device-wake-gpios = <&gpio0 28 GPIO_ACTIVE_HIGH>; /* GPIO02 */
+	// 	host-wake-gpios = <&ioexp2 7 GPIO_ACTIVE_HIGH>;
+	// 	enable-gpios = <&ioexp2 5 GPIO_ACTIVE_HIGH>;
+	// };
 };
 
 &usb {
