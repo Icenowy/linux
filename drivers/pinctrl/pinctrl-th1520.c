@@ -166,7 +166,7 @@ static int th1520_audio_func_sel(struct th1520_pinctrl *thp,
 	return 0;
 }
 
-static const struct custom_operations th1520_custom_ops = {
+static struct custom_operations th1520_custom_ops = {
 	.init = th1520_audio_func_sel,
 };
 

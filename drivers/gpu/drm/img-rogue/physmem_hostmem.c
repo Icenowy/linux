@@ -66,9 +66,9 @@ static void HostMemDevPAddrToCpuPAddr(IMG_HANDLE hPrivData,
 static PHYS_HEAP_FUNCTIONS gsHostMemDevPhysHeapFuncs =
 {
 	/* pfnCpuPAddrToDevPAddr */
-	HostMemCpuPAddrToDevPAddr,
+	.pfnCpuPAddrToDevPAddr = HostMemCpuPAddrToDevPAddr,
 	/* pfnDevPAddrToCpuPAddr */
-	HostMemDevPAddrToCpuPAddr,
+	.pfnDevPAddrToCpuPAddr = HostMemDevPAddrToCpuPAddr,
 };
 
 static PVRSRV_DEVICE_CONFIG gsHostMemDevConfig[];

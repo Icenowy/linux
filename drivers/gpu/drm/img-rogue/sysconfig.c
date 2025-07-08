@@ -151,9 +151,9 @@ void UMAPhysHeapDevPAddrToCpuPAddr(IMG_HANDLE hPrivData,
 static PHYS_HEAP_FUNCTIONS gsPhysHeapFuncs =
 {
 	/* pfnCpuPAddrToDevPAddr */
-	UMAPhysHeapCpuPAddrToDevPAddr,
+	.pfnCpuPAddrToDevPAddr = UMAPhysHeapCpuPAddrToDevPAddr,
 	/* pfnDevPAddrToCpuPAddr */
-	UMAPhysHeapDevPAddrToCpuPAddr,
+	.pfnDevPAddrToCpuPAddr = UMAPhysHeapDevPAddrToCpuPAddr,
 };
 
 static PVRSRV_ERROR PhysHeapsCreate(PHYS_HEAP_CONFIG **ppasPhysHeapsOut,

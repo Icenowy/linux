@@ -13,7 +13,7 @@
 static struct i2c_mipi_dsi g_lt8911_mipi_dsi;
 static bool g_is_std_suspend __nosavedata;
 
-static const struct drm_display_mode lt8911_default_mode = {
+static struct drm_display_mode lt8911_default_mode = {
 	.clock		= 152840,
 	.hdisplay	= 1920,
 	.hsync_start = 1920 + 140,
