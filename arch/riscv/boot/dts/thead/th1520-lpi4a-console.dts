@@ -8,8 +8,8 @@
 #include <dt-bindings/interrupt-controller/irq.h>
 
 / {
-	model = "Sipeed Lichee Pi 4A configuration for 8GB DDR board use on laptop";
-	compatible = "sipeed,lichee-pi-4a", "sipeed,lichee-module-4a", "thead,th1520";
+	model = "Sipeed Lichee Pi 4A configuration for LicheeConsole4A";
+	compatible = "sipeed,th1520-laptop", "sipeed,console4a", "thead,th1520";
 
 	chosen {
 		stdout-path = "serial0:115200n8";
@@ -457,13 +457,13 @@
 			debounce-interval = <1>;
 			gpios = <&gpio1 0 GPIO_ACTIVE_LOW>;
 		};
-		// key-sleep {
-		// 	label = "Sleep Wake Key";
-		// 	wakeup-source;
-		// 	linux,code = <KEY_SLEEP>;
-		// 	debounce-interval = <1>;
-		// 	gpios = <&aogpio 2 GPIO_ACTIVE_LOW>;
-		// };
+		key-sleep {
+			label = "Sleep Wake Key";
+			wakeup-source;
+			linux,code = <KEY_SLEEP>;
+			debounce-interval = <1>;
+			gpios = <&aogpio 2 GPIO_ACTIVE_LOW>;
+		};
 	};
 
 	thermal-zones {
@@ -526,7 +526,6 @@
 	charger: dc-charger {
 		compatible = "gpio-charger";
 		charger-type = "mains";
-		// gpios = <&aogpio 2 GPIO_ACTIVE_HIGH>;
 		gpios = <&gpio0 16 GPIO_ACTIVE_HIGH>;
 	};
 };
@@ -856,19 +855,9 @@
 	};
 
 	uart3_pins: uart3-0 {
-		tx-pins {
-			pins = "UART3_TXD";
-			function = "uart";
-			bias-disable;
-			drive-strength = <3>;
-			input-disable;
-			input-schmitt-disable;
-			slew-rate = <0>;
-		};
-
 		rx-pins {
 			pins = "UART3_RXD";
-			function = "gpio";
+			function = "uart";
 			bias-disable;
 			drive-strength = <1>;
 			input-enable;
@@ -991,19 +980,12 @@
 	status = "okay";
 };
 
-// &uart4 {
-// 	pinctrl-names = "default";
-// 	pinctrl-0 = <&uart4_pins>;
-// 	status = "okay";
-// 	uart-has-rtscts;
-
-// 	bluetooth {
-// 		compatible = "realtek,rtl8723ds-bt";
-// 		device-wake-gpios = <&gpio0 28 GPIO_ACTIVE_HIGH>; /* GPIO02 */
-// 		host-wake-gpios = <&ioexp2 7 GPIO_ACTIVE_HIGH>;
-// 		enable-gpios = <&ioexp2 5 GPIO_ACTIVE_HIGH>;
-// 	};
-// };
+&uart4 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart4_pins>;
+	status = "okay";
+	uart-has-rtscts;
+};
 
 &usb {
 	status = "okay";
@@ -1022,25 +1004,6 @@
 	status = "okay";
 };
 
-// &spi {
-// 	num-cs = <1>;
-// 	cs-gpios = <&gpio2 15 0>;
-// 	rx-sample-delay-ns = <10>;
-// 	pinctrl-names = "default";
-// 	pinctrl-0 = <&spi_pins>;
-// 	status = "okay";
-
-// 	spi_norflash@0 {
-// 		status = "okay";
-// 		#address-cells = <1>;
-// 		#size-cells = <1>;
-// 		compatible = "winbond,w25q64jwm", "jedec,spi-nor";
-// 		reg = <0>;
-// 		spi-max-frequency = <50000000>;
-// 		w25q,fast-read;
-// 	};
-// };
-
 &qspi0 {
 	status = "disabled";
 };
@@ -1049,10 +1012,9 @@
 	status = "disabled";
 };
 
-// &sdio0 {
-// 	max-frequency = <35000000>;
-// 	status = "okay";
-// };
+&sdio0 {
+    max-frequency = <100000000>;
+};
 
 &sdio1 {
 	max-frequency = <100000000>;
@@ -1497,13 +1459,3 @@
 		>;
 	};
 };
-
-// -------------------------------------
-
-// &wcn_wifi {
-// 	WIFI,poweren_gpio = <&ioexp2 4 0>;
-// };
-
-// &wcn_bt {
-// 	BT,power_gpio = <&ioexp2 5 0>;
-// };
