@@ -111,7 +111,7 @@ static int mingjun_unprepare(struct drm_panel *panel)
 	/* sleep_mode_delay: 1ms - 2ms */
 	usleep_range(1000, 2000);
 
-	gpiod_set_value(pinfo->reset, 1);
+	gpiod_set_value_cansleep(pinfo->reset, 1);
 	regulator_disable(pinfo->hsvcc);
 	regulator_disable(pinfo->vspn3v3);
 
@@ -127,7 +127,7 @@ static int mingjun_prepare(struct drm_panel *panel)
 
 	if (pinfo->prepared)
 		return 0;
-	gpiod_set_value(pinfo->reset, 0);
+	gpiod_set_value_cansleep(pinfo->reset, 0);
 
 	/* Power the panel */
 	ret = regulator_enable(pinfo->hsvcc);
@@ -144,7 +144,7 @@ static int mingjun_prepare(struct drm_panel *panel)
 	}
 	usleep_range(5000, 6000);
 
-	gpiod_set_value(pinfo->reset, 1);
+	gpiod_set_value_cansleep(pinfo->reset, 1);
 	msleep(180);
 
 	pinfo->prepared = true;
@@ -152,7 +152,7 @@ static int mingjun_prepare(struct drm_panel *panel)
 	return 0;
 
 fail:
-	gpiod_set_value(pinfo->reset, 1);
+	gpiod_set_value_cansleep(pinfo->reset, 1);
 	regulator_disable(pinfo->hsvcc);
 	return ret;
 }
