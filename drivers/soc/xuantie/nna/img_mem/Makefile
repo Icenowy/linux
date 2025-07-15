@@ -14,7 +14,7 @@ CFLAGS_img_mem_ion.o += -Idrivers/staging/android/ion
 endif
 
 # IMGMMU: These should be obsoleted
-ccflags-y += -I$(src)/imgmmu/mmulib
+ccflags-y += -I$(srctree)/$(src)/imgmmu/mmulib
 # IMGMMU: code
 img_mem-y                           += imgmmu/imgmmu.o
 img_mem-y                           += imgmmu/kernel_heap.o

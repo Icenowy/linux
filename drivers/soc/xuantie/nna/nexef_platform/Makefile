@@ -10,8 +10,8 @@ endif
 
 ccflags-y += -I$(CONFIG_NEXEF_NNPU_INCLUDE)
 
-ccflags-y += -I$(src)/../include
-ccflags-y += -I$(src)/
+ccflags-y += -I$(srctree)/$(src)/../include
+ccflags-y += -I$(srctree)/$(src)/
 ccflags-y += -Wall -g
 
 # This should not be needed, but on some platform (especially old kernel)
