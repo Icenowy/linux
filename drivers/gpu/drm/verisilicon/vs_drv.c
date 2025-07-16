@@ -363,11 +363,13 @@ static struct drm_driver vs_drm_driver = {
 	.minor          = DRV_MINOR,
 };
 
-int vs_drm_iommu_attach_device(struct drm_device *drm_dev,
+int vs_drm_dma_attach_device(struct drm_device *drm_dev,
 				struct device *dev)
 {
 	struct vs_drm_private *priv = drm_dev->dev_private;
 	int ret;
+
+	priv->dma_dev = dev;
 
 	if (!has_iommu)
 		return 0;
@@ -376,7 +378,6 @@ int vs_drm_iommu_attach_device(struct drm_device *drm_dev,
 		priv->domain = iommu_get_domain_for_dev(dev);
 		if (IS_ERR(priv->domain))
 			return PTR_ERR(priv->domain);
-		priv->dma_dev = dev;
 	}
 
 	ret = iommu_attach_device(priv->domain, dev);
@@ -388,18 +389,18 @@ int vs_drm_iommu_attach_device(struct drm_device *drm_dev,
 	return 0;
 }
 
-void vs_drm_iommu_detach_device(struct drm_device *drm_dev,
+void vs_drm_dma_detach_device(struct drm_device *drm_dev,
 				struct device *dev)
 {
 	struct vs_drm_private *priv = drm_dev->dev_private;
+
+	if (priv->dma_dev == dev)
+		priv->dma_dev = drm_dev->dev;
 
 	if (!has_iommu)
 		return;
 
 	iommu_detach_device(priv->domain, dev);
-
-	if (priv->dma_dev == dev)
-		priv->dma_dev = drm_dev->dev;
 }
 
 void vs_drm_update_pitch_alignment(struct drm_device *drm_dev,

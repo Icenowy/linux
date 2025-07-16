@@ -39,10 +39,10 @@ struct vs_drm_private {
 	unsigned int pitch_alignment;
 };
 
-int vs_drm_iommu_attach_device(struct drm_device *drm_dev,
+int vs_drm_dma_attach_device(struct drm_device *drm_dev,
 				struct device *dev);
 
-void vs_drm_iommu_detach_device(struct drm_device *drm_dev,
+void vs_drm_dma_detach_device(struct drm_device *drm_dev,
 				struct device *dev);
 
 void vs_drm_update_pitch_alignment(struct drm_device *drm_dev,

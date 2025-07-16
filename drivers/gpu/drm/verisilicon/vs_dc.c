@@ -1001,9 +1001,9 @@ static int dc_bind(struct device *dev, struct device *master, void *data)
 	}
 #endif
 
-	ret = vs_drm_iommu_attach_device(drm_dev, dev);
+	ret = vs_drm_dma_attach_device(drm_dev, dev);
 	if (ret < 0) {
-		dev_err(dev, "Failed to attached iommu device.\n");
+		dev_err(dev, "Failed to attached DMA device.\n");
 		goto err_clean_dc;
 	}
 
@@ -1100,7 +1100,7 @@ err_cleanup_planes:
 	drm_for_each_crtc(drm_crtc, drm_dev)
 		vs_crtc_destroy(drm_crtc);
 err_detach_dev:
-	vs_drm_iommu_detach_device(drm_dev, dev);
+	vs_drm_dma_detach_device(drm_dev, dev);
 err_clean_dc:
 	dc_deinit(dev);
 	return ret;
@@ -1112,7 +1112,7 @@ static void dc_unbind(struct device *dev, struct device *master, void *data)
 
 	dc_deinit(dev);
 
-	vs_drm_iommu_detach_device(drm_dev, dev);
+	vs_drm_dma_detach_device(drm_dev, dev);
 }
 
 const struct component_ops dc_component_ops = {
