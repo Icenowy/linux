@@ -97,13 +97,14 @@ static int pvr_device_clk_init(struct pvr_device *pvr_dev)
 	struct clk *core_clk;
 	struct clk *sys_clk;
 	struct clk *mem_clk;
+	struct regmap *vosys_regmap;
 
-	core_clk = devm_clk_get(drm_dev->dev, "core");
+	core_clk = devm_clk_get(drm_dev->dev, "cclk");
 	if (IS_ERR(core_clk))
 		return dev_err_probe(drm_dev->dev, PTR_ERR(core_clk),
 				     "failed to get core clock\n");
 
-	sys_clk = devm_clk_get_optional(drm_dev->dev, "sys");
+	sys_clk = devm_clk_get_optional(drm_dev->dev, "aclk");
 	if (IS_ERR(sys_clk))
 		return dev_err_probe(drm_dev->dev, PTR_ERR(sys_clk),
 				     "failed to get sys clock\n");
@@ -113,9 +114,15 @@ static int pvr_device_clk_init(struct pvr_device *pvr_dev)
 		return dev_err_probe(drm_dev->dev, PTR_ERR(mem_clk),
 				     "failed to get mem clock\n");
 
+	vosys_regmap = syscon_regmap_lookup_by_phandle(drm_dev->dev->of_node, "vosys-regmap");
+	if (IS_ERR(vosys_regmap))
+		return dev_err_probe(drm_dev->dev, PTR_ERR(vosys_regmap),
+				     "failed to get vosys regmap\n");
+
 	pvr_dev->core_clk = core_clk;
 	pvr_dev->sys_clk = sys_clk;
 	pvr_dev->mem_clk = mem_clk;
+	pvr_dev->vosys_regmap = vosys_regmap;
 
 	return 0;
 }

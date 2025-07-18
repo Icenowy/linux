@@ -15,6 +15,7 @@
 #include <linux/mutex.h>
 #include <linux/platform_device.h>
 #include <linux/pm_runtime.h>
+#include <linux/regmap.h>
 #include <linux/timer.h>
 #include <linux/types.h>
 #include <linux/workqueue.h>
@@ -248,6 +249,7 @@ pvr_power_device_suspend(struct device *dev)
 			goto err_drm_dev_exit;
 	}
 
+	regmap_update_bits(pvr_dev->vosys_regmap, 0x0, 3, 0);
 	clk_disable_unprepare(pvr_dev->mem_clk);
 	clk_disable_unprepare(pvr_dev->sys_clk);
 	clk_disable_unprepare(pvr_dev->core_clk);
@@ -266,6 +268,7 @@ pvr_power_device_resume(struct device *dev)
 	struct pvr_device *pvr_dev = to_pvr_device(drm_dev);
 	int idx;
 	int err;
+	unsigned int val;
 
 	if (!drm_dev_enter(drm_dev, &idx))
 		return -EIO;
@@ -282,15 +285,39 @@ pvr_power_device_resume(struct device *dev)
 	if (err)
 		goto err_sys_clk_disable;
 
+	regmap_read(pvr_dev->vosys_regmap, 0x0, &val);
+	if (val)
+	{
+		regmap_update_bits(pvr_dev->vosys_regmap, 0x0, 3, 0);
+		regmap_read(pvr_dev->vosys_regmap, 0x0, &val);
+		if (val)
+			goto err_mem_clk_disable;
+		udelay(1);
+	}
+	/* rst gpu clkgen */
+	regmap_update_bits(pvr_dev->vosys_regmap, 0x0, 2, 2);
+	regmap_read(pvr_dev->vosys_regmap, 0x0, &val);
+	if (!(val & 0x2))
+		goto err_reset_assert;
+	udelay(1);
+	/* rst gpu */
+	regmap_update_bits(pvr_dev->vosys_regmap, 0x0, 1, 1);
+	regmap_read(pvr_dev->vosys_regmap, 0x0, &val);
+	if (!(val & 0x1))
+		goto err_reset_assert;
+
 	if (pvr_dev->fw_dev.booted) {
 		err = pvr_power_fw_enable(pvr_dev);
 		if (err)
-			goto err_mem_clk_disable;
+			goto err_reset_assert;
 	}
 
 	drm_dev_exit(idx);
 
 	return 0;
+
+err_reset_assert:
+	regmap_update_bits(pvr_dev->vosys_regmap, 0x0, 3, 0);
 
 err_mem_clk_disable:
 	clk_disable_unprepare(pvr_dev->mem_clk);
