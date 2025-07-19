@@ -632,9 +632,11 @@ static int etnaviv_pdev_probe(struct platform_device *pdev)
 	 * To make things easy, we set the dma_coherent_mask to 32
 	 * bit to make sure we are allocating the command buffers and
 	 * TLBs in the lower 4 GiB address space.
+	 *
+	 * As coherent_mask may mislead of_dma_configure(), set it to
+	 * the same with main dma mask temporarily as a hack.
 	 */
-	if (dma_set_mask(&pdev->dev, DMA_BIT_MASK(40)) ||
-	    dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(32))) {
+	if (dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(40))) {
 		dev_dbg(&pdev->dev, "No suitable DMA available\n");
 		return -ENODEV;
 	}
@@ -646,6 +648,13 @@ static int etnaviv_pdev_probe(struct platform_device *pdev)
 	 */
 	if (first_node)
 		of_dma_configure(&pdev->dev, first_node, true);
+
+	/*
+	 * Now as of_dma_configure() is done, we're now safe to set
+	 * coherent_dma_mask to the real value.
+	 */
+	if (dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(32)))
+		return -ENODEV;
 
 	return component_master_add_with_match(dev, &etnaviv_master_ops, match);
 }
