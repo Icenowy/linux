@@ -258,6 +258,11 @@
 		#mbox-cells = <2>;
 	};
 
+	aon_iram: aon-iram@ffffef8000 {
+		compatible = "syscon";
+		reg = <0xff 0xffef8000 0x0 0x10000>;
+	};
+
 	soc {
 		compatible = "simple-bus";
 		interrupt-parent = <&plic>;
@@ -713,6 +718,12 @@
 				#interrupt-cells = <2>;
 				interrupts = <55 IRQ_TYPE_LEVEL_HIGH>;
 			};
+		};
+
+		th1520_event: th1520-event {
+			compatible = "thead,th1520-event";
+			aon-iram-regmap = <&aon_iram>;
+			status = "okay";
 		};
 	};
 };
