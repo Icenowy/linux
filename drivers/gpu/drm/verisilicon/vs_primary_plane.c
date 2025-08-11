@@ -1,0 +1,157 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2025 Icenowy Zheng <uwu@icenowy.me>
+ */
+
+#include <linux/regmap.h>
+
+#include <drm/drm_atomic.h>
+#include <drm/drm_atomic_helper.h>
+#include <drm/drm_crtc.h>
+#include <drm/drm_fb_dma_helper.h>
+#include <drm/drm_fourcc.h>
+#include <drm/drm_framebuffer.h>
+#include <drm/drm_gem_atomic_helper.h>
+#include <drm/drm_gem_dma_helper.h>
+#include <drm/drm_modeset_helper_vtables.h>
+#include <drm/drm_plane.h>
+#include <drm/drm_print.h>
+
+#include "vs_crtc.h"
+#include "vs_plane.h"
+#include "vs_dc.h"
+#include "vs_primary_plane_regs.h"
+
+static int vs_primary_plane_atomic_check(struct drm_plane *plane,
+					 struct drm_atomic_state *state)
+{
+	struct drm_plane_state *new_plane_state = drm_atomic_get_new_plane_state(state,
+										 plane);
+	struct drm_crtc *crtc = new_plane_state->crtc;
+	struct drm_crtc_state *crtc_state;
+
+	if (!crtc)
+		return 0;
+
+	crtc_state = drm_atomic_get_existing_crtc_state(state, crtc);
+	if (WARN_ON(!crtc_state))
+		return -EINVAL;
+
+	return drm_atomic_helper_check_plane_state(new_plane_state,
+						   crtc_state,
+						   DRM_PLANE_NO_SCALING,
+						   DRM_PLANE_NO_SCALING,
+						   false, true);
+}
+
+
+static void vs_primary_plane_atomic_update(struct drm_plane *plane,
+					   struct drm_atomic_state *atomic_state)
+{
+	struct drm_plane_state *state = drm_atomic_get_new_plane_state(atomic_state,
+								       plane);
+	struct drm_framebuffer *fb = state->fb;
+	struct drm_crtc *crtc = state->crtc;
+	struct drm_gem_dma_object *gem;
+	struct vs_dc *dc;
+	struct vs_crtc *vcrtc;
+	struct vs_format fmt;
+	unsigned int output, bpp;
+	dma_addr_t dma_addr;
+
+	if (!crtc)
+		return;
+
+	vcrtc = drm_crtc_to_vs_crtc(crtc);
+	output = vcrtc->id;
+	dc = vcrtc->dc;
+
+	DRM_DEBUG_DRIVER("Updating output %d primary plane\n", output);
+
+	regmap_update_bits(dc->regs, VSDC_FB_CONFIG_EX(output),
+			   VSDC_FB_CONFIG_EX_DISPLAY_ID_MASK,
+			   VSDC_FB_CONFIG_EX_DISPLAY_ID(output));
+
+	if (!state->visible || !fb) {
+		regmap_write(dc->regs, VSDC_FB_CONFIG(output), 0);
+		regmap_write(dc->regs, VSDC_FB_CONFIG_EX(output), 0);
+		goto commit;
+	} else {
+		regmap_set_bits(dc->regs, VSDC_FB_CONFIG_EX(output),
+				VSDC_FB_CONFIG_EX_FB_EN);
+	}
+
+	drm_format_to_vs_format(state->fb->format->format, &fmt);
+
+	regmap_update_bits(dc->regs, VSDC_FB_CONFIG(output),
+			   VSDC_FB_CONFIG_FMT_MASK,
+			   VSDC_FB_CONFIG_FMT(fmt.color));
+	regmap_update_bits(dc->regs, VSDC_FB_CONFIG(output),
+			   VSDC_FB_CONFIG_SWIZZLE_MASK,
+			   VSDC_FB_CONFIG_SWIZZLE(fmt.swizzle));
+	regmap_assign_bits(dc->regs, VSDC_FB_CONFIG(output),
+			   VSDC_FB_CONFIG_UV_SWIZZLE_EN, fmt.uv_swizzle);
+
+	/* Get the physical address of the buffer in memory */
+	gem = drm_fb_dma_get_gem_obj(fb, 0);
+
+	/* Compute the start of the displayed memory */
+	bpp = fb->format->cpp[0];
+	dma_addr = gem->dma_addr + fb->offsets[0];
+
+	/* Fixup framebuffer address for src coordinates */
+	dma_addr += (state->src.x1 >> 16) * bpp;
+	dma_addr += (state->src.y1 >> 16) * fb->pitches[0];
+
+	regmap_write(dc->regs, VSDC_FB_ADDRESS(output),
+		     lower_32_bits(dma_addr));
+	regmap_write(dc->regs, VSDC_FB_STRIDE(output),
+		     fb->pitches[0]);
+
+	regmap_write(dc->regs, VSDC_FB_TOP_LEFT(output),
+		     VSDC_MAKE_PLANE_POS(state->crtc_x, state->crtc_y));
+	regmap_write(dc->regs, VSDC_FB_BOTTOM_RIGHT(output),
+		     VSDC_MAKE_PLANE_POS(state->crtc_x + state->crtc_w,
+					 state->crtc_y + state->crtc_h));
+	regmap_write(dc->regs, VSDC_FB_SIZE(output),
+		     VSDC_MAKE_PLANE_SIZE(state->crtc_w, state->crtc_h));
+
+	regmap_write(dc->regs, VSDC_FB_BLEND_CONFIG(output),
+		     VSDC_FB_BLEND_CONFIG_BLEND_DISABLE);
+commit:
+	regmap_set_bits(dc->regs, VSDC_FB_CONFIG_EX(output),
+			VSDC_FB_CONFIG_EX_COMMIT);
+}
+
+static const struct drm_plane_helper_funcs vs_primary_plane_helper_funcs = {
+	.atomic_check	= vs_primary_plane_atomic_check,
+	.atomic_update	= vs_primary_plane_atomic_update,
+};
+
+static const struct drm_plane_funcs vs_primary_plane_funcs = {
+	.atomic_destroy_state	= drm_atomic_helper_plane_destroy_state,
+	.atomic_duplicate_state	= drm_atomic_helper_plane_duplicate_state,
+	.disable_plane		= drm_atomic_helper_disable_plane,
+	.reset			= drm_atomic_helper_plane_reset,
+	.update_plane		= drm_atomic_helper_update_plane,
+};
+
+struct drm_plane *vs_primary_plane_init(struct drm_device *drm_dev, struct vs_dc *dc)
+{
+	struct drm_plane *plane;
+
+	plane = drmm_universal_plane_alloc(drm_dev, struct drm_plane, dev, 0,
+					   &vs_primary_plane_funcs,
+					   dc->identity.formats->array,
+					   dc->identity.formats->num,
+					   NULL,
+					   DRM_PLANE_TYPE_PRIMARY,
+					   NULL);
+
+	if (IS_ERR(plane))
+		return plane;
+
+	drm_plane_helper_add(plane, &vs_primary_plane_helper_funcs);
+
+	return plane;
+}
