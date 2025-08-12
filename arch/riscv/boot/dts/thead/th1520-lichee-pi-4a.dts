@@ -4,6 +4,7 @@
  */
 
 #include "th1520-lichee-module-4a.dtsi"
+#include <dt-bindings/gpio/gpio.h>
 
 / {
 	model = "Sipeed Lichee Pi 4A";
@@ -29,6 +30,19 @@
 		stdout-path = "serial0:115200n8";
 	};
 
+	gpio_pwm: gpio-pwm {
+		#pwm-cells = <3>;
+		compatible = "pwm-gpio";
+		gpios = <&gpio3 3 GPIO_ACTIVE_HIGH>;
+	};
+
+	fan: pwm-fan {
+		compatible = "pwm-fan";
+		#cooling-cells = <2>;
+		pwms = <&gpio_pwm 0 100000000 0>;
+		cooling-levels = <0 66 196 255>;
+	};
+
 	hdmi-connector {
 		compatible = "hdmi-connector";
 		type = "a";
@@ -37,6 +51,45 @@
 			hdmi_con_in: endpoint {
 				remote-endpoint = <&hdmi_out_con>;
 			};
+		};
+	};
+};
+
+&cpu_thermal_zone {
+	trips {
+		fan_trip0: fan-trip-0 {
+			temperature = <40000>;
+			hysteresis = <8000>;
+			type = "active";
+		};
+
+		fan_trip1: fan-trip-1 {
+			temperature = <50000>;
+			hysteresis = <8000>;
+			type = "active";
+		};
+
+		fan_trip2: fan-trip-2 {
+			temperature = <60000>;
+			hysteresis = <8000>;
+			type = "active";
+		};
+	};
+
+	cooling-maps {
+		map-active-0 {
+			cooling-device = <&fan 1 1>;
+			trip = <&fan_trip0>;
+		};
+
+		map-active-1 {
+			cooling-device = <&fan 2 2>;
+			trip = <&fan_trip1>;
+		};
+
+		map-active-2 {
+			cooling-device = <&fan 3 3>;
+			trip = <&fan_trip2>;
 		};
 	};
 };
