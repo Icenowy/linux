@@ -39,7 +39,7 @@ static void etnaviv_iommuv1_free(struct etnaviv_iommu_context *context)
 	dma_free_wc(context->global->dev, PT_SIZE, v1_context->pgtable_cpu,
 		    v1_context->pgtable_dma);
 
-	context->global->v1.shared_context = NULL;
+	context->global->shared_context = NULL;
 
 	kfree(v1_context);
 }
@@ -136,8 +136,8 @@ etnaviv_iommuv1_context_alloc(struct etnaviv_iommu_global *global)
 	 * a stop the world operation, so we only support a single shared
 	 * context with this version.
 	 */
-	if (global->v1.shared_context) {
-		context = global->v1.shared_context;
+	if (global->shared_context) {
+		context = global->shared_context;
 		etnaviv_iommu_context_get(context);
 		mutex_unlock(&global->lock);
 		return context;
@@ -163,7 +163,7 @@ etnaviv_iommuv1_context_alloc(struct etnaviv_iommu_global *global)
 	mutex_init(&context->lock);
 	INIT_LIST_HEAD(&context->mappings);
 	drm_mm_init(&context->mm, GPU_MEM_START, PT_ENTRIES * SZ_4K);
-	context->global->v1.shared_context = context;
+	context->global->shared_context = context;
 
 	mutex_unlock(&global->lock);
 

@@ -49,21 +49,13 @@ struct etnaviv_iommu_global {
 
 	u32 memory_base;
 
-	/*
-	 * This union holds members needed by either MMUv1 or MMUv2, which
-	 * can not exist at the same time.
-	 */
-	union {
-		struct {
-			struct etnaviv_iommu_context *shared_context;
-		} v1;
-		struct {
-			/* P(age) T(able) A(rray) */
-			u64 *pta_cpu;
-			dma_addr_t pta_dma;
-			DECLARE_BITMAP(pta_alloc, ETNAVIV_PTA_ENTRIES);
-		} v2;
-	};
+	struct etnaviv_iommu_context *shared_context;
+	struct {
+		/* P(age) T(able) A(rray) */
+		u64 *pta_cpu;
+		dma_addr_t pta_dma;
+		DECLARE_BITMAP(pta_alloc, ETNAVIV_PTA_ENTRIES);
+	} v2;
 };
 
 struct etnaviv_iommu_context {
