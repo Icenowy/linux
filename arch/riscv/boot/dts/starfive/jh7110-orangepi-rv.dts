@@ -22,6 +22,20 @@
 			label = "ack";
 		};
 	};
+
+	/* This regulator is always on by hardware */
+	reg_vcc3v3_pcie: regulator-vcc3v3-pcie {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc3v3-pcie";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+	};
+
+	wifi_pwrseq: wifi-pwrseq {
+		compatible = "mmc-pwrseq-simple";
+		reset-gpios = <&sysgpio 62 GPIO_ACTIVE_LOW>;
+	};
 };
 
 &gmac0 {
@@ -31,13 +45,33 @@
 };
 
 &mmc0 {
-	/* TODO: Ampak AP6256 Wi-Fi module attached here */
-	status = "disabled";
+	#address-cells = <1>;
+	#size-cells = <0>;
+	cap-sd-highspeed;
+	mmc-pwrseq = <&wifi_pwrseq>;
+	vmmc-supply = <&reg_vcc3v3_pcie>;
+	vqmmc-supply = <&vcc_3v3>;
+	status = "okay";
+
+	ap6256: wifi@1 {
+		compatible = "brcm,bcm43456-fmac", "brcm,bcm4329-fmac";
+		reg = <1>;
+		/* TODO: out-of-band IRQ on GPIO21 */
+	};
+};
+
+&mmc0_pins {
+	/*
+	 * As the MMC0 bus is used to connect a SDIO Wi-Fi card instead of
+	 * an eMMC card, and the eMMC RST is repurposed to be an enablement
+	 * pin of the SDIO Wi-Fi, remove it from the pinctrl node and manage
+	 * it as a GPIO instead.
+	 */
+	/delete-node/ rst-pins;
 };
 
 &mmc1 {
-	/delete-property/ cd-gpios;
-	broken-cd;
+	cd-gpios = <&sysgpio 41 GPIO_ACTIVE_HIGH>;
 };
 
 &pcie0 {
