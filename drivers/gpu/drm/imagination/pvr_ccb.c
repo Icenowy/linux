@@ -157,6 +157,14 @@ process_fwccb_command(struct pvr_device *pvr_dev, struct rogue_fwif_fwccb_cmd *c
 		pvr_free_list_process_grow_req(pvr_dev, &cmd->cmd_data.cmd_free_list_gs);
 		break;
 
+	case ROGUE_FWIF_FWCCB_CMD_UPDATE_STATS:
+		/*
+		 * We currently have no infrastructure for processing these
+		 * stats. It may be added in the future, but for now just
+		 * suppress the "unknown" warning when receiving this command.
+		 */
+		break;
+
 	default:
 		drm_info(drm_dev, "Received unknown FWCCB command (type=%d)\n",
 			 cmd->cmd_type & ~ROGUE_CMD_MAGIC_DWORD_MASK);
