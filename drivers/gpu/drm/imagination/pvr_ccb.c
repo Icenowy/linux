@@ -135,6 +135,14 @@ pvr_ccb_slot_available_locked(struct pvr_ccb *pvr_ccb, u32 *write_offset)
 static void
 process_fwccb_command(struct pvr_device *pvr_dev, struct rogue_fwif_fwccb_cmd *cmd)
 {
+	struct drm_device *drm_dev = from_pvr_device(pvr_dev);
+
+	if ((cmd->cmd_type & ROGUE_CMD_MAGIC_DWORD_MASK) != ROGUE_CMD_MAGIC_DWORD_SHIFTED) {
+		drm_warn_once(drm_dev, "Received FWCCB command with bad magic value; ignoring (type=0x%08x)\n",
+			      cmd->cmd_type);
+		return;
+	}
+
 	switch (cmd->cmd_type) {
 	case ROGUE_FWIF_FWCCB_CMD_REQUEST_GPU_RESTART:
 		pvr_power_reset(pvr_dev, false);
@@ -150,8 +158,8 @@ process_fwccb_command(struct pvr_device *pvr_dev, struct rogue_fwif_fwccb_cmd *c
 		break;
 
 	default:
-		drm_info(from_pvr_device(pvr_dev), "Received unknown FWCCB command %x\n",
-			 cmd->cmd_type);
+		drm_info(drm_dev, "Received unknown FWCCB command (type=%d)\n",
+			 cmd->cmd_type & ~ROGUE_CMD_MAGIC_DWORD_MASK);
 		break;
 	}
 }
