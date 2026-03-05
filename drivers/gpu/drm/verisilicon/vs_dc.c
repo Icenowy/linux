@@ -105,10 +105,8 @@ static int vs_dc_probe(struct platform_device *pdev)
 	}
 
 	irq = platform_get_irq(pdev, 0);
-	if (irq < 0) {
-		dev_err(dev, "can't get irq\n");
+	if (irq < 0)
 		return irq;
-	}
 
 	ret = reset_control_bulk_deassert(VSDC_RESET_COUNT, dc->rsts);
 	if (ret) {
