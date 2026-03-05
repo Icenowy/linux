@@ -172,7 +172,7 @@ struct vs_crtc *vs_crtc_init(struct drm_device *drm_dev, struct vs_dc *dc,
 	primary = vs_primary_plane_init(drm_dev, dc);
 	if (IS_ERR(primary)) {
 		drm_err(drm_dev, "Couldn't create the primary plane\n");
-		return ERR_PTR(PTR_ERR(primary));
+		return ERR_CAST(primary);
 	}
 
 	/* Create our cursor plane */

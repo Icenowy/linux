@@ -322,7 +322,7 @@ struct vs_bridge *vs_bridge_init(struct drm_device *drm_dev,
 	bridge = devm_drm_bridge_alloc(drm_dev->dev, struct vs_bridge, base,
 				       bridge_funcs);
 	if (IS_ERR(bridge))
-		return ERR_PTR(PTR_ERR(bridge));
+		return ERR_CAST(bridge);
 
 	bridge->crtc = crtc;
 	bridge->intf = intf;
