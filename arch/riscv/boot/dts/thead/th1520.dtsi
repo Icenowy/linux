@@ -401,8 +401,8 @@
 			compatible = "thead,th1520-dwcmshc";
 			reg = <0xff 0xe7080000 0x0 0x10000>;
 			interrupts = <62 IRQ_TYPE_LEVEL_HIGH>;
-			clocks = <&clk CLK_EMMC_SDIO>;
-			clock-names = "core";
+			clocks = <&clk CLK_EMMC_SDIO>, <&clk_misc CLK_EMMC>;
+			clock-names = "core", "bus";
 			status = "disabled";
 		};
 
@@ -410,8 +410,8 @@
 			compatible = "thead,th1520-dwcmshc";
 			reg = <0xff 0xe7090000 0x0 0x10000>;
 			interrupts = <64 IRQ_TYPE_LEVEL_HIGH>;
-			clocks = <&clk CLK_EMMC_SDIO>;
-			clock-names = "core";
+			clocks = <&clk CLK_EMMC_SDIO>, <&clk_misc CLK_SDIO0>;
+			clock-names = "core", "bus";
 			status = "disabled";
 		};
 
@@ -419,8 +419,8 @@
 			compatible = "thead,th1520-dwcmshc";
 			reg = <0xff 0xe70a0000 0x0 0x10000>;
 			interrupts = <71 IRQ_TYPE_LEVEL_HIGH>;
-			clocks = <&clk CLK_EMMC_SDIO>;
-			clock-names = "core";
+			clocks = <&clk CLK_EMMC_SDIO>, <&clk_misc CLK_SDIO1>;
+			clock-names = "core", "bus";
 			status = "disabled";
 		};
 
@@ -616,6 +616,13 @@
 			compatible = "thead,th1520-reset-misc";
 			reg = <0xff 0xec02c000 0x0 0x18>;
 			#reset-cells = <1>;
+		};
+
+		clk_misc: clock-controller@ffec02c100 {
+			compatible = "thead,th1520-clk-misc";
+			reg = <0xff 0xec02c100 0x0 0x100>;
+			clocks = <&osc>;
+			#clock-cells = <1>;
 		};
 
 		rst_vp: reset-controller@ffecc30000 {
