@@ -10,7 +10,7 @@ maintainers:
   - Anand Moon <linux.amoon@gmail.com>
 
 allOf:
-  - $ref: usb-device.yaml#
+  - $ref: usb-hub.yaml#
 
 properties:
   compatible:
@@ -33,6 +33,8 @@ properties:
     $ref: /schemas/types.yaml#/definitions/phandle
     description:
       phandle to the peer hub on the controller.
+
+  ports: true
 
 required:
   - compatible
