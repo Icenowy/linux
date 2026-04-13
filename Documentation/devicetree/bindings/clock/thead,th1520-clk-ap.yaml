@@ -23,6 +23,7 @@ properties:
   compatible:
     enum:
       - thead,th1520-clk-ap
+      - thead,th1520-clk-misc
       - thead,th1520-clk-vo
 
   reg:
@@ -32,8 +33,8 @@ properties:
     items:
       - description: |
           One input clock:
-          - For "thead,th1520-clk-ap": the clock input must be the 24 MHz
-            main oscillator.
+          - For "thead,th1520-clk-ap" and "thead,th1520-clk-misc": the clock
+            input must be the 24 MHz main oscillator.
           - For "thead,th1520-clk-vo": the clock input must be the VIDEO_PLL,
             which is configured by the AP clock controller. According to the
             TH1520 manual, VIDEO_PLL is a Silicon Creations Sigma-Delta PLL
