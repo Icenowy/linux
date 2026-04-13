@@ -128,4 +128,14 @@
 #define CLK_MIPIDSI1_PIXCLK		29
 #define CLK_HDMI_PIXCLK			30
 
+/* MISC clocks */
+#define CLK_MISCSYS_ACLK	0
+#define CLK_USB			1
+#define CLK_USB_CTL_REF		2
+#define CLK_USB_PHY_REF		3
+#define CLK_USB_SUSPEND		4
+#define CLK_EMMC		5
+#define CLK_SDIO0		6
+#define CLK_SDIO1		7
+
 #endif
