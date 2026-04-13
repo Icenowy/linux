@@ -20,6 +20,16 @@
 		device_type = "memory";
 		reg = <0x0 0x00000000 0x2 0x00000000>;
 	};
+
+	/* TODO: Switch to AON regulator when it's available. */
+	avdd33_usb3: regulator-avdd33-usb3 {
+		compatible = "regulator-fixed";
+		regulator-name = "AVDD33_USB3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		/* Marked as always on on the schematics */
+		regulator-always-on;
+	};
 };
 
 &osc {
@@ -200,5 +210,10 @@
 &sdio0 {
 	bus-width = <4>;
 	max-frequency = <198000000>;
+	status = "okay";
+};
+
+&usb_phy {
+	avdd33-usb3-supply = <&avdd33_usb3>;
 	status = "okay";
 };

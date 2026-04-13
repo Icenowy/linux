@@ -101,6 +101,141 @@
 		cooling-levels = <0 66 196 255>;
 	};
 
+	hub_5v: regulator-hub-5v {
+		compatible = "regulator-fixed";
+		regulator-name = "HUB_5V";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		gpio = <&ioexp3 3 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	vcc5v_usb: regulator-vcc5v-usb {
+		compatible = "regulator-fixed";
+		regulator-name = "VCC5V_USB";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		gpio = <&gpio1 22 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		/*
+		 * Workaround for Linux currently being not able to power on
+		 * Vbus for USB Type-A connectors.
+		 */
+		regulator-always-on;
+	};
+
+	connector-usb-a-1 {
+		compatible = "usb-a-connector";
+		vbus-supply = <&vcc5v_usb>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+
+				usb_a_1_hs_ep: endpoint {
+					remote-endpoint = <&hub_hs_port1_ep>;
+				};
+			};
+
+			port@1 {
+				reg = <1>;
+
+				usb_a_1_ss_ep: endpoint {
+					remote-endpoint = <&hub_ss_port1_ep>;
+				};
+			};
+		};
+	};
+
+	connector-usb-a-2 {
+		compatible = "usb-a-connector";
+		vbus-supply = <&vcc5v_usb>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+
+				usb_a_2_hs_ep: endpoint {
+					remote-endpoint = <&hub_hs_port2_ep>;
+				};
+			};
+
+			port@1 {
+				reg = <1>;
+
+				usb_a_2_ss_ep: endpoint {
+					remote-endpoint = <&hub_ss_port2_ep>;
+				};
+			};
+		};
+	};
+
+	connector-usb-a-3 {
+		compatible = "usb-a-connector";
+		vbus-supply = <&vcc5v_usb>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+
+				usb_a_3_hs_ep: endpoint {
+					remote-endpoint = <&hub_hs_port3_ep>;
+				};
+			};
+
+			port@1 {
+				reg = <1>;
+
+				usb_a_3_ss_ep: endpoint {
+					remote-endpoint = <&hub_ss_port3_ep>;
+				};
+			};
+		};
+	};
+
+	connector-usb-a-4 {
+		compatible = "usb-a-connector";
+		vbus-supply = <&vcc5v_usb>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+
+				usb_a_4_hs_ep: endpoint {
+					remote-endpoint = <&hub_hs_port4_ep>;
+				};
+			};
+
+			port@1 {
+				reg = <1>;
+
+				usb_a_4_ss_ep: endpoint {
+					remote-endpoint = <&hub_ss_port4_ep>;
+				};
+			};
+		};
+	};
+};
+
+&aogpio {
+	/* Route USB2 to the onboard hub for normal operation */
+	sel-usb-hub-hog {
+		gpio-hog;
+		gpios = <4 GPIO_ACTIVE_HIGH>;
+		output-high;
+	};
 };
 
 &dpu {
@@ -268,4 +403,99 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart0_pins>;
 	status = "okay";
+};
+
+&usb {
+	dr_mode = "host";
+	#address-cells = <1>;
+	#size-cells = <0>;
+	status = "okay";
+
+	hub_hs: hub@1 {
+		compatible = "usb2109,2817";
+		reg = <1>;
+		peer-hub = <&hub_ss>;
+		vdd-supply = <&hub_5v>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@1 {
+				reg = <1>;
+
+				hub_hs_port1_ep: endpoint {
+					remote-endpoint = <&usb_a_1_hs_ep>;
+				};
+			};
+
+			port@2 {
+				reg = <2>;
+
+				hub_hs_port2_ep: endpoint {
+					remote-endpoint = <&usb_a_2_hs_ep>;
+				};
+			};
+
+			port@3 {
+				reg = <3>;
+
+				hub_hs_port3_ep: endpoint {
+					remote-endpoint = <&usb_a_3_hs_ep>;
+				};
+			};
+
+			port@4 {
+				reg = <4>;
+
+				hub_hs_port4_ep: endpoint {
+					remote-endpoint = <&usb_a_4_hs_ep>;
+				};
+			};
+		};
+	};
+
+	hub_ss: hub@2 {
+		compatible = "usb2109,817";
+		reg = <2>;
+		peer-hub = <&hub_hs>;
+		vdd-supply = <&hub_5v>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@1 {
+				reg = <1>;
+
+				hub_ss_port1_ep: endpoint {
+					remote-endpoint = <&usb_a_1_ss_ep>;
+				};
+			};
+
+			port@2 {
+				reg = <2>;
+
+				hub_ss_port2_ep: endpoint {
+					remote-endpoint = <&usb_a_2_ss_ep>;
+				};
+			};
+
+			port@3 {
+				reg = <3>;
+
+				hub_ss_port3_ep: endpoint {
+					remote-endpoint = <&usb_a_3_ss_ep>;
+				};
+			};
+
+			port@4 {
+				reg = <4>;
+
+				hub_ss_port4_ep: endpoint {
+					remote-endpoint = <&usb_a_4_ss_ep>;
+				};
+			};
+		};
+	};
 };
