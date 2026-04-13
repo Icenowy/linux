@@ -1266,6 +1266,41 @@ static CCU_GATE(CLK_MIPIDSI1_PIXCLK, mipi_dsi1_pixclk, "mipi-dsi1-pixclk",
 static CCU_GATE(CLK_HDMI_PIXCLK, hdmi_pixclk, "hdmi-pixclk", video_pll_clk_pd,
 		0x4, 0, 0);
 
+static struct clk_fixed_factor usb_suspend_div_clk = {
+	.div		= 24,
+	.mult		= 1,
+	.hw.init	= CLK_HW_INIT_PARENTS_DATA("usb-suspend-div",
+						   osc_24m_clk,
+						   &clk_fixed_factor_ops,
+						   0),
+};
+
+static const struct clk_parent_data usb_suspend_parents[] = {
+	{ .hw = &usb_suspend_div_clk.hw },
+};
+
+static CCU_GATE(CLK_MISCSYS_ACLK, miscsys_aclk, "miscsys-aclk", axi_aclk_pd,
+		0x0, 0, CLK_IS_CRITICAL);
+
+static const struct clk_parent_data miscsys_aclk_pd[] = {
+	{ .hw = &miscsys_aclk.gate.hw },
+};
+
+static CCU_GATE(CLK_USB, usb_clk, "usb", miscsys_aclk_pd, 0x4, 0,
+		CLK_IS_CRITICAL);
+static CCU_GATE(CLK_USB_CTL_REF, usb_ctl_ref_clk, "usb-ctl-ref", osc_24m_clk,
+		0x4, 1, 0);
+static CCU_GATE(CLK_USB_PHY_REF, usb_phy_ref_clk, "usb-phy-ref", osc_24m_clk,
+		0x4, 2, 0);
+static CCU_GATE(CLK_USB_SUSPEND, usb_suspend_clk, "usb-suspend",
+		usb_suspend_parents, 0x4, 3, 0);
+static CCU_GATE(CLK_EMMC, emmc_clk, "emmc", perisys_ahb_hclk_pd, 0x8, 0,
+		0);
+static CCU_GATE(CLK_SDIO0, sdio0_clk, "sdio0", perisys_ahb_hclk_pd, 0xc, 0,
+		0);
+static CCU_GATE(CLK_SDIO1, sdio1_clk, "sdio1", perisys_ahb_hclk_pd, 0x10, 0,
+		0);
+
 static CLK_FIXED_FACTOR_HW(gmac_pll_clk_100m, "gmac-pll-clk-100m",
 			   &gmac_pll_clk.common.hw, 10, 1, 0);
 
@@ -1410,6 +1445,17 @@ static struct ccu_gate *th1520_vo_gate_clks[] = {
 	&hdmi_pixclk
 };
 
+static struct ccu_gate *th1520_misc_gate_clks[] = {
+	&miscsys_aclk,
+	&usb_clk,
+	&usb_ctl_ref_clk,
+	&usb_phy_ref_clk,
+	&usb_suspend_clk,
+	&emmc_clk,
+	&sdio0_clk,
+	&sdio1_clk
+};
+
 static const struct regmap_config th1520_clk_regmap_config = {
 	.reg_bits = 32,
 	.val_bits = 32,
@@ -1449,6 +1495,14 @@ static const struct th1520_plat_data th1520_vo_platdata = {
 	.nr_clks = CLK_HDMI_PIXCLK + 1,
 
 	.nr_gate_clks = ARRAY_SIZE(th1520_vo_gate_clks),
+};
+
+static const struct th1520_plat_data th1520_misc_platdata = {
+	.th1520_gate_clks = th1520_misc_gate_clks,
+
+	.nr_clks = CLK_SDIO1 + 1,
+
+	.nr_gate_clks = ARRAY_SIZE(th1520_misc_gate_clks),
 };
 
 /*
@@ -1609,6 +1663,12 @@ static int th1520_clk_probe(struct platform_device *pdev)
 			return ret;
 	}
 
+	if (plat_data == &th1520_ap_platdata) {
+		ret = devm_clk_hw_register(dev, &usb_suspend_div_clk.hw);
+		if (ret)
+			return ret;
+	}
+
 	ret = devm_of_clk_add_hw_provider(dev, of_clk_hw_onecell_get, priv);
 	if (ret)
 		return ret;
@@ -1624,6 +1684,10 @@ static const struct of_device_id th1520_clk_match[] = {
 	{
 		.compatible = "thead,th1520-clk-vo",
 		.data = &th1520_vo_platdata,
+	},
+	{
+		.compatible = "thead,th1520-clk-misc",
+		.data = &th1520_misc_platdata,
 	},
 	{ /* sentinel */ },
 };
