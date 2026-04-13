@@ -351,6 +351,20 @@
 			status = "disabled";
 		};
 
+		usb: usb@ffe7040000 {
+			compatible = "snps,dwc3";
+			reg = <0xff 0xe7040000 0x0 0x10000>;
+			interrupts = <68 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk_misc CLK_USB>,
+				 <&clk_misc CLK_USB_CTL_REF>,
+				 <&clk_misc CLK_USB_SUSPEND>;
+			clock-names = "bus_early", "ref", "suspend";
+			resets = <&rst_misc TH1520_RESET_ID_USB3_VCC>;
+			phys = <&usb_phy>;
+			phy-names = "usb3-phy";
+			status = "disabled";
+		};
+
 		gmac1: ethernet@ffe7060000 {
 			compatible = "thead,th1520-gmac", "snps,dwmac-3.70a";
 			reg = <0xff 0xe7060000 0x0 0x2000>, <0xff 0xec004000 0x0 0x1000>;
@@ -623,6 +637,19 @@
 			reg = <0xff 0xec02c100 0x0 0x100>;
 			clocks = <&osc>;
 			#clock-cells = <1>;
+		};
+
+		usb_phy: phy@ffec030000 {
+			compatible = "thead,th1520-usb-phy";
+			reg = <0xff 0xec030000 0x0 0x10000>;
+			clocks = <&clk_misc CLK_USB>,
+				 <&clk_misc CLK_USB_PHY_REF>;
+			clock-names = "bus", "ref";
+			resets = <&rst_misc TH1520_RESET_ID_USB3_APB>,
+				 <&rst_misc TH1520_RESET_ID_USB3_PHY>;
+			reset-names = "bus", "phy";
+			#phy-cells = <0>;
+			status = "disabled";
 		};
 
 		rst_vp: reset-controller@ffecc30000 {
