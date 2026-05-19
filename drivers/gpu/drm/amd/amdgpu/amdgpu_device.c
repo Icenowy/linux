@@ -1867,6 +1867,13 @@ bool amdgpu_device_seamless_boot_supported(struct amdgpu_device *adev)
  */
 static bool amdgpu_device_pcie_dynamic_switching_supported(struct amdgpu_device *adev)
 {
+	struct pci_dev *parent = adev->pdev;
+	static const struct pci_device_id broken_devids[] = {
+		/* SpacemiT K3 */
+		{ PCI_DEVICE(0x201f, 0x0002) },
+		{}
+	};
+
 #if IS_ENABLED(CONFIG_X86)
 	struct cpuinfo_x86 *c = &cpu_data(0);
 
@@ -1877,6 +1884,17 @@ static bool amdgpu_device_pcie_dynamic_switching_supported(struct amdgpu_device 
 	if (c->x86_vendor == X86_VENDOR_INTEL)
 		return false;
 #endif
+	/* skip upstream/downstream switches internal to dGPU */
+	while (parent && parent->vendor == PCI_VENDOR_ID_ATI) {
+		parent = pci_upstream_bridge(parent);
+	}
+
+	if (!parent)
+		return true;
+
+	if (pci_match_id(broken_devids, parent))
+		return false;
+
 	return true;
 }
 
