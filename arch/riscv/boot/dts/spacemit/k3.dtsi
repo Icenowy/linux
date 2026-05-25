@@ -1679,6 +1679,7 @@
 			snps,blen = <256 128 64 32 16 0 0>;
 		};
 
+/*
 		imggpu: imggpu@cac00000 {
 			compatible = "img,rgx";
 			interrupt-names = "rgxirq";
@@ -1734,6 +1735,21 @@
 					clock-latency-ns = <100000>;
 				};
 			};
+		};
+*/
+		imggpu: gpu@cac00000 {
+			compatible = "spacemit,k3-gpu", "img,img-bxm-4-64",
+				     "img,img-rogue";
+			interrupt-parent = <&saplic>;
+			interrupts = <75 IRQ_TYPE_LEVEL_HIGH>;
+			reg = <0x0 0xcac00000 0x0 0x80000>;
+			reg-names = "rgxregs";
+			power-domains = <&power K3_PMU_GPU_PWR_DOMAIN>;
+			clocks = <&syscon_apmu CLK_APMU_GPU>;
+			clock-names = "core";
+			resets = <&syscon_apmu RESET_APMU_GPU>;
+			#cooling-cells = <2>;
+			status = "okay";
 		};
 
                 ec_master: ethercat_master {
