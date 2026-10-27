@@ -1,0 +1,500 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright (C) 2023 Jisheng Zhang <jszhang@kernel.org>
+ */
+
+#include "th1520-lichee-module-4a.dtsi"
+#include <dt-bindings/gpio/gpio.h>
+
+/ {
+	model = "Sipeed Lichee Console 4A";
+	compatible = "sipeed,lichee-console-4a", "sipeed,lichee-module-4a", "thead,th1520";
+
+	aliases {
+		gpio0 = &gpio0;
+		gpio1 = &gpio1;
+		gpio2 = &gpio2;
+		gpio3 = &gpio3;
+		gpio4 = &gpio4;
+		gpio5 = &aogpio;
+		serial0 = &uart0;
+		serial1 = &uart1;
+		serial2 = &uart2;
+		serial3 = &uart3;
+		serial4 = &uart4;
+		serial5 = &uart5;
+		spi0 = &spi0;
+	};
+
+	backlight: backlight {
+		compatible = "pwm-backlight";
+		pwms = <&pwm 0 50000 0>;
+		brightness-levels = <0 255>;
+		default-brightness-level = <8>;
+		num-interpolated-steps = <10>;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	hdmi-connector {
+		compatible = "hdmi-connector";
+		type = "c";
+
+		port {
+			hdmi_con_in: endpoint {
+				remote-endpoint = <&hdmi_out_con>;
+			};
+		};
+	};
+
+	wifi_pwrseq: wifi-pwrseq {
+		compatible = "mmc-pwrseq-simple";
+		reset-gpios = <&ioexp2 4 GPIO_ACTIVE_LOW>;
+		post-power-on-delay-ms = <200>;
+	};
+
+	thermal-zones {
+		cpu-thermal {
+			polling-delay = <1000>;
+			polling-delay-passive = <1000>;
+			thermal-sensors = <&pvt 0>;
+
+			trips {
+				fan_config0: fan-trip0 {
+					temperature = <39000>;
+					hysteresis = <5000>;
+					type = "active";
+				};
+
+				fan_config1: fan-trip1 {
+					temperature = <50000>;
+					hysteresis = <5000>;
+					type = "active";
+				};
+
+				fan_config2: fan-trip2 {
+					temperature = <60000>;
+					hysteresis = <5000>;
+					type = "active";
+				};
+			};
+
+			cooling-maps {
+				map-active-0 {
+					cooling-device = <&fan 1 1>;
+					trip = <&fan_config0>;
+				};
+
+				map-active-1 {
+					cooling-device = <&fan 2 2>;
+					trip = <&fan_config1>;
+				};
+
+				map-active-2 {
+					cooling-device = <&fan 3 3>;
+					trip = <&fan_config2>;
+				};
+			};
+		};
+	};
+
+	fan: pwm-fan {
+		pinctrl-names = "default";
+		pinctrl-0 = <&fan_pins>;
+		compatible = "pwm-fan";
+		#cooling-cells = <2>;
+		pwms = <&pwm 1 10000000 0>;
+		cooling-levels = <0 66 196 255>;
+	};
+
+	vcc1v8_sys: regulator-sys-1v8 {
+		status = "okay";
+		compatible = "regulator-fixed";
+		regulator-name = "vcc1v8-sys";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		regulator-always-on;
+	};
+
+	vcc3v3_sys: regulator-sys-3v3 {
+		status = "okay";
+		compatible = "regulator-fixed";
+		regulator-name = "vcc3v3-sys";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+	};
+
+	vcc5v_usb: regulator-hub-5v {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc5v-usb";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		gpio = <&ioexp3 3 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	connector-usb-a-back {
+		compatible = "usb-a-connector";
+		vbus-supply = <&vcc5v_usb>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+
+				usb_a_back_hs_ep: endpoint {
+					remote-endpoint = <&hub_hs_port2_ep>;
+				};
+			};
+
+			port@1 {
+				reg = <1>;
+
+				usb_a_back_ss_ep: endpoint {
+					remote-endpoint = <&hub_ss_port2_ep>;
+				};
+			};
+		};
+	};
+
+	connector-usb-a-right {
+		compatible = "usb-a-connector";
+		vbus-supply = <&vcc5v_usb>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+
+				usb_a_right_hs_ep: endpoint {
+					remote-endpoint = <&hub_usb2_port3_ep>;
+				};
+			};
+		};
+	};
+
+	/* TODO: USB Type-C connector */
+
+	charger: dc-charger {
+		compatible = "gpio-charger";
+		charger-type = "mains";
+		gpios = <&gpio0 16 GPIO_ACTIVE_HIGH>;
+	};
+};
+
+&aogpio {
+	/* Route USB2 to the onboard hub for normal operation */
+	sel-usb-hub-hog {
+		gpio-hog;
+		gpios = <4 GPIO_ACTIVE_HIGH>;
+		output-high;
+	};
+};
+
+&dpu {
+	status = "okay";
+};
+
+&hdmi {
+	status = "okay";
+};
+
+&hdmi_out_port {
+	hdmi_out_con: endpoint {
+		remote-endpoint = <&hdmi_con_in>;
+	};
+};
+
+&i2c0 {
+	clock-frequency = <400000>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c0_pins>;
+	status = "okay";
+
+	cw2015: cw2015@62 {
+		compatible = "cellwise,cw2015";
+		reg = <0x62>;
+		cellwise,monitor-interval-ms = <5000>;
+		cellwise,battery-profile = /bits/ 8 <
+			0x17 0x67 0x72 0x68 0x66 0x63 0x62 0x5A
+			0x64 0x61 0x4D 0x57 0x5A 0x51 0x43 0x38
+			0x31 0x2A 0x24 0x22 0x29 0x31 0x3E 0x4C
+			0x29 0x4D 0x0B 0x85 0x1C 0x38 0x47 0x57
+			0x5D 0x5E 0x5F 0x60 0x3F 0x1A 0x6F 0x41
+			0x0A 0x43 0x12 0x38 0x7B 0x95 0x9A 0x18
+			0x4B 0x6F 0x9E 0xD5 0x80 0x57 0x87 0xCB
+			0x2F 0x00 0x64 0xA5 0xB5 0x13 0x54 0xB9
+		>;
+		power-supplies = <&charger>;
+	};
+};
+
+&i2c1 {
+	clock-frequency = <400000>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c1_pins>;
+	status = "okay";
+
+	ioexp2: gpio@18 {
+		compatible = "nxp,pca9557";
+		reg = <0x18>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		gpio-line-names = "pow_ctrl_run",
+				  "pow_ctrl_sata",
+				  "tb_rst_1v8",
+				  "", /* to PA_EN via a NC resistor */
+				  "wl_host_wake_dev",
+				  "bt_resetn",
+				  "pow_ctrl_ext",
+				  "bt_host_wake_dev";
+	};
+};
+
+&i2c2 {
+	clock-frequency = <400000>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c2_pins>;
+	status = "okay";
+
+	trackpoint: mouse@15 {
+		compatible = "hid-over-i2c";
+		reg = <0x15>;
+		hid-descr-addr = <0x0020>;
+		interrupt-parent = <&gpio1>;
+		interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
+	};
+};
+
+&i2c3 {
+	clock-frequency = <400000>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c3_pins>;
+	status = "okay";
+
+	ioexp3: gpio@18 {
+		compatible = "nxp,pca9557";
+		reg = <0x18>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		gpio-line-names = "tp0_rst",
+				  "",
+				  "",
+				  "vcc5v_usb",
+				  "",
+				  "",
+				  "edp_blen",
+				  "lcd0_reset";
+	};
+
+	touchscreen@14 {
+		compatible = "goodix,gt911";
+		reg = <0x14>;
+		interrupt-parent = <&aogpio>;
+		interrupts = <3 IRQ_TYPE_LEVEL_HIGH>;
+		irq-gpios = <&aogpio 3 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&ioexp3 0 GPIO_ACTIVE_HIGH>;
+		AVDD28-supply = <&vcc3v3_sys>;
+		status = "okay";
+	};
+
+};
+
+&padctrl0_apsys {
+	backlight_pins: backlight-0 {
+		pwm0-pins {
+			pins = "GPIO3_2"; /* PWM0 */
+			function = "pwm";
+			bias-disable;
+			drive-strength = <25>;
+			input-disable;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+	};
+
+	fan_pins: fan-0 {
+		pwm1-pins {
+			pins = "GPIO3_3"; /* PWM1 */
+			function = "pwm";
+			bias-disable;
+			drive-strength = <25>;
+			input-disable;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+	};
+
+	i2c2_pins: i2c2-0 {
+		i2c-pins {
+			pins = "I2C2_SCL", "I2C2_SDA";
+			function = "i2c";
+			bias-pull-up = <2100>;
+			drive-strength = <7>;
+			input-enable;
+			input-schmitt-enable;
+			slew-rate = <0>;
+		};
+	};
+
+	i2c3_pins: i2c3-0 {
+		i2c-pins {
+			pins = "I2C3_SCL", "I2C3_SDA";
+			function = "i2c";
+			bias-pull-up = <2100>;
+			drive-strength = <7>;
+			input-enable;
+			input-schmitt-enable;
+			slew-rate = <0>;
+		};
+	};
+
+	uart0_pins: uart0-0 {
+		tx-pins {
+			pins = "UART0_TXD";
+			function = "uart";
+			bias-disable;
+			drive-strength = <3>;
+			input-disable;
+			input-schmitt-disable;
+			slew-rate = <0>;
+		};
+
+		rx-pins {
+			pins = "UART0_RXD";
+			function = "uart";
+			bias-disable;
+			drive-strength = <1>;
+			input-enable;
+			input-schmitt-enable;
+			slew-rate = <0>;
+		};
+	};
+};
+
+&padctrl1_apsys {
+	i2c0_pins: i2c0-0 {
+		i2c-pins {
+			pins = "I2C0_SCL", "I2C0_SDA";
+			function = "i2c";
+			bias-pull-up = <2100>;
+			drive-strength = <7>;
+			input-enable;
+			input-schmitt-enable;
+			slew-rate = <0>;
+		};
+	};
+
+	i2c1_pins: i2c1-0 {
+		i2c-pins {
+			pins = "I2C1_SCL", "I2C1_SDA";
+			function = "i2c";
+			bias-pull-up = <2100>;
+			drive-strength = <7>;
+			input-enable;
+			input-schmitt-enable;
+			slew-rate = <0>;
+		};
+	};
+};
+
+&sdio1 {
+	bus-width = <4>;
+	cap-sdio-irq;
+	keep-power-in-suspend;
+	max-frequency = <198000000>;
+	mmc-pwrseq = <&wifi_pwrseq>;
+	non-removable;
+	vmmc-supply = <&vcc3v3_sys>;
+	vqmmc-supply = <&vcc1v8_sys>;
+	status = "okay";
+};
+
+&uart0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart0_pins>;
+	status = "okay";
+};
+
+&usb {
+	dr_mode = "host";
+	#address-cells = <1>;
+	#size-cells = <0>;
+	status = "okay";
+
+	hub_hs: hub@1 {
+		compatible = "usb2109,2817";
+		reg = <1>;
+		peer-hub = <&hub_ss>;
+		vdd-supply = <&vcc5v_usb>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		hub_usb2: hub@4 {
+			compatible = "usb1a40,0101";
+			reg = <4>;
+			vdd-supply = <&vcc5v_usb>;
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				port@3 {
+					reg = <3>;
+
+					hub_usb2_port3_ep: endpoint {
+						remote-endpoint = <&usb_a_right_hs_ep>;
+					};
+				};
+			};
+		};
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			/* TODO: ASM1153E on port 1 */
+
+			port@2 {
+				reg = <2>;
+
+				hub_hs_port2_ep: endpoint {
+					remote-endpoint = <&usb_a_back_hs_ep>;
+				};
+			};
+
+			/* TODO: Type-C on port 3 */
+		};
+	};
+
+	hub_ss: hub@2 {
+		compatible = "usb2109,817";
+		reg = <2>;
+		peer-hub = <&hub_hs>;
+		vdd-supply = <&vcc5v_usb>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			/* TODO: ASM1153E on port 1 */
+
+			port@2 {
+				reg = <2>;
+
+				hub_ss_port2_ep: endpoint {
+					remote-endpoint = <&usb_a_back_ss_ep>;
+				};
+			};
+
+			/* TODO: Type-C on port 3 */
+		};
+	};
+};
