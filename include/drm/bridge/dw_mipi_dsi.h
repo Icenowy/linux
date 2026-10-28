@@ -85,4 +85,7 @@ void dw_mipi_dsi_unbind(struct dw_mipi_dsi *dsi);
 void dw_mipi_dsi_set_slave(struct dw_mipi_dsi *dsi, struct dw_mipi_dsi *slave);
 struct drm_bridge *dw_mipi_dsi_get_bridge(struct dw_mipi_dsi *dsi);
 
+/* PHY configuration */
+void dw_mipi_dsi_phy_write(struct dw_mipi_dsi *dsi, u8 addr, u8 data);
+
 #endif /* __DW_MIPI_DSI__ */

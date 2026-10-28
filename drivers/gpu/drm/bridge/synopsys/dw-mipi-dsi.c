@@ -1111,6 +1111,27 @@ static const struct drm_bridge_funcs dw_mipi_dsi_bridge_funcs = {
 	.attach			= dw_mipi_dsi_bridge_attach,
 };
 
+void dw_mipi_dsi_phy_write(struct dw_mipi_dsi *dsi, u8 addr, u8 data)
+{
+	/*
+	 * With the falling edge on TESTCLK, the TESTDIN[7:0] signal content
+	 * is latched internally as the current address. Data is programmed
+	 * internally by rising edge on TESTCLK.
+	 */
+	dsi_write(dsi, DSI_PHY_TST_CTRL0, PHY_TESTCLK | PHY_UNTESTCLR);
+
+	dsi_write(dsi, DSI_PHY_TST_CTRL1, PHY_TESTEN | PHY_TESTDOUT(0) |
+					  PHY_TESTDIN(addr));
+
+	dsi_write(dsi, DSI_PHY_TST_CTRL0, PHY_UNTESTCLK | PHY_UNTESTCLR);
+
+	dsi_write(dsi, DSI_PHY_TST_CTRL1, PHY_UNTESTEN | PHY_TESTDOUT(0) |
+					  PHY_TESTDIN(data));
+
+	dsi_write(dsi, DSI_PHY_TST_CTRL0, PHY_TESTCLK | PHY_UNTESTCLR);
+}
+EXPORT_SYMBOL_GPL(dw_mipi_dsi_phy_write);
+
 #ifdef CONFIG_DEBUG_FS
 
 static int dw_mipi_dsi_debugfs_write(void *data, u64 val)

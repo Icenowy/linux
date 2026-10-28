@@ -379,28 +379,6 @@ static inline void dsi_write(struct dw_mipi_dsi_rockchip *dsi, u32 reg, u32 val)
 	writel(val, dsi->base + reg);
 }
 
-static void dw_mipi_dsi_phy_write(struct dw_mipi_dsi_rockchip *dsi,
-				  u8 test_code,
-				  u8 test_data)
-{
-	/*
-	 * With the falling edge on TESTCLK, the TESTDIN[7:0] signal content
-	 * is latched internally as the current test code. Test data is
-	 * programmed internally by rising edge on TESTCLK.
-	 */
-	dsi_write(dsi, DSI_PHY_TST_CTRL0, PHY_TESTCLK | PHY_UNTESTCLR);
-
-	dsi_write(dsi, DSI_PHY_TST_CTRL1, PHY_TESTEN | PHY_TESTDOUT(0) |
-					  PHY_TESTDIN(test_code));
-
-	dsi_write(dsi, DSI_PHY_TST_CTRL0, PHY_UNTESTCLK | PHY_UNTESTCLR);
-
-	dsi_write(dsi, DSI_PHY_TST_CTRL1, PHY_UNTESTEN | PHY_TESTDOUT(0) |
-					  PHY_TESTDIN(test_data));
-
-	dsi_write(dsi, DSI_PHY_TST_CTRL0, PHY_TESTCLK | PHY_UNTESTCLR);
-}
-
 /*
  * ns2bc - Nanoseconds to byte clock cycles
  */
@@ -420,6 +398,7 @@ static inline unsigned int ns2ui(struct dw_mipi_dsi_rockchip *dsi, int ns)
 static int dw_mipi_dsi_phy_init(void *priv_data)
 {
 	struct dw_mipi_dsi_rockchip *dsi = priv_data;
+	struct dw_mipi_dsi *dmd = dsi->dmd;
 	int ret, i, vco;
 
 	if (dsi->phy)
@@ -453,24 +432,24 @@ static int dw_mipi_dsi_phy_init(void *priv_data)
 		return ret;
 	}
 
-	dw_mipi_dsi_phy_write(dsi, PLL_BIAS_CUR_SEL_CAP_VCO_CONTROL,
+	dw_mipi_dsi_phy_write(dmd, PLL_BIAS_CUR_SEL_CAP_VCO_CONTROL,
 			      BYPASS_VCO_RANGE |
 			      VCO_RANGE_CON_SEL(vco) |
 			      VCO_IN_CAP_CON_LOW |
 			      REF_BIAS_CUR_SEL);
 
-	dw_mipi_dsi_phy_write(dsi, PLL_CP_CONTROL_PLL_LOCK_BYPASS,
+	dw_mipi_dsi_phy_write(dmd, PLL_CP_CONTROL_PLL_LOCK_BYPASS,
 			      CP_CURRENT_SEL(dppa_map[i].icpctrl));
-	dw_mipi_dsi_phy_write(dsi, PLL_LPF_AND_CP_CONTROL,
+	dw_mipi_dsi_phy_write(dmd, PLL_LPF_AND_CP_CONTROL,
 			      CP_PROGRAM_EN | LPF_PROGRAM_EN |
 			      LPF_RESISTORS_SEL(dppa_map[i].lpfctrl));
 
-	dw_mipi_dsi_phy_write(dsi, HS_RX_CONTROL_OF_LANE_0,
+	dw_mipi_dsi_phy_write(dmd, HS_RX_CONTROL_OF_LANE_0,
 			      HSFREQRANGE_SEL(dppa_map[i].hsfreqrange));
 
-	dw_mipi_dsi_phy_write(dsi, PLL_INPUT_DIVIDER_RATIO,
+	dw_mipi_dsi_phy_write(dmd, PLL_INPUT_DIVIDER_RATIO,
 			      INPUT_DIVIDER(dsi->input_div));
-	dw_mipi_dsi_phy_write(dsi, PLL_LOOP_DIVIDER_RATIO,
+	dw_mipi_dsi_phy_write(dmd, PLL_LOOP_DIVIDER_RATIO,
 			      LOOP_DIV_LOW_SEL(dsi->feedback_div) |
 			      LOW_PROGRAM_EN);
 	/*
@@ -479,53 +458,53 @@ static int dw_mipi_dsi_phy_init(void *priv_data)
 	 * and lab test results.
 	 * Only in this way can we get correct mipi phy pll frequency.
 	 */
-	dw_mipi_dsi_phy_write(dsi, PLL_INPUT_AND_LOOP_DIVIDER_RATIOS_CONTROL,
+	dw_mipi_dsi_phy_write(dmd, PLL_INPUT_AND_LOOP_DIVIDER_RATIOS_CONTROL,
 			      PLL_LOOP_DIV_EN | PLL_INPUT_DIV_EN);
-	dw_mipi_dsi_phy_write(dsi, PLL_LOOP_DIVIDER_RATIO,
+	dw_mipi_dsi_phy_write(dmd, PLL_LOOP_DIVIDER_RATIO,
 			      LOOP_DIV_HIGH_SEL(dsi->feedback_div) |
 			      HIGH_PROGRAM_EN);
-	dw_mipi_dsi_phy_write(dsi, PLL_INPUT_AND_LOOP_DIVIDER_RATIOS_CONTROL,
+	dw_mipi_dsi_phy_write(dmd, PLL_INPUT_AND_LOOP_DIVIDER_RATIOS_CONTROL,
 			      PLL_LOOP_DIV_EN | PLL_INPUT_DIV_EN);
 
-	dw_mipi_dsi_phy_write(dsi, AFE_BIAS_BANDGAP_ANALOG_PROGRAMMABILITY,
+	dw_mipi_dsi_phy_write(dmd, AFE_BIAS_BANDGAP_ANALOG_PROGRAMMABILITY,
 			      LOW_PROGRAM_EN | BIASEXTR_SEL(BIASEXTR_127_7));
-	dw_mipi_dsi_phy_write(dsi, AFE_BIAS_BANDGAP_ANALOG_PROGRAMMABILITY,
+	dw_mipi_dsi_phy_write(dmd, AFE_BIAS_BANDGAP_ANALOG_PROGRAMMABILITY,
 			      HIGH_PROGRAM_EN | BANDGAP_SEL(BANDGAP_96_10));
 
-	dw_mipi_dsi_phy_write(dsi, BANDGAP_AND_BIAS_CONTROL,
+	dw_mipi_dsi_phy_write(dmd, BANDGAP_AND_BIAS_CONTROL,
 			      POWER_CONTROL | INTERNAL_REG_CURRENT |
 			      BIAS_BLOCK_ON | BANDGAP_ON);
 
-	dw_mipi_dsi_phy_write(dsi, TERMINATION_RESISTER_CONTROL,
+	dw_mipi_dsi_phy_write(dmd, TERMINATION_RESISTER_CONTROL,
 			      TER_RESISTOR_LOW | TER_CAL_DONE |
 			      SETRD_MAX | TER_RESISTORS_ON);
-	dw_mipi_dsi_phy_write(dsi, TERMINATION_RESISTER_CONTROL,
+	dw_mipi_dsi_phy_write(dmd, TERMINATION_RESISTER_CONTROL,
 			      TER_RESISTOR_HIGH | LEVEL_SHIFTERS_ON |
 			      SETRD_MAX | POWER_MANAGE |
 			      TER_RESISTORS_ON);
 
-	dw_mipi_dsi_phy_write(dsi, HS_TX_CLOCK_LANE_REQUEST_STATE_TIME_CONTROL,
+	dw_mipi_dsi_phy_write(dmd, HS_TX_CLOCK_LANE_REQUEST_STATE_TIME_CONTROL,
 			      TLP_PROGRAM_EN | ns2bc(dsi, 500));
-	dw_mipi_dsi_phy_write(dsi, HS_TX_CLOCK_LANE_PREPARE_STATE_TIME_CONTROL,
+	dw_mipi_dsi_phy_write(dmd, HS_TX_CLOCK_LANE_PREPARE_STATE_TIME_CONTROL,
 			      THS_PRE_PROGRAM_EN | ns2ui(dsi, 40));
-	dw_mipi_dsi_phy_write(dsi, HS_TX_CLOCK_LANE_HS_ZERO_STATE_TIME_CONTROL,
+	dw_mipi_dsi_phy_write(dmd, HS_TX_CLOCK_LANE_HS_ZERO_STATE_TIME_CONTROL,
 			      THS_ZERO_PROGRAM_EN | ns2bc(dsi, 300));
-	dw_mipi_dsi_phy_write(dsi, HS_TX_CLOCK_LANE_TRAIL_STATE_TIME_CONTROL,
+	dw_mipi_dsi_phy_write(dmd, HS_TX_CLOCK_LANE_TRAIL_STATE_TIME_CONTROL,
 			      THS_PRE_PROGRAM_EN | ns2ui(dsi, 100));
-	dw_mipi_dsi_phy_write(dsi, HS_TX_CLOCK_LANE_EXIT_STATE_TIME_CONTROL,
+	dw_mipi_dsi_phy_write(dmd, HS_TX_CLOCK_LANE_EXIT_STATE_TIME_CONTROL,
 			      BIT(5) | ns2bc(dsi, 100));
-	dw_mipi_dsi_phy_write(dsi, HS_TX_CLOCK_LANE_POST_TIME_CONTROL,
+	dw_mipi_dsi_phy_write(dmd, HS_TX_CLOCK_LANE_POST_TIME_CONTROL,
 			      BIT(5) | (ns2bc(dsi, 60) + 7));
 
-	dw_mipi_dsi_phy_write(dsi, HS_TX_DATA_LANE_REQUEST_STATE_TIME_CONTROL,
+	dw_mipi_dsi_phy_write(dmd, HS_TX_DATA_LANE_REQUEST_STATE_TIME_CONTROL,
 			      TLP_PROGRAM_EN | ns2bc(dsi, 500));
-	dw_mipi_dsi_phy_write(dsi, HS_TX_DATA_LANE_PREPARE_STATE_TIME_CONTROL,
+	dw_mipi_dsi_phy_write(dmd, HS_TX_DATA_LANE_PREPARE_STATE_TIME_CONTROL,
 			      THS_PRE_PROGRAM_EN | (ns2ui(dsi, 50) + 20));
-	dw_mipi_dsi_phy_write(dsi, HS_TX_DATA_LANE_HS_ZERO_STATE_TIME_CONTROL,
+	dw_mipi_dsi_phy_write(dmd, HS_TX_DATA_LANE_HS_ZERO_STATE_TIME_CONTROL,
 			      THS_ZERO_PROGRAM_EN | (ns2bc(dsi, 140) + 2));
-	dw_mipi_dsi_phy_write(dsi, HS_TX_DATA_LANE_TRAIL_STATE_TIME_CONTROL,
+	dw_mipi_dsi_phy_write(dmd, HS_TX_DATA_LANE_TRAIL_STATE_TIME_CONTROL,
 			      THS_PRE_PROGRAM_EN | (ns2ui(dsi, 60) + 8));
-	dw_mipi_dsi_phy_write(dsi, HS_TX_DATA_LANE_EXIT_STATE_TIME_CONTROL,
+	dw_mipi_dsi_phy_write(dmd, HS_TX_DATA_LANE_EXIT_STATE_TIME_CONTROL,
 			      BIT(5) | ns2bc(dsi, 100));
 
 	clk_disable_unprepare(dsi->phy_cfg_clk);
@@ -1224,6 +1203,7 @@ static int dw_mipi_dsi_dphy_configure(struct phy *phy, union phy_configure_opts 
 static int dw_mipi_dsi_dphy_power_on(struct phy *phy)
 {
 	struct dw_mipi_dsi_rockchip *dsi = phy_get_drvdata(phy);
+	struct dw_mipi_dsi *dmd = dsi->dmd;
 	int i, ret;
 
 	DRM_DEV_DEBUG(dsi->dev, "lanes %d - data_rate_mbps %u\n",
@@ -1273,15 +1253,15 @@ static int dw_mipi_dsi_dphy_power_on(struct phy *phy)
 	 * Configure hsfreqrange according to frequency values
 	 * Set clock lane and hsfreqrange by lane0(test code 0x44)
 	 */
-	dw_mipi_dsi_phy_write(dsi, HS_RX_CONTROL_OF_LANE_CLK, 0);
-	dw_mipi_dsi_phy_write(dsi, HS_RX_CONTROL_OF_LANE_0,
+	dw_mipi_dsi_phy_write(dmd, HS_RX_CONTROL_OF_LANE_CLK, 0);
+	dw_mipi_dsi_phy_write(dmd, HS_RX_CONTROL_OF_LANE_0,
 			      HSFREQRANGE_SEL(dppa_map[i].hsfreqrange));
-	dw_mipi_dsi_phy_write(dsi, HS_RX_CONTROL_OF_LANE_1, 0);
-	dw_mipi_dsi_phy_write(dsi, HS_RX_CONTROL_OF_LANE_2, 0);
-	dw_mipi_dsi_phy_write(dsi, HS_RX_CONTROL_OF_LANE_3, 0);
+	dw_mipi_dsi_phy_write(dmd, HS_RX_CONTROL_OF_LANE_1, 0);
+	dw_mipi_dsi_phy_write(dmd, HS_RX_CONTROL_OF_LANE_2, 0);
+	dw_mipi_dsi_phy_write(dmd, HS_RX_CONTROL_OF_LANE_3, 0);
 
 	/* Normal operation */
-	dw_mipi_dsi_phy_write(dsi, 0x0, 0);
+	dw_mipi_dsi_phy_write(dmd, 0x0, 0);
 
 	clk_disable_unprepare(dsi->phy_cfg_clk);
 	clk_disable_unprepare(dsi->grf_clk);
