@@ -734,6 +734,74 @@
 			reg = <0xff 0xef52806c 0x0 0xf94>;
 		};
 
+		dsi0: dsi@ffef500000 {
+			compatible = "thead,th1520-dw-mipi-dsi";
+			reg = <0xff 0xef500000 0x0 0x10000>;
+			interrupts = <129 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk_vo CLK_MIPI_DSI0_PCLK>,
+				 <&clk_vo CLK_MIPI_DSI0_CFG>,
+				 <&clk_vo CLK_MIPI_DSI0_REFCLK>,
+				 <&clk_vo CLK_MIPIDSI0_PIXCLK>;
+			clock-names = "pclk", "phy_cfg", "ref", "pixel";
+			resets = <&rst TH1520_RESET_ID_DSI0_APB>;
+			reset-names = "apb";
+			syscon = <&syscon_vo>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				port@0 {
+					reg = <0>;
+
+					dsi0_in: endpoint {
+						remote-endpoint = <&dpu_out_dpi0>;
+					};
+				};
+
+				dsi0_out_port: port@1 {
+					reg = <1>;
+				};
+			};
+		};
+
+		dsi1: dsi@ffef510000 {
+			compatible = "thead,th1520-dw-mipi-dsi";
+			reg = <0xff 0xef510000 0x0 0x10000>;
+			interrupts = <130 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk_vo CLK_MIPI_DSI1_PCLK>,
+				 <&clk_vo CLK_MIPI_DSI1_CFG>,
+				 <&clk_vo CLK_MIPI_DSI1_REFCLK>,
+				 <&clk_vo CLK_MIPIDSI1_PIXCLK>;
+			clock-names = "pclk", "phy_cfg", "ref", "pixel";
+			resets = <&rst TH1520_RESET_ID_DSI1_APB>;
+			reset-names = "apb";
+			syscon = <&syscon_vo>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				port@0 {
+					reg = <0>;
+
+					dsi1_in: endpoint {
+						remote-endpoint = <&dpu_out_dpi1>;
+					};
+				};
+
+				dsi1_out_port: port@1 {
+					reg = <1>;
+				};
+			};
+		};
+
 		hdmi: hdmi@ffef540000 {
 			compatible = "thead,th1520-dw-hdmi";
 			reg = <0xff 0xef540000 0x0 0x40000>;
@@ -787,10 +855,26 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 
+				dpu_port0: port@0 {
+					reg = <0>;
+					#address-cells = <1>;
+					#size-cells = <0>;
+
+					dpu_out_dpi0: endpoint@0 {
+						reg = <0>;
+						remote-endpoint = <&dsi0_in>;
+					};
+				};
+
 				dpu_port1: port@1 {
 					reg = <1>;
 					#address-cells = <1>;
 					#size-cells = <0>;
+
+					dpu_out_dpi1: endpoint@0 {
+						reg = <0>;
+						remote-endpoint = <&dsi1_in>;
+					};
 
 					dpu_out_dp1: endpoint@1 {
 						reg = <1>;
