@@ -2493,6 +2493,10 @@ static int ili9881c_unprepare(struct drm_panel *panel)
 
 	mipi_dsi_dcs_set_display_off_multi(&mctx);
 	mipi_dsi_dcs_enter_sleep_mode_multi(&mctx);
+	mipi_dsi_msleep(&mctx, 120);
+	mipi_dsi_dcs_soft_reset_multi(&mctx);
+	mipi_dsi_msleep(&mctx, 5);
+
 	regulator_disable(ctx->power);
 	if (ctx->iovcc)
 		regulator_disable(ctx->iovcc);
