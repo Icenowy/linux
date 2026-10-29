@@ -944,14 +944,6 @@ static void dw_mipi_dsi_bridge_post_atomic_disable(struct drm_bridge *bridge,
 	struct dw_mipi_dsi *dsi = bridge_to_dsi(bridge);
 	const struct dw_mipi_dsi_phy_ops *phy_ops = dsi->plat_data->phy_ops;
 
-	/*
-	 * Switch to command mode before panel-bridge post_disable &
-	 * panel unprepare.
-	 * Note: panel-bridge disable & panel disable has been called
-	 * before by the drm framework.
-	 */
-	dw_mipi_dsi_set_mode(dsi, 0);
-
 	if (phy_ops->power_off)
 		phy_ops->power_off(dsi->plat_data->priv_data);
 
@@ -1058,6 +1050,20 @@ static void dw_mipi_dsi_bridge_atomic_enable(struct drm_bridge *bridge,
 		dw_mipi_dsi_set_mode(dsi->slave, MIPI_DSI_MODE_VIDEO);
 }
 
+static void dw_mipi_dsi_bridge_atomic_disable(struct drm_bridge *bridge,
+					      struct drm_atomic_commit *state)
+{
+	struct dw_mipi_dsi *dsi = bridge_to_dsi(bridge);
+
+	/*
+	 * Switch to command mode before panel-bridge post_disable &
+	 * panel unprepare.
+	 * Note: panel-bridge disable & panel disable has been called
+	 * before by the drm framework.
+	 */
+	dw_mipi_dsi_set_mode(dsi, 0);
+}
+
 static enum drm_mode_status
 dw_mipi_dsi_bridge_mode_valid(struct drm_bridge *bridge,
 			      const struct drm_display_info *info,
@@ -1098,6 +1104,7 @@ static const struct drm_bridge_funcs dw_mipi_dsi_bridge_funcs = {
 	.atomic_create_state		= drm_atomic_helper_bridge_create_state,
 	.atomic_pre_enable	= dw_mipi_dsi_bridge_atomic_pre_enable,
 	.atomic_enable		= dw_mipi_dsi_bridge_atomic_enable,
+	.atomic_disable		= dw_mipi_dsi_bridge_atomic_disable,
 	.atomic_post_disable	= dw_mipi_dsi_bridge_post_atomic_disable,
 	.mode_set		= dw_mipi_dsi_bridge_mode_set,
 	.mode_valid		= dw_mipi_dsi_bridge_mode_valid,
