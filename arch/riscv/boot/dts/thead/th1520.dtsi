@@ -330,6 +330,11 @@
 			#reset-cells = <1>;
 		};
 
+		syscon_vi: syscon@ffe4040120 {
+			compatible = "thead,th1520-syscon-vi", "syscon";
+			reg = <0xff 0xe4040120 0x0 0xee0>;
+		};
+
 		spi0: spi@ffe700c000 {
 			compatible = "thead,th1520-spi", "snps,dw-apb-ssi";
 			reg = <0xff 0xe700c000 0x0 0x1000>;
@@ -639,6 +644,11 @@
 			#clock-cells = <1>;
 		};
 
+		syscon_misc: syscon@ffec02c200 {
+			compatible = "thead,th1520-syscon-misc", "syscon";
+			reg = <0xff 0xec02c200 0x0 0xe00>;
+		};
+
 		usb_phy: phy@ffec030000 {
 			compatible = "thead,th1520-usb-phy";
 			reg = <0xff 0xec030000 0x0 0x10000>;
@@ -658,6 +668,11 @@
 			#reset-cells = <1>;
 		};
 
+		syscon_vp: syscon@ffecc30040 {
+			compatible = "thead,th1520-syscon-vp", "syscon";
+			reg = <0xff 0xecc30040 0x0 0xfc0>;
+		};
+
 		clk: clock-controller@ffef010000 {
 			compatible = "thead,th1520-clk-ap";
 			reg = <0xff 0xef010000 0x0 0x1000>;
@@ -671,10 +686,20 @@
 			#reset-cells = <1>;
 		};
 
+		syscon_ap: syscon@ffef018000 {
+			compatible = "thead,th1520-syscon-ap", "syscon";
+			reg = <0xff 0xef018000 0x0 0x1000>;
+		};
+
 		rst_dsp: reset-controller@ffef040028 {
 			compatible = "thead,th1520-reset-dsp";
 			reg = <0xff 0xef040028 0x0 0x4>;
 			#reset-cells = <1>;
+		};
+
+		syscon_dsp: reset-controller@ffef04002c {
+			compatible = "thead,th1520-syscon-dsp", "syscon";
+			reg = <0xff 0xef04002c 0x0 0xfd4>;
 		};
 
 		gpu: gpu@ffef400000 {
@@ -699,9 +724,14 @@
 
 		clk_vo: clock-controller@ffef528050 {
 			compatible = "thead,th1520-clk-vo";
-			reg = <0xff 0xef528050 0x0 0xfb0>;
+			reg = <0xff 0xef528050 0x0 0x1c>;
 			clocks = <&clk CLK_VIDEO_PLL>;
 			#clock-cells = <1>;
+		};
+
+		syscon_vo: syscon@ffef52806c {
+			compatible = "thead,th1520-syscon-vo", "syscon";
+			reg = <0xff 0xef52806c 0x0 0xf94>;
 		};
 
 		hdmi: hdmi@ffef540000 {
@@ -929,6 +959,12 @@
 			compatible = "thead,th1520-reset-ao";
 			reg = <0xff 0xfff44000 0x0 0x2000>;
 			#reset-cells = <1>;
+			status = "reserved";
+		};
+
+		syscon_ao: syscon@fffff48000 {
+			compatible = "thead,th1520-syscon-ao", "syscon";
+			reg = <0xff 0xfff48000 0x0 0x2000>;
 			status = "reserved";
 		};
 
