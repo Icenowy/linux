@@ -202,6 +202,30 @@
 	status = "okay";
 };
 
+&dsi0 {
+	status = "okay";
+
+	panel@0 {
+		compatible = "mingjun,mj070bi30ia2", "ilitek,ili9881c";
+		reg = <0>;
+		backlight = <&backlight>;
+		power-supply = <&vcc3v3_sys>;
+		rotation = <90>;
+
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&dsi0_out_panel>;
+			};
+		};
+	};
+};
+
+&dsi0_out_port {
+	dsi0_out_panel: endpoint {
+		remote-endpoint = <&panel_in>;
+	};
+};
+
 &hdmi {
 	status = "okay";
 };
