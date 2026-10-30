@@ -27,6 +27,12 @@ properties:
               - sipeed,lichee-pi-4a
           - const: sipeed,lichee-module-4a
           - const: thead,th1520
+      - description: Sipeed Lichee Console 4A device for the Sipeed Lichee Module 4A
+        items:
+          - enum:
+              - sipeed,lichee-console-4a
+          - const: sipeed,lichee-module-4a
+          - const: thead,th1520
 
 additionalProperties: true
 
